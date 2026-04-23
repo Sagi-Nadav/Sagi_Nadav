@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון קורות בטון - Concrete Beam Calculator</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 10px; direction: rtl; }
+        .container { max-width: 1600px; margin: 0 auto; }
+        header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+        header h1 { color: #667eea; font-size: 28px; margin-bottom: 5px; }
+        header p { color: #666; font-size: 14px; }
+        .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        @media (max-width: 1200px) { .layout { grid-template-columns: 1fr; } }
+        section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        section h2 { color: #667eea; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        section h3 { color: #333; font-size: 16px; margin-top: 20px; margin-bottom: 15px; }
+        section h4 { color: #555; font-size: 14px; margin-top: 15px; margin-bottom: 10px; }
+        .section-divider { height: 1px; background: #e0e0e0; margin: 20px 0; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; color: #333; font-size: 13px; }
+        input[type="number"], input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; font-family: inherit; background: white; }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .calc-button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+        .calc-button:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 2px solid #e0e0e0; }
+        .tab-button { padding: 10px 15px; background: none; border: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-button.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        @media (max-width: 800px) { .results-grid { grid-template-columns: 1fr; } }
+        .result-box { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #667eea; }
+        .result-box label { margin-bottom: 8px; color: #666; }
+        .result-box span { display: block; font-size: 20px; font-weight: 700; color: #667eea; word-break: break-word; }
+        .suggestion-box { background: #f0f7ff; padding: 15px; border-radius: 5px; border: 1px solid #667eea; margin: 15px 0; font-size: 14px; line-height: 1.6; }
+        .suggestion-box strong { color: #667eea; }
+        .suggestion-box .bar-config { background: white; padding: 10px; margin: 8px 0; border-radius: 3px; border-left: 3px solid #667eea; font-family: 'Courier New', monospace; font-size: 13px; }
+        .section-legend { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; font-size: 13px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-color { width: 20px; height: 20px; border-radius: 3px; }
+        .input-panel { max-height: 90vh; overflow-y: auto; }
+        .input-panel::-webkit-scrollbar { width: 8px; }
+        .input-panel::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .input-panel::-webkit-scrollbar-thumb { background: #667eea; border-radius: 10px; }
+        @media (max-width: 1024px) { header h1 { font-size: 24px; } section { padding: 15px; } .calc-button { position: sticky; bottom: 0; margin-left: -15px; margin-right: -15px; margin-bottom: -15px; border-radius: 0; padding: 14px; } }
+        @media (max-width: 600px) { body { padding: 5px; } header { padding: 15px; margin-bottom: 15px; } header h1 { font-size: 20px; } header p { font-size: 12px; } section { padding: 12px; } .layout { gap: 10px; } .results-grid { grid-template-columns: 1fr; gap: 10px; } .result-box { padding: 10px; } .result-box span { font-size: 16px; } .tabs { gap: 2px; } .tab-button { padding: 8px 10px; font-size: 12px; } }
+        @media print { body { background: white; } section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; } .calc-button { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ מחשבון קורות בטון</h1>
+            <p>תקן 466 - חתך מלבני בכפיפה וגזירה</p>
+        </header>
+        <main>
+            <div class="layout">
+                <section class="input-panel">
+                    <h2>פרטי הקורה</h2>
+                    <div class="input-group">
+                        <label>סוג הקורה:</label>
+                        <select id="beamType" onchange="handleBeamTypeChange()">
+                            <option value="simply-supported">קורה על שני סמכים</option>
+                            <option value="cantilever">זיז (קצה חופשי)</option>
+                        </select>
+                    </div>
+                    <div id="simplySupported">
+                        <div class="input-group">
+                            <label>מפתח (L) [m]:</label>
+                            <input type="number" id="span" value="6" min="0.1" step="0.1" onchange="updateCalculations()">
+                        </div>
+                    </div>
+                    <div id="cantileverInputs" style="display:none;">
+                        <div class="input-group">
+                            <label>אורך הזיז (L) [m]:</label>
+                            <input type="number" id="cantileverLength" value="2" min="0.1" step="0.1" onchange="updateCalculations()">
+                        </div>
+                    </div>
+                    <div class="section-divider"></div>
+                    <h3>מידות החתך המלבני</h3>
+                    <div class="input-group">
+                        <label>רוחב (b) [cm]:</label>
+                        <input type="number" id="width" value="30" min="5" step="1" onchange="updateCalculations()">
+                    </div>
+                    <div class="input-group">
+                        <label>גובה (h) [cm]:</label>
+                        <input type="number" id="height" value="60" min="5" step="1" onchange="updateCalculations()">
+                    </div>
+                    <div class="input-group">
+                        <label>עובי כיסוי (c) [cm]:</label>
+                        <input type="number" id="cover" value="3" min="2.5" step="0.5">
+                    </div>
+                    <div class="section-divider"></div>
+                    <h3>חומרים</h3>
+                    <div class="input-group">
+                        <label>חוזק בטון (fck) [MPa]:</label>
+                        <select id="concreteFck" onchange="updateCalculations()">
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30" selected>30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>חוזק פלדה (fyk) [MPa]:</label>
+                        <select id="steelFyk" onchange="updateCalculations()">
+                            <option value="250">250 - B500B</option>
+                            <option value="500" selected>500 - B500B</option>
+                        </select>
+                    </div>
+                    <div class="section-divider"></div>
+                    <h3>עומסים</h3>
+                    <div class="input-group">
+                        <label>עומס קבוע (g) [kN/m]:</label>
+                        <input type="number" id="permanentLoad" value="15" min="0" step="0.5" onchange="updateCalculations()">
+                    </div>
+                    <div class="input-group">
+                        <label>עומס זמני (q) [kN/m]:</label>
+                        <input type="number" id="variableLoad" value="10" min="0" step="0.5" onchange="updateCalculations()">
+                    </div>
+                    <div class="input-group">
+                        <label>עומס עיצובי (p = 1.35g + 1.5q) [kN/m]:</label>
+                        <input type="number" id="designLoad" readonly style="background:#f0f0f0;">
+                    </div>
+                    <button class="calc-button" onclick="updateCalculations()">🔄 חשב</button>
+                </section>
+                <section class="results-panel">
+                    <div class="tabs">
+                        <button class="tab-button active" onclick="showTab('forces')">כוחות</button>
+                        <button class="tab-button" onclick="showTab('reinforcement')">ברזל</button>
+                        <button class="tab-button" onclick="showTab('deflection')">שקיעה</button>
+                        <button class="tab-button" onclick="showTab('section')">חתך</button>
+                    </div>
+                    <div id="forces" class="tab-content active">
+                        <h3>דיאגרמות כוחות</h3>
+                        <div id="shearDiagram" style="width:100%; height:300px;"></div>
+                        <div id="momentDiagram" style="width:100%; height:300px;"></div>
+                        <div class="results-grid">
+                            <div class="result-box">
+                                <label>מומנט מקסימום (Mmax):</label>
+                                <span id="maxMoment">-</span> kNm
+                            </div>
+                            <div class="result-box">
+                                <label>גזירה מקסימום (Vmax):</label>
+                                <span id="maxShear">-</span> kN
+                            </div>
+                        </div>
+                    </div>
+                    <div id="reinforcement" class="tab-content">
+                        <h3>חישוב הברזל</h3>
+                        <div class="results-grid">
+                            <div class="result-box">
+                                <label>קטע פעיל (d) [cm]:</label>
+                                <span id="effectiveDepth">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>שטח פלדה דרוש (As,req) [cm²]:</label>
+                                <span id="requiredSteelArea">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>שטח פלדה מינימום (As,min) [cm²]:</label>
+                                <span id="minSteelArea">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>שטח פלדה מקסימום (As,max) [cm²]:</label>
+                                <span id="maxSteelArea">-</span>
+                            </div>
+                        </div>
+                        <h4>הצעת חישוב ברזל</h4>
+                        <div id="reinforcementSuggestion" class="suggestion-box"></div>
+                        <h4>בדיקת גזירה</h4>
+                        <div class="results-grid">
+                            <div class="result-box">
+                                <label>עמסת גזירה (v) [MPa]:</label>
+                                <span id="shearStress">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>עמסה מקסימה (vc,max) [MPa]:</label>
+                                <span id="maxShearStress">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>צריך כוסות גזירה:</label>
+                                <span id="needsShearReinforcement">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="deflection" class="tab-content">
+                        <h3>חישוב שקיעה</h3>
+                        <div class="results-grid">
+                            <div class="result-box">
+                                <label>שקיעה מיידית (δi) [mm]:</label>
+                                <span id="immediateDeflection">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>שקיעה טווח ארוך (δlt) [mm]:</label>
+                                <span id="longTermDeflection">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>גבול שקיעה מקסימה [mm]:</label>
+                                <span id="maxDeflectionLimit">-</span>
+                            </div>
+                            <div class="result-box">
+                                <label>בדיקה:</label>
+                                <span id="deflectionCheck">-</span>
+                            </div>
+                        </div>
+                        <div id="deflectionDiagram" style="width:100%; height:300px;"></div>
+                    </div>
+                    <div id="section" class="tab-content">
+                        <h3>חתך מלבני עם ברזל</h3>
+                        <svg id="sectionDiagram" viewBox="0 0 400 600" style="width:100%; max-width:300px; border:1px solid #ccc; margin:20px auto; display:block;"></svg>
+                        <div id="sectionLegend" class="section-legend"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script>
+        class ConcreteBeamCalculator {
+            constructor() {
+                this.fck = 30; this.fyk = 500; this.fcd = this.fck / 1.5; this.fyd = this.fyk / 1.15; this.gamma_c = 1.5; this.gamma_s = 1.15;
+            }
+            updateMaterials(fck, fyk) {
+                this.fck = parseFloat(fck); this.fyk = parseFloat(fyk); this.fcd = this.fck / 1.5; this.fyd = this.fyk / 1.15;
+            }
+            calculateSimplySupportedBeam(L, p) {
+                const reaction = (p * L) / 2; const maxMoment = (p * L * L) / 8; const maxShear = reaction; const n = 50; const x = []; const shearData = []; const momentData = [];
+                for (let i = 0; i <= n; i++) {
+                    const pos = (i / n) * L; x.push(pos); const V = reaction - p * pos; shearData.push(V); const M = reaction * pos - (p * pos * pos) / 2; momentData.push(M);
+                }
+                return { maxMoment, maxShear, x, shearData, momentData, reaction, type: 'simply-supported' };
+            }
+            calculateCantileverBeam(L, p) {
+                const maxMoment = (p * L * L) / 2; const maxShear = p * L; const n = 50; const x = []; const shearData = []; const momentData = [];
+                for (let i = 0; i <= n; i++) {
+                    const pos = (i / n) * L; x.push(pos); const V = -p * (L - pos); shearData.push(V); const M = -(p * (L - pos) * (L - pos)) / 2; momentData.push(M);
+                }
+                return { maxMoment, maxShear, x, shearData, momentData, type: 'cantilever' };
+            }
+            calculateRequiredSteel(M_kNm, b_cm, h_cm, cover_cm) {
+                const M = M_kNm * 1e6; const b = b_cm * 10; const d = (h_cm - cover_cm - 0.8) * 10; const K = M / (b * d * d * this.fck); let lever_arm = 0.5;
+                if (K < 0.156) { lever_arm = 0.95 - (K / (2.67 * 0.9)) * 0.45; } else if (K < 0.167) { lever_arm = 0.95 - Math.sqrt(0.9025 - (K / 0.9 / 1.134)) * 0.9; } else { lever_arm = 0.5; }
+                const z = Math.min(lever_arm * d, 0.95 * d); const As_mm2 = M / (this.fyd * z); const As_cm2 = As_mm2 / 100;
+                return { As_cm2, d_cm: d / 10, z_cm: z / 10, K, lever_arm };
+            }
+            calculateMinSteelArea(b_cm, h_cm) {
+                const A_c = b_cm * h_cm; const As_min = Math.max(0.15 * A_c / 100, (b_cm * h_cm) / 500); return As_min;
+            }
+            calculateMaxSteelArea(b_cm, h_cm, cover_cm) {
+                const d = h_cm - cover_cm; const As_max = 0.04 * b_cm * d; return As_max;
+            }
+            calculateShearReinforcement(V_kN, b_cm, d_cm) {
+                const V = V_kN * 1000; const b = b_cm * 10; const d = d_cm * 10; const v = V / (b * d); const vc_max = 5; let needsReinforcement = false; let vc = 0;
+                if (this.fck === 30) vc = 0.79; else if (this.fck === 25) vc = 0.71; else if (this.fck === 35) vc = 0.85; else if (this.fck === 40) vc = 0.90; else vc = 0.79;
+                if (v > vc) { needsReinforcement = true; }
+                return { v, vc, vc_max, needsReinforcement };
+            }
+            suggestBars(As_cm2) {
+                const bars = [{ dia: 8, area: 0.50 }, { dia: 10, area: 0.785 }, { dia: 12, area: 1.13 }, { dia: 14, area: 1.54 }, { dia: 16, area: 2.01 }, { dia: 18, area: 2.54 }, { dia: 20, area: 3.14 }, { dia: 22, area: 3.80 }, { dia: 25, area: 4.91 }, { dia: 28, area: 6.16 }, { dia: 32, area: 8.04 }];
+                const suggestions = [];
+                for (let bar of bars) { const n = Math.ceil(As_cm2 / bar.area); const totalArea = n * bar.area; if (totalArea >= As_cm2 && totalArea <= As_cm2 * 1.1) { suggestions.push({ config: `${n}Ø${bar.dia}`, area: totalArea, count: n, diameter: bar.dia }); } }
+                for (let i = 0; i < bars.length - 1; i++) { for (let j = i + 1; j < bars.length; j++) { const bar1 = bars[i]; const bar2 = bars[j]; for (let n1 = 1; n1 <= 4; n1++) { for (let n2 = 1; n2 <= 4; n2++) { const total = n1 * bar1.area + n2 * bar2.area; if (total >= As_cm2 && total <= As_cm2 * 1.1) { suggestions.push({ config: `${n1}Ø${bar1.dia} + ${n2}Ø${bar2.dia}`, area: total, count: n1 + n2, diameter: Math.max(bar1.dia, bar2.dia) }); } } } } }
+                return suggestions.slice(0, 5);
+            }
+            calculateDeflections(L_m, M_kNm, b_cm, h_cm, As_cm2) {
+                const I_gross = (b_cm * h_cm * h_cm * h_cm) / 12; const d = h_cm - 3 - 0.8; const rho = As_cm2 / (b_cm * d); const n = 200000 / (this.fck * 1000); const Ic = (b_cm * d * d * d) / 3 + n * As_cm2 * (d - d/3) * (d - d/3);
+                const Mcr = 1.5 * Math.sqrt(this.fck) * I_gross / (h_cm / 2); const M_kNcm = M_kNm * 100; let Ieff; if (M_kNcm <= Mcr) { Ieff = I_gross; } else { const alpha = (Mcr / M_kNcm) ** 3; Ieff = alpha * I_gross + (1 - alpha) * Ic; }
+                const Ec = 9500 * Math.cbrt(this.fck); const EI = (Ec * Ieff * 1e4) / 10; const delta_i = (5 * L_m * L_m * L_m * 100) / (384 * EI) * M_kNm / (L_m * L_m / 8); const creep_factor = 2.5; const delta_lt = delta_i * creep_factor; const delta_max = L_m * 1000 / 250;
+                return { delta_i, delta_lt, delta_max, EI, Ieff, check: delta_lt <= delta_max };
+            }
+        }
+        const calculator = new ConcreteBeamCalculator();
+        function handleBeamTypeChange() { const beamType = document.getElementById('beamType').value; const simplySupported = document.getElementById('simplySupported'); const cantileverInputs = document.getElementById('cantileverInputs'); if (beamType === 'simply-supported') { simplySupported.style.display = 'block'; cantileverInputs.style.display = 'none'; } else { simplySupported.style.display = 'none'; cantileverInputs.style.display = 'block'; } updateDesignLoad(); updateCalculations(); }
+        function updateDesignLoad() { const g = parseFloat(document.getElementById('permanentLoad').value) || 0; const q = parseFloat(document.getElementById('variableLoad').value) || 0; const p = 1.35 * g + 1.5 * q; document.getElementById('designLoad').value = p.toFixed(2); }
+        function updateCalculations() { try { const beamType = document.getElementById('beamType').value; const b = parseFloat(document.getElementById('width').value); const h = parseFloat(document.getElementById('height').value); const cover = parseFloat(document.getElementById('cover').value); const fck = document.getElementById('concreteFck').value; const fyk = document.getElementById('steelFyk').value; calculator.updateMaterials(fck, fyk); let L, forces; const p = parseFloat(document.getElementById('designLoad').value) || 0; if (beamType === 'simply-supported') { L = parseFloat(document.getElementById('span').value); forces = calculator.calculateSimplySupportedBeam(L, p); } else { L = parseFloat(document.getElementById('cantileverLength').value); forces = calculator.calculateCantileverBeam(L, p); } displayForces(forces); const steel = calculator.calculateRequiredSteel(forces.maxMoment, b, h, cover); const As_min = calculator.calculateMinSteelArea(b, h); const As_max = calculator.calculateMaxSteelArea(b, h, cover); const As_design = Math.max(steel.As_cm2, As_min); displayReinforcement(steel, As_design, As_min, As_max, b, h, cover); const shear = calculator.calculateShearReinforcement(forces.maxShear, b, steel.d_cm); displayShearCheck(shear); const deflections = calculator.calculateDeflections(L, forces.maxMoment, b, h, As_design); displayDeflections(deflections, L); drawSection(b, h, cover, As_design); } catch (error) { console.error('Calculation error:', error); } }
+        function displayForces(forces) { document.getElementById('maxMoment').textContent = forces.maxMoment.toFixed(2); document.getElementById('maxShear').textContent = forces.maxShear.toFixed(2); const shearTrace = { x: forces.x, y: forces.shearData, name: 'Shear Force', fill: 'tozeroy', type: 'scatter', line: { color: '#ff6b6b', width: 2 } }; const shearLayout = { title: 'דיאגרמת גזירה (kN)', xaxis: { title: 'מרחק (m)' }, yaxis: { title: 'גזירה (kN)' }, plot_bgcolor: '#f8f9fa', margin: { l: 60, r: 40, t: 40, b: 40 } }; Plotly.newPlot('shearDiagram', [shearTrace], shearLayout, { responsive: true }); const momentTrace = { x: forces.x, y: forces.momentData, name: 'Bending Moment', fill: 'tozeroy', type: 'scatter', line: { color: '#4c6ef5', width: 2 } }; const momentLayout = { title: 'דיאגרמת מומנט כפיפה (kNm)', xaxis: { title: 'מרחק (m)' }, yaxis: { title: 'מומנט (kNm)' }, plot_bgcolor: '#f8f9fa', margin: { l: 60, r: 40, t: 40, b: 40 } }; Plotly.newPlot('momentDiagram', [momentTrace], momentLayout, { responsive: true }); }
+        function displayReinforcement(steel, As_design, As_min, As_max, b, h, cover) { document.getElementById('effectiveDepth').textContent = steel.d_cm.toFixed(2); document.getElementById('requiredSteelArea').textContent = steel.As_cm2.toFixed(2); document.getElementById('minSteelArea').textContent = As_min.toFixed(2); document.getElementById('maxSteelArea').textContent = As_max.toFixed(2); const suggestions = calculator.suggestBars(As_design); let suggestionHTML = '<div style="margin: 10px 0;">'; if (suggestions.length > 0) { suggestionHTML += '<p><strong>אפשרויות קונפיגורציה:</strong></p>'; suggestions.forEach((sug, idx) => { suggestionHTML += `<div class="bar-config">${idx + 1}. ${sug.config} (${sug.area.toFixed(2)} cm²)</div>`; }); } else { suggestionHTML += '<p><strong>⚠️ שימו לב:</strong> שטח הפלדה הדרוש חורג מהגבול המקסימום!</p>'; suggestionHTML += `<p>דרוש: ${As_design.toFixed(2)} cm² | מקסימום: ${As_max.toFixed(2)} cm²</p>`; suggestionHTML += '<p>יש להגדיל את מידות החתך או את חוזק החומרים.</p>'; } suggestionHTML += '</div>'; document.getElementById('reinforcementSuggestion').innerHTML = suggestionHTML; }
+        function displayShearCheck(shear) { document.getElementById('shearStress').textContent = shear.v.toFixed(3); document.getElementById('maxShearStress').textContent = shear.vc_max.toFixed(3); if (shear.needsReinforcement) { document.getElementById('needsShearReinforcement').textContent = '✅ כן - דרושות כוסות גזירה'; } else { document.getElementById('needsShearReinforcement').textContent = '❌ לא - בטון בלבד מספיק'; } }
+        function displayDeflections(deflections, L) { document.getElementById('immediateDeflection').textContent = deflections.delta_i.toFixed(2); document.getElementById('longTermDeflection').textContent = deflections.delta_lt.toFixed(2); document.getElementById('maxDeflectionLimit').textContent = deflections.delta_max.toFixed(2); if (deflections.check) { document.getElementById('deflectionCheck').textContent = '✅ תקין - שקיעה בטווח המותר'; } else { document.getElementById('deflectionCheck').textContent = '❌ חריגה - שקיעה גדולה מהמותר!'; } const L_m = L; const n = 50; const x = []; const defData = []; for (let i = 0; i <= n; i++) { const pos = (i / n) * L_m; x.push(pos); const delta = deflections.delta_lt * 4 * (pos / L_m) * ((L_m - pos) / L_m); defData.push(-delta); } const defTrace = { x: x, y: defData, name: 'Deflection', fill: 'tozeroy', type: 'scatter', line: { color: '#51cf66', width: 2 } }; const defLayout = { title: 'דיאגרמת שקיעה (mm)', xaxis: { title: 'מרחק (m)' }, yaxis: { title: 'שקיעה (mm)' }, plot_bgcolor: '#f8f9fa', margin: { l: 60, r: 40, t: 40, b: 40 } }; Plotly.newPlot('deflectionDiagram', [defTrace], defLayout, { responsive: true }); }
+        function drawSection(b, h, cover, As) { const svg = document.getElementById('sectionDiagram'); svg.innerHTML = ''; const scale = 30; const width = b * scale; const height = h * scale; const startX = (400 - width) / 2; const startY = (600 - height) / 2; const concrete = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); concrete.setAttribute('x', startX); concrete.setAttribute('y', startY); concrete.setAttribute('width', width); concrete.setAttribute('height', height); concrete.setAttribute('fill', '#e8e8e8'); concrete.setAttribute('stroke', '#333'); concrete.setAttribute('stroke-width', '2'); svg.appendChild(concrete); const topCover = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); topCover.setAttribute('x', startX); topCover.setAttribute('y', startY); topCover.setAttribute('width', width); topCover.setAttribute('height', cover * scale); topCover.setAttribute('fill', '#d0d0d0'); topCover.setAttribute('opacity', '0.5'); svg.appendChild(topCover); const bottomCover = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); bottomCover.setAttribute('x', startX); bottomCover.setAttribute('y', startY + height - cover * scale); bottomCover.setAttribute('width', width); bottomCover.setAttribute('height', cover * scale); bottomCover.setAttribute('fill', '#d0d0d0'); bottomCover.setAttribute('opacity', '0.5'); svg.appendChild(bottomCover); const barSpacing = width / 5; const barRadius = 0.4 * scale; const barY = startY + height - cover * scale; const suggestions = calculator.suggestBars(As); if (suggestions.length > 0) { const config = suggestions[0]; const match = config.config.match(/(\d+)Ø(\d+)/); if (match) { const barCount = parseInt(match[1]); const barDia = parseInt(match[2]); const actualRadius = barDia / 2 * 0.1 * scale; for (let i = 0; i < barCount; i++) { const barX = startX + (width / (barCount + 1)) * (i + 1); const bar = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); bar.setAttribute('cx', barX); bar.setAttribute('cy', barY); bar.setAttribute('r', actualRadius); bar.setAttribute('fill', '#333'); bar.setAttribute('stroke', '#555'); bar.setAttribute('stroke-width', '1'); svg.appendChild(bar); const label = document.createElementNS('http://www.w3.org/2000/svg', 'text'); label.setAttribute('x', barX); label.setAttribute('y', barY + 30); label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-size', '10'); label.setAttribute('fill', '#333'); label.textContent = `Ø${barDia}`; svg.appendChild(label); } } } const widthText = document.createElementNS('http://www.w3.org/2000/svg', 'text'); widthText.setAttribute('x', 200); widthText.setAttribute('y', 560); widthText.setAttribute('text-anchor', 'middle'); widthText.setAttribute('font-size', '12'); widthText.setAttribute('font-weight', 'bold'); widthText.textContent = `b = ${b} cm`; svg.appendChild(widthText); const heightText = document.createElementNS('http://www.w3.org/2000/svg', 'text'); heightText.setAttribute('x', 20); heightText.setAttribute('y', 300); heightText.setAttribute('text-anchor', 'middle'); heightText.setAttribute('font-size', '12'); heightText.setAttribute('font-weight', 'bold'); heightText.setAttribute('writing-mode', 'tb'); heightText.textContent = `h = ${h} cm`; svg.appendChild(heightText); const legend = `<div class="legend-item"><div class="legend-color" style="background: #e8e8e8; border: 1px solid #333;"></div><span>בטון</span></div><div class="legend-item"><div class="legend-color" style="background: #333;"></div><span>ברזל חזק</span></div>`; document.getElementById('sectionLegend').innerHTML = legend; }
+        function showTab(tabName) { const tabs = document.querySelectorAll('.tab-content'); tabs.forEach(tab => tab.classList.remove('active')); const buttons = document.querySelectorAll('.tab-button'); buttons.forEach(btn => btn.classList.remove('active')); document.getElementById(tabName).classList.add('active'); event.target.classList.add('active'); }
+        document.addEventListener('DOMContentLoaded', function() { updateDesignLoad(); updateCalculations(); document.getElementById('permanentLoad').addEventListener('change', updateDesignLoad); document.getElementById('variableLoad').addEventListener('change', updateDesignLoad); });
+    </script>
+</body>
+</html>
