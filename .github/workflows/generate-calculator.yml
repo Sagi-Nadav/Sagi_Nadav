@@ -22,7 +22,7 @@ jobs:
          env:
            ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
          run: |
-           export CLAUDE_API_KEY="$ANTHROPIC_API_KEY"
+           claude login --api-key "$ANTHROPIC_API_KEY"
            claude login
 
       - name: Generate Calculator
