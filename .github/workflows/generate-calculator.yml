@@ -18,6 +18,12 @@ jobs:
       - name: Install Claude Code
         uses: pleaseai/setup-claude-code@v1.1.4
 
+      - name: Authenticate Claude Code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "$ANTHROPIC_API_KEY" | claude login --stdin
+
       - name: Generate Calculator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -33,54 +39,17 @@ jobs:
           B60: fcd=2600 t/m², rhoMin=0.0021, fctm=3.6 MPa, rhoVmin=0.0016, Ec=31700, fctk=2.65, fctd=0.8833, fbd_good=3.97, fbd_poor=2.78
 
           TABS TO IMPLEMENT:
+          1. כפיפה: Mcd_max=0.32*b*d^2*fcd, omega=max(0.1,1-sqrt(1-2*Md/(b*d^2*fcd))), As_calc=Md/(d*(1-omega/2)*fsd/100)
+          2. גזירה: K=min(1+sqrt(200/(d*1000)),2), Vrd_c, Vrd_max=0.6*(1-0.7*fck/250)*fcd*b*0.9*d*cos(theta)*sin(theta), Asv_sv=Vd/(0.9*d*(1/tan(theta))*fsd)
+          3. עיגון: lb_phi=fsd/(4*fbd), la1=direct?lb*alpha1*2/3:lb*alpha1
+          4. קירות: As_m=2*(PI*phi^2/4/100)/(spacing/100), Nrd=0.95*((wall_t-2*ecc)/100)*fcd+(fsd/100)*As_m, Nser=Nrd/1.45
+          5. עמודים: As=N*PI*phi^2/4*0.01, Nser=((rho*fsd*1e-2)+(1-rho)*fcd*1e-4)*A*B/1.55
+          6. ספקטרום רעידה: top 50 Israeli cities, Fa/Fv tables A-E, SDS=Fa*Ss, SD1=Fv*S1, T0=0.2*SD1/SDS, TS=SD1/SDS, TL=4, Sa curve, Chart.js chart, Cd=Sa*I/K
+          7. התמירות: k12=24.4*(10/(Fser*10))^(1/3), h_req=L0/k12*100
+          8. תכונות בטון: static table B30-B60
+          9. שטחי ברזל: phi 8-36 vs bars 1-15 and spacing 10-30cm
 
-          1. כפיפה (Bending):
-          Mcd_max = 0.32 * b * d^2 * fcd
-          omega = max(0.1, 1 - sqrt(1 - 2*Md/(b*d^2*fcd)))
-          As_calc = Md / (d * (1 - omega/2) * fsd/100) [cm²]
-          As_min = rhoMin * b * d * 10000 [cm²]
-
-          2. גזירה (Shear):
-          K = min(1 + sqrt(200/(d*1000)), 2)
-          Vrd_c = (0.12*K*(100*min(max(rhoL,rhoMin),0.02)*0.7*fck)^(1/3) + 0.15*sigmaC/100)*100*d*b
-          Vrd_max = 0.6*(1-0.7*fck/250)*fcd*b*0.9*d*cos(theta)*sin(theta)
-          Asv_sv = Vd / (0.9*d * (1/tan(theta)) * fsd)
-
-          3. עיגון (Anchorage):
-          lb_phi = fsd / (4 * fbd)
-          la1 = direct_support ? lb_phi*alpha1*2/3 : lb_phi*alpha1
-
-          4. קירות (Walls - short):
-          As_m = 2*(PI*phi^2/4/100)/(spacing/100) [cm²/m]
-          Nrd = 0.95*((wall_t-2*ecc)/100)*fcd + (fsd/100)*As_m [t/m]
-          Nser = Nrd / 1.45
-
-          5. עמודים (Columns):
-          As = N * PI*phi^2/4 * 0.01 [cm²]
-          rho = As / (A*B)
-          Nser = ((rho*fsd*1e-2) + (1-rho)*fcd*1e-4) * A * B / 1.55 [t]
-
-          6. ספקטרום רעידה (Seismic):
-          Include top 50 Israeli cities with Z, Ss, S1 values (10% in 50 years).
-          Fa/Fv tables by site class A/B/C/D/E.
-          SDS = Fa*Ss, SD1 = Fv*S1
-          T0 = 0.2*SD1/SDS, TS = SD1/SDS, TL = 4
-          Sa: ascending for T<T0, flat SDS for T0<T<TS, SD1/T for TS<T<TL
-          Draw spectrum chart with Chart.js CDN.
-          Cd = Sa*I/K
-
-          7. התמירות (Slenderness):
-          Flat slab: k12 = 24.4*(10/(Fser*10))^(1/3), h_req = L0/k12*100
-          Rectangular beam: similar with Fser per width
-
-          8. תכונות בטון: static reference table B30-B60
-
-          9. שטחי ברזל: table phi 8-36 vs bars 1-15 and spacing 10-30cm
-
-          Use Chart.js from CDN for seismic chart.
-          Professional blue (#1e3a5f) color scheme, RTL Hebrew.
-          Live calculation on input change.
-          Mobile responsive.
+          Professional blue #1e3a5f, RTL Hebrew, Chart.js CDN, live calculations, mobile responsive.
           " \
           --allowedTools "Write,Bash,Read,Edit"
 
