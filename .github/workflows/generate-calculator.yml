@@ -18,6 +18,11 @@ jobs:
       - name: Install Claude Code
         uses: pleaseai/setup-claude-code@v1.1.4
 
+      - name: Authenticate Claude Code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: claude login --api-key "$ANTHROPIC_API_KEY"
+
       - name: Generate Calculator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
