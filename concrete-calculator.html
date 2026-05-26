@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מחשבון בטון מזוין — IS-413</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #1e3a5f;
+  --navy-light: #2a5298;
+  --navy-dark: #122840;
+  --accent: #c8a951;
+  --accent-light: #e8c97a;
+  --bg: #f0f4f8;
+  --white: #ffffff;
+  --gray-light: #e8edf2;
+  --gray: #b0bec5;
+  --text: #1a2332;
+  --ok: #2e7d32;
+  --ok-bg: #e8f5e9;
+  --ng: #c62828;
+  --ng-bg: #ffebee;
+  --warn: #e65100;
+  --warn-bg: #fff3e0;
+  --shadow: 0 2px 14px rgba(30,58,95,0.13);
+  --radius: 10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  min-height: 100vh;
+  font-size: 15px;
+}
+/* ---- HEADER ---- */
+header {
+  background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 60%, var(--navy-light) 100%);
+  color: white;
+  padding: 16px 28px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.3);
+  position: sticky; top: 0; z-index: 200;
+  gap: 12px;
+}
+header h1 { font-size: 1.45rem; font-weight: 700; }
+header p  { font-size: 0.8rem; opacity: 0.75; margin-top: 2px; }
+.header-badge {
+  background: var(--accent);
+  color: var(--navy-dark);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 5px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.4px;
+}
+/* ---- TABS ---- */
+.tab-bar {
+  background: var(--navy-dark);
+  display: flex;
+  overflow-x: auto;
+  padding: 0 12px;
+  gap: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--navy-dark);
+}
+.tab-bar::-webkit-scrollbar { height: 3px; }
+.tab-bar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.62);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-family: inherit;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  transition: all 0.18s;
+  font-weight: 500;
+}
+.tab-btn:hover { color: white; background: rgba(255,255,255,0.07); }
+.tab-btn.active {
+  color: var(--accent-light);
+  border-bottom-color: var(--accent);
+  background: rgba(200,169,81,0.1);
+  font-weight: 700;
+}
+/* ---- LAYOUT ---- */
+.main-content { max-width: 1080px; margin: 0 auto; padding: 24px 18px 70px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+/* ---- CARDS ---- */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(30,58,95,0.07);
+}
+.section-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px; height: 22px;
+  background: var(--accent);
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.card-title {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--gray-light);
+}
+
+/* ---- FORM ---- */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--navy);
+  opacity: 0.9;
+}
+.form-group input,
+.form-group select {
+  border: 1.5px solid var(--gray);
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 0.93rem;
+  font-family: inherit;
+  color: var(--text);
+  background: #fafdff;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  text-align: right;
+  direction: rtl;
+  width: 100%;
+}
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--navy-light);
+  box-shadow: 0 0 0 3px rgba(42,82,152,0.12);
+  background: white;
+}
+
+/* ---- BUTTONS ---- */
+.btn-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.btn-calc {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: white;
+  border: none;
+  padding: 11px 34px;
+  border-radius: 8px;
+  font-size: 0.97rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+  box-shadow: 0 3px 10px rgba(30,58,95,0.22);
+  letter-spacing: 0.4px;
+}
+.btn-calc:hover {
+  background: linear-gradient(135deg, var(--navy-light) 0%, var(--navy) 100%);
+  box-shadow: 0 5px 16px rgba(30,58,95,0.32);
+  transform: translateY(-1px);
+}
+.btn-calc:active { transform: translateY(0); }
+.btn-print {
+  background: var(--accent);
+  color: var(--navy-dark);
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+}
+.btn-print:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+/* ---- RESULTS ---- */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.result-box {
+  background: var(--navy);
+  color: white;
+  border-radius: 9px;
+  padding: 13px 14px;
+  text-align: center;
+}
+.result-box .r-label { font-size: 0.75rem; opacity: 0.72; margin-bottom: 3px; line-height: 1.3; }
+.result-box .r-value { font-size: 1.28rem; font-weight: 700; color: var(--accent-light); line-height: 1.2; }
+.result-box .r-unit  { font-size: 0.72rem; opacity: 0.65; margin-top: 2px; }
+
+/* ---- STATUS BAR ---- */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 18px;
+  border-radius: 9px;
+  margin-top: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.status-ok   { background: var(--ok-bg);   color: var(--ok);   border: 2px solid var(--ok); }
+.status-ng   { background: var(--ng-bg);   color: var(--ng);   border: 2px solid var(--ng); }
+.status-warn { background: var(--warn-bg); color: var(--warn); border: 2px solid var(--warn); }
+.status-dot  {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.82rem; font-weight: 900; flex-shrink: 0;
+}
+.status-ok   .status-dot { background: var(--ok);   color: white; }
+.status-ng   .status-dot { background: var(--ng);   color: white; }
+.status-warn .status-dot { background: var(--warn); color: white; }
+
+/* ---- FORMULA BLOCK ---- */
+.formula-block {
+  background: #f4f7fb;
+  border-radius: 8px;
+  border-right: 4px solid var(--navy-light);
+  padding: 13px 16px;
+  margin-top: 14px;
+  font-size: 0.83rem;
+  line-height: 1.75;
+  color: #2d3a4a;
+}
+.formula-block .ftitle { font-weight: 700; color: var(--navy); margin-bottom: 5px; font-size: 0.9rem; }
+
+/* ---- TABLES ---- */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+table th {
+  background: var(--navy);
+  color: white;
+  padding: 9px 11px;
+  text-align: center;
+  font-weight: 600;
+  white-space: nowrap;
+}
+table td {
+  padding: 8px 11px;
+  text-align: center;
+  border-bottom: 1px solid var(--gray-light);
+  white-space: nowrap;
+}
+table tr:nth-child(even) td { background: #f4f8fc; }
+table tr:hover td { background: #e5eef7; }
+.hl-row td { font-weight: 700; color: var(--navy); background: #d8e8f5 !important; }
+
+/* ---- TAGS ---- */
+.tag {
+  display: inline-block;
+  padding: 1px 9px;
+  border-radius: 12px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.tag-ok { background: var(--ok-bg); color: var(--ok); }
+.tag-ng { background: var(--ng-bg); color: var(--ng); }
+
+/* ---- NOTE ---- */
+.note { background:#e3eaf4; border-radius:7px; padding:9px 13px; font-size:0.81rem; color:var(--navy); margin-top:12px; border-right:3px solid var(--navy-light); line-height:1.55; }
+
+/* ---- MISC ---- */
+.stirrup-rec {
+  background: linear-gradient(135deg,#e3eaf4,#cfdcef);
+  border: 2px solid var(--navy-light);
+  border-radius: 9px;
+  padding: 13px 18px;
+  margin-top: 14px;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 0.97rem;
+  text-align: center;
+}
+.chart-wrap { position: relative; height: 370px; margin-top: 16px; }
+.city-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.city-btn {
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 13px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.city-btn:hover { background: var(--navy-light); }
+.city-btn.sel   { background: var(--accent); color: var(--navy-dark); }
+.prop-cards { display: grid; grid-template-columns: repeat(auto-fill,minmax(155px,1fr)); gap: 12px; margin-top: 16px; }
+.prop-card {
+  background: var(--navy);
+  color: white;
+  border-radius: 9px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.prop-card .pc-grade { font-size: 1.05rem; font-weight: 800; margin-bottom: 7px; color: var(--accent-light); }
+.prop-card .pc-row { font-size: 0.78rem; opacity: 0.82; line-height: 1.6; }
+
+/* ---- PRINT ---- */
+@media print {
+  header, .tab-bar, .btn-calc, .btn-print, .btn-row { display: none !important; }
+  .tab-panel { display: block !important; page-break-after: always; }
+  body { background: white; }
+  .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+}
+@media (max-width: 600px) {
+  header h1 { font-size: 1.15rem; }
+  .main-content { padding: 14px 10px 60px; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .results-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>&#x1F3D7; מחשבון בטון מזוין IS-413</h1>
+    <p>תקן ישראלי IS-413 · עיצוב מבנים בבטון מזוין</p>
+  </div>
+  <div class="header-badge">IS-413 · 2026</div>
+</header>
+
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="showTab(0)">1. כפיפה</button>
+  <button class="tab-btn" onclick="showTab(1)">2. גזירה</button>
+  <button class="tab-btn" onclick="showTab(2)">3. עיגון</button>
+  <button class="tab-btn" onclick="showTab(3)">4. קירות</button>
+  <button class="tab-btn" onclick="showTab(4)">5. עמודים</button>
+  <button class="tab-btn" onclick="showTab(5)">6. ספקטרום רעידה</button>
+  <button class="tab-btn" onclick="showTab(6)">7. התמירות</button>
+  <button class="tab-btn" onclick="showTab(7)">8. תכונות בטון</button>
+  <button class="tab-btn" onclick="showTab(8)">9. שטחי ברזל</button>
+</div>
+
+<div class="main-content">
+
+<!-- ========== TAB 1: BENDING ========== -->
+<div class="tab-panel active" id="tab0">
+  <div class="section-title">כפיפה — Bending Design (IS-413)</div>
+  <div class="card">
+    <div class="card-title">נתוני חתך וחומרים</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>רוחב b (ס"מ)</label>
+        <input type="number" id="b1_b" value="30" step="1" min="5">
+      </div>
+      <div class="form-group">
+        <label>גובה h (ס"מ)</label>
+        <input type="number" id="b1_h" value="60" step="1" min="5">
+      </div>
+      <div class="form-group">
+        <label>כיסוי בטון c (ס"מ)</label>
+        <input type="number" id="b1_cover" value="3.5" step="0.5" min="1">
+      </div>
+      <div class="form-group">
+        <label>קוטר ברזל (מ"מ)</label>
+        <select id="b1_dia">
+          <option value="8">Ø8</option><option value="10">Ø10</option>
+          <option value="12">Ø12</option><option value="14">Ø14</option>
+          <option value="16" selected>Ø16</option><option value="18">Ø18</option>
+          <option value="20">Ø20</option><option value="22">Ø22</option>
+          <option value="25">Ø25</option><option value="28">Ø28</option>
+          <option value="32">Ø32</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>סוג בטון</label>
+        <select id="b1_conc">
+          <option value="B30">B30</option>
+          <option value="B40" selected>B40</option>
+          <option value="B50">B50</option>
+          <option value="B60">B60</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>סוג פלדה</label>
+        <select id="b1_steel">
+          <option value="B400">B400 — fsd=34800 t/m²</option>
+          <option value="B500" selected>B500 — fsd=43500 t/m²</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>מומנט עיצוב Md (t·m)</label>
+        <input type="number" id="b1_Md" value="45" step="0.1" min="0">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcBending()">&#9654; חשב כפיפה</button>
+      <button class="btn-print" onclick="window.print()">&#128438; הדפס</button>
+    </div>
+    <div id="res_bending"></div>
+  </div>
+  <div class="card">
+    <div class="formula-block">
+      <div class="ftitle">נוסחאות IS-413 — כפיפה</div>
+      <div>d = h − c − Ø/2 &nbsp;[ס"מ] &nbsp;&nbsp; (גובה יעיל)</div>
+      <div>M<sub>cd,max</sub> = 0.32 · (b/100) · d² · f<sub>cd</sub> &nbsp;[t·m] &nbsp;&nbsp; (תנגודת מקסימלית)</div>
+      <div>μ = M<sub>d</sub> / [(b/100) · d² · f<sub>cd</sub>] &nbsp;&nbsp; (מומנט מנורמל, חייב ≤ 0.5)</div>
+      <div>ω = max(0.1, 1 − √(1 − 2μ)) &nbsp;&nbsp; (מקדם אזור לחוץ)</div>
+      <div>A<sub>s</sub> = M<sub>d</sub> / [d · (1 − ω/2) · f<sub>sd</sub>] · 10000 &nbsp;[ס"מ²]</div>
+      <div>A<sub>s,min</sub> = max(0.3·b·h·f<sub>ctd</sub>/f<sub>sd</sub>, 0.0015·b·h) &nbsp;[ס"מ²]</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 2: SHEAR ========== -->
+<div class="tab-panel" id="tab1">
+  <div class="section-title">גזירה — Shear Design (IS-413)</div>
+  <div class="card">
+    <div class="card-title">נתוני גזירה</div>
+    <div class="form-grid">
+      <div class="form-group"><label>רוחב b (ס"מ)</label><input type="number" id="sh_b" value="30" step="1" min="5"></div>
+      <div class="form-group"><label>גובה יעיל d (ס"מ)</label><input type="number" id="sh_d" value="55" step="1" min="5"></div>
+      <div class="form-group"><label>סוג בטון</label>
+        <select id="sh_conc">
+          <option value="B30">B30</option><option value="B40" selected>B40</option>
+          <option value="B50">B50</option><option value="B60">B60</option>
+        </select>
+      </div>
+      <div class="form-group"><label>סוג פלדה</label>
+        <select id="sh_steel">
+          <option value="B400">B400</option><option value="B500" selected>B500</option>
+        </select>
+      </div>
+      <div class="form-group"><label>כוח גזירה Vd (טון)</label><input type="number" id="sh_Vd" value="35" step="0.5" min="0"></div>
+      <div class="form-group"><label>שטח פלדה אורכית As (ס"מ²)</label><input type="number" id="sh_As" value="15" step="0.5" min="0"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcShear()">&#9654; חשב גזירה</button>
+      <button class="btn-print" onclick="window.print()">&#128438; הדפס</button>
+    </div>
+    <div id="res_shear"></div>
+  </div>
+  <div class="card">
+    <div class="formula-block">
+      <div class="ftitle">נוסחאות IS-413 — גזירה</div>
+      <div>ρ<sub>l</sub> = A<sub>s</sub>/(b·d) ≤ 0.02</div>
+      <div>K = min(1 + √(200/d<sub>mm</sub>), 2.0)</div>
+      <div>V<sub>rd,c</sub> = (0.18/1.5)·K·(100·ρ<sub>l</sub>·f<sub>ck</sub>)<sup>1/3</sup>·b·d [ton] (f<sub>ck</sub> in MPa)</div>
+      <div>V<sub>rd,c,min</sub> = 0.035·K<sup>1.5</sup>·√f<sub>ck</sub>·b·d [ton]</div>
+      <div>V<sub>rd,max</sub> = 0.18·(1 − f<sub>ck</sub>/250)·f<sub>ck</sub>·0.9·b·d [ton]</div>
+      <div>A<sub>sv</sub>/s = (V<sub>d</sub> − V<sub>rd,c</sub>) / (f<sub>sd</sub>·0.9·d) [ס"מ²/מ']</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 3: ANCHORAGE ========== -->
+<div class="tab-panel" id="tab2">
+  <div class="section-title">עיגון — Anchorage Length (IS-413)</div>
+  <div class="card">
+    <div class="card-title">נתוני עיגון</div>
+    <div class="form-grid">
+      <div class="form-group"><label>קוטר ברזל Ø (מ"מ)</label>
+        <select id="anc_dia">
+          <option value="8">Ø8</option><option value="10">Ø10</option>
+          <option value="12">Ø12</option><option value="14">Ø14</option>
+          <option value="16" selected>Ø16</option><option value="18">Ø18</option>
+          <option value="20">Ø20</option><option value="22">Ø22</option>
+          <option value="25">Ø25</option><option value="28">Ø28</option>
+          <option value="32">Ø32</option>
+        </select>
+      </div>
+      <div class="form-group"><label>סוג בטון</label>
+        <select id="anc_conc">
+          <option value="B30">B30</option><option value="B40" selected>B40</option>
+          <option value="B50">B50</option><option value="B60">B60</option>
+        </select>
+      </div>
+      <div class="form-group"><label>סוג פלדה</label>
+        <select id="anc_steel">
+          <option value="B400">B400</option><option value="B500" selected>B500</option>
+        </select>
+      </div>
+      <div class="form-group"><label>כיסוי בטון c (ס"מ)</label><input type="number" id="anc_cover" value="3.5" step="0.5" min="1"></div>
+      <div class="form-group"><label>מיקום ברזל</label>
+        <select id="anc_pos">
+          <option value="bottom" selected>תחתון — η₁=1.0</option>
+          <option value="top">עליון — η₁=0.7</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcAnchorage()">&#9654; חשב עיגון</button>
+      <button class="btn-print" onclick="window.print()">&#128438; הדפס</button>
+    </div>
+    <div id="res_anchorage"></div>
+  </div>
+  <div class="card">
+    <div class="formula-block">
+      <div class="ftitle">נוסחאות IS-413 — עיגון</div>
+      <div>f<sub>bd</sub> = 2.25 · η₁ · η₂ · f<sub>ctd</sub> &nbsp;[t/m²]</div>
+      <div>η₁ = 1.0 (ברזל תחתון) &nbsp;|&nbsp; η₁ = 0.7 (ברזל עליון מעל 250 מ"מ)</div>
+      <div>η₂ = 1.0 (Ø ≤ 32 מ"מ)</div>
+      <div>l<sub>b,rqd</sub> = (Ø/400) · (f<sub>sd</sub>/f<sub>bd</sub>) &nbsp;[מ']</div>
+      <div>l<sub>b,min</sub> = max(0.3·l<sub>b,rqd</sub>, 10·Ø/1000, 0.1) &nbsp;[מ']</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 4: WALLS ========== -->
+<div class="tab-panel" id="tab3">
+  <div class="section-title">קירות — Wall Design (IS-413)</div>
+  <div class="card">
+    <div class="card-title">נתוני קיר</div>
+    <div class="form-grid">
+      <div class="form-group"><label>עובי קיר t (ס"מ)</label><input type="number" id="wall_t" value="20" step="1" min="10"></div>
+      <div class="form-group"><label>גובה קיר H (מ')</label><input type="number" id="wall_H" value="3.0" step="0.1" min="0.5"></div>
+      <div class="form-group"><label>אורך קיר L (מ')</label><input type="number" id="wall_L" value="5.0" step="0.1" min="0.5"></div>
+      <div class="form-group"><label>סוג בטון</label>
+        <select id="wall_conc">
+          <option value="B30">B30</option><option value="B40" selected>B40</option>
+          <option value="B50">B50</option><option value="B60">B60</option>
+        </select>
+      </div>
+      <div class="form-group"><label>פלדה אנכית (ס"מ²/מ')</label><input type="number" id="wall_Asv" value="8" step="0.5" min="0"></div>
+      <div class="form-group"><label>פלדה אופקית (ס"מ²/מ')</label><input type="number" id="wall_Ash" value="5" step="0.5" min="0"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcWall()">&#9654; חשב קיר</button>
+      <button class="btn-print" onclick="window.print()">&#128438; הדפס</button>
+    </div>
+    <div id="res_wall"></div>
+  </div>
+  <div class="card">
+    <div class="formula-block">
+      <div class="ftitle">נוסחאות IS-413 — קירות</div>
+      <div>λ = 2·H/t &nbsp;(תנאי גבולות ציר-ציר; H,t בס"מ)</div>
+      <div>N<sub>rd</sub> = f<sub>cd</sub> · (t/100) · [1 − (λ/86.6)²] &nbsp;[t/מ'] &nbsp;(רוחב יחידה)</div>
+      <div>N<sub>ser</sub> = N<sub>rd</sub>/1.45 &nbsp;[t/מ'] &nbsp;(כוח שרות)</div>
+      <div>A<sub>s,min,vert</sub> = 0.003 · t · 100 &nbsp;[ס"מ²/מ']</div>
+      <div>A<sub>s,min,horiz</sub> = 0.001 · t · 100 &nbsp;[ס"מ²/מ']</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 5: COLUMNS ========== -->
+<div class="tab-panel" id="tab4">
+  <div class="section-title">עמודים — Column Design (IS-413)</div>
+  <div class="card">
+    <div class="card-title">נתוני עמוד</div>
+    <div class="form-grid">
+      <div class="form-group"><label>רוחב b (ס"מ)</label><input type="number" id="col_b" value="40" step="1" min="10"></div>
+      <div class="form-group"><label>גובה h (ס"מ)</label><input type="number" id="col_h" value="40" step="1" min="10"></div>
+      <div class="form-group"><label>סוג בטון</label>
+        <select id="col_conc">
+          <option value="B30">B30</option><option value="B40" selected>B40</option>
+          <option value="B50">B50</option><option value="B60">B60</option>
+        </select>
+      </div>
+      <div class="form-group"><label>סוג פלדה</label>
+        <select id="col_steel">
+          <option value="B400">B400</option><option value="B500" selected>B500</option>
+        </select>
+      </div>
+      <div class="form-group"><label>אחוז פלדה ρ (%)</label><input type="number" id="col_rho" value="2.0" step="0.1" min="0.3" max="8"></div>
+      <div class="form-group"><label>כוח אורכי Nd (טון)</label><input type="number" id="col_Nd" value="400" step="10" min="0"></div>
+      <div class="form-group"><label>מומנט My (t·m)</label><input type="number" id="col_My" value="20" step="1" min="0"></div>
+      <div class="form-group"><label>מומנט Mz (t·m)</label><input type="number" id="col_Mz" value="10" step="1" min="0"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcColumn()">&#9654; חשב עמוד</button>
+      <button class="btn-print" onclick="window.print()">&#128438; הדפס</button>
+    </div>
+    <div id="res_column"></div>
+  </div>
+  <div class="card">
+    <div class="formula-block">
+      <div class="ftitle">נוסחאות IS-413 — עמודים</div>
+      <div>A = b·h &nbsp;[ס"מ²]</div>
+      <div>N<sub>rd</sub> = [f<sub>cd</sub> + ρ/100·(f<sub>sd</sub> − f<sub>cd</sub>)] · A/10000 &nbsp;[ton]</div>
+      <div>N<sub>ser</sub> = N<sub>rd</sub>/1.55 &nbsp;[ton]</div>
+      <div>A<sub>s</sub> = ρ/100 · A &nbsp;[ס"מ²]</div>
+      <div>A<sub>s,min</sub> = max(0.003·A, 4 ברזלים) &nbsp;[ס"מ²]</div>
+      <div>A<sub>s,max</sub> = 0.08·A &nbsp;[ס"מ²]</div>
+      <div>ניצולת = N<sub>d</sub>/N<sub>rd</sub> &nbsp;&nbsp; אקסצנטריות e = M/N</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 6: SEISMIC ========== -->
+<div class="tab-panel" id="tab5">
+  <div class="section-title">ספקטרום רעידה — Seismic Spectrum (IS-413)</div>
+  <div class="card">
+    <div class="card-title">נתוני רעידת אדמה</div>
+    <div class="form-grid">
+      <div class="form-group"><label>אזור סיסמי</label>
+        <select id="seis_zone">
+          <option value="1">אזור 1 — ag=0.07g</option>
+          <option value="2a">אזור 2א — ag=0.10g</option>
+          <option value="2b" selected>אזור 2ב — ag=0.15g</option>
+          <option value="3">אזור 3 — ag=0.20g</option>
+        </select>
+      </div>
+      <div class="form-group"><label>סוג קרקע</label>
+        <select id="seis_soil">
+          <option value="A">A — סלע</option>
+          <option value="B">B — סלע רך</option>
+          <option value="C" selected>C — אדמה צפופה</option>
+          <option value="D">D — אדמה רכה</option>
+          <option value="E">E — אדמה רכה מאוד</option>
+        </select>
+      </div>
+      <div class="form-group"><label>מקדם חשיבות γI</label>
+        <select id="seis_imp">
+          <option value="0.8">0.8 — מבנה משני</option>
+          <option value="1.0" selected>1.0 — מבנה רגיל</option>
+          <option value="1.2">1.2 — מבנה חשוב</option>
+          <option value="1.4">1.4 — מבנה קריטי</option>
+        </select>
+      </div>
+      <div class="form-group"><label>תקופה T (שניות)</label><input type="number" id="seis_T" value="0.5" step="0.05" min="0.01" max="4.0"></div>
+    </div>
+    <div class="form-group" style="max-width:600px;margin-bottom:14px;">
+      <label>חיפוש יישוב — אזור סיסמי</label>
+      <div class="city-grid" id="cityGrid"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcSeismic()">&#9654; חשב ספקטרום</button>
+      <button class="btn-print" onclick="window.print()">&#128438; הדפס</button>
+    </div>
+    <div id="res_seismic"></div>
+    <div class="chart-wrap">
+      <canvas id="seismicChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="formula-block">
+      <div class="ftitle">ספקטרום תגובה — IS-413 / EN-1998</div>
+      <div>אזור 1: ag=0.07g &nbsp;|&nbsp; אזור 2א: ag=0.10g &nbsp;|&nbsp; אזור 2ב: ag=0.15g &nbsp;|&nbsp; אזור 3: ag=0.20g</div>
+      <div>T ≤ TB: Sa = ag·γI·S·[1 + T/TB·(η·2.5−1)]</div>
+      <div>TB ≤ T ≤ TC: Sa = ag·γI·S·η·2.5</div>
+      <div>TC &lt; T ≤ TD: Sa = ag·γI·S·η·2.5·TC/T</div>
+      <div>T &gt; TD: Sa = ag·γI·S·η·2.5·TC·TD/T²</div>
+    </div>
+    <div class="note" style="margin-top:12px;">
+      <strong>אזורים סיסמיים בישראל (לפי IS-413):</strong>
+      אזור 3 — עמק הירדן, ים כינרת, אילת (ag≥0.20g) &nbsp;|&nbsp;
+      אזור 2ב — רוב מדינת ישראל (החוף, ירושלים, צפון) &nbsp;|&nbsp;
+      אזור 2א — ירושלים ומרכז &nbsp;|&nbsp;
+      אזור 1 — נגב דרומי (ag=0.07g)
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 7: SLENDERNESS ========== -->
+<div class="tab-panel" id="tab6">
+  <div class="section-title">התמירות — Slenderness Check (IS-413)</div>
+  <div class="card">
+    <div class="card-title">נתוני עמוד לבדיקת התמירות</div>
+    <div class="form-grid">
+      <div class="form-group"><label>אורך עמוד L (מ')</label><input type="number" id="sl_L" value="4.0" step="0.1" min="0.5"></div>
+      <div class="form-group"><label>רוחב b (ס"מ)</label><input type="number" id="sl_b" value="40" step="1" min="10"></div>
+      <div class="form-group"><label>גובה h (ס"מ)</label><input type="number" id="sl_h" value="40" step="1" min="10"></div>
+      <div class="form-group"><label>תנאי גבולות</label>
+        <select id="sl_bc">
+          <option value="1.0" selected>ציר-ציר &nbsp;(β=1.0·L)</option>
+          <option value="0.7">ציר-בלום &nbsp;(β=0.7·L)</option>
+          <option value="0.5">בלום-בלום &nbsp;(β=0.5·L)</option>
+          <option value="2.0">קנטילבר &nbsp;(β=2.0·L)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>סוג בטון</label>
+        <select id="sl_conc">
+          <option value="B30">B30</option><option value="B40" selected>B40</option>
+          <option value="B50">B50</option><option value="B60">B60</option>
+        </select>
+      </div>
+      <div class="form-group"><label>כוח אורכי Nd (טון)</label><input type="number" id="sl_Nd" value="300" step="10" min="1"></div>
+      <div class="form-group"><label>אחוז פלדה ρ (%)</label><input type="number" id="sl_rho" value="2.0" step="0.1" min="0.3" max="8"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcSlenderness()">&#9654; חשב התמירות</button>
+      <button class="btn-print" onclick="window.print()">&#128438; הדפס</button>
+    </div>
+    <div id="res_slenderness"></div>
+  </div>
+  <div class="card">
+    <div class="formula-block">
+      <div class="ftitle">נוסחאות IS-413 — התמירות (EN 1992-1-1 §5.8)</div>
+      <div>l₀ = β·L &nbsp;(אורך יעיל; β לפי תנאי גבולות)</div>
+      <div>i = min(b,h)/√12 &nbsp;[ס"מ] &nbsp;(רדיוס אינרציה)</div>
+      <div>λ = l₀·100/i &nbsp;(יחס התמירות)</div>
+      <div>n = N<sub>d</sub>/(f<sub>cd</sub>·A/10000) &nbsp;(כוח נורמלי מנורמל)</div>
+      <div>λ<sub>lim</sub> = 20·A·B·C/√n &nbsp;&nbsp; (A=0.7, B=1.1, C=0.7 ← הנחה שמרנית)</div>
+      <div>λ ≤ λ<sub>lim</sub> → עמוד קצר &nbsp;|&nbsp; λ &gt; λ<sub>lim</sub> → עמוד רזה, נדרש ניתוח מסדר שני</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 8: CONCRETE PROPERTIES ========== -->
+<div class="tab-panel" id="tab7">
+  <div class="section-title">תכונות בטון — Concrete Properties (IS-413)</div>
+  <div class="card">
+    <div class="card-title">טבלת תכונות בטון מלאה</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>סוג</th><th>fck (MPa)</th><th>fcd (t/m²)</th>
+            <th>fctd (t/m²)</th><th>Ec (t/m²)</th>
+            <th>fbd תחתון</th><th>fbd עליון</th>
+            <th>Vrd,c,min MPa*</th>
+          </tr>
+        </thead>
+        <tbody id="propTbody"></tbody>
+      </table>
+    </div>
+    <div class="note">* V<sub>rd,c,min</sub> = 0.035·K<sup>1.5</sup>·√f<sub>ck</sub> עם K=1 (כמקדם, יוכפל ב-b·d)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">כרטיסיות בטון מהירות</div>
+    <div class="prop-cards" id="propCards"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">ערכי פלדה — Steel Design Values</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>סוג פלדה</th><th>fyk (MPa)</th><th>fsd (t/m²)</th><th>Es (t/m²)</th><th>εuk</th></tr></thead>
+        <tbody>
+          <tr><td><strong>B400</strong></td><td>400</td><td>34800</td><td>2,000,000</td><td>≥2.5%</td></tr>
+          <tr><td><strong>B500</strong></td><td>500</td><td>43500</td><td>2,000,000</td><td>≥2.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB 9: STEEL AREAS ========== -->
+<div class="tab-panel" id="tab8">
+  <div class="section-title">שטחי ברזל — Steel Areas (IS-413)</div>
+  <div class="card">
+    <div class="card-title">חישוב מהיר</div>
+    <div class="form-grid">
+      <div class="form-group"><label>קוטר ברזל (מ"מ)</label>
+        <select id="sa_dia">
+          <option value="8">Ø8</option><option value="10">Ø10</option>
+          <option value="12">Ø12</option><option value="14">Ø14</option>
+          <option value="16" selected>Ø16</option><option value="18">Ø18</option>
+          <option value="20">Ø20</option><option value="22">Ø22</option>
+          <option value="25">Ø25</option><option value="28">Ø28</option>
+          <option value="32">Ø32</option>
+        </select>
+      </div>
+      <div class="form-group"><label>מספר ברזלים n</label><input type="number" id="sa_n" value="4" step="1" min="1" max="20"></div>
+      <div class="form-group"><label>רווח (ס"מ)</label><input type="number" id="sa_spacing" value="15" step="1" min="1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-calc" onclick="calcSteelArea()">&#9654; חשב שטח</button>
+    </div>
+    <div id="res_steel_quick"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">שטחי ברזל לפי מספר ברזלים (ס"מ²)</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Ø (מ"מ)</th><th>A₁ (ס"מ²)</th><th>n=1</th><th>n=2</th><th>n=3</th><th>n=4</th><th>n=5</th><th>n=6</th><th>n=7</th><th>n=8</th></tr></thead>
+        <tbody id="steelNTbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">שטחי ברזל לפי רווח (ס"מ²/מ')</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Ø (מ"מ)</th><th>@7.5</th><th>@10</th><th>@12.5</th><th>@15</th><th>@20</th><th>@25</th><th>@30</th></tr>
+        </thead>
+        <tbody id="steelSTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<script>
+// =====================================================================
+// MATERIAL DATA  (IS-413, values in t/m²)
+// =====================================================================
+const CONC = {
+  B20:  { fcd:  867, fctd:  67, Ec: 250000, fck: 20 },
+  B25:  { fcd: 1083, fctd:  75, Ec: 275000, fck: 25 },
+  B30:  { fcd: 1300, fctd:  83, Ec: 300000, fck: 30 },
+  B40:  { fcd: 1740, fctd: 100, Ec: 350000, fck: 40 },
+  B50:  { fcd: 2170, fctd: 117, Ec: 390000, fck: 50 },
+  B60:  { fcd: 2600, fctd: 133, Ec: 420000, fck: 60 }
+};
+const STEEL = {
+  B400: { fsd: 34800 },
+  B500: { fsd: 43500 }
+};
+const DIAMETERS = [8,10,12,14,16,18,20,22,25,28,32];
+
+// bar area in cm²
+function barArea(d) { return Math.PI * d * d / 400; }
+
+// =====================================================================
+// TAB NAVIGATION
+// =====================================================================
+function showTab(idx) {
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+}
+
+// =====================================================================
+// TAB 1 — BENDING
+// =====================================================================
+function calcBending() {
+  const b     = +document.getElementById('b1_b').value;
+  const h     = +document.getElementById('b1_h').value;
+  const cover = +document.getElementById('b1_cover').value;
+  const dia   = +document.getElementById('b1_dia').value;
+  const Md    = +document.getElementById('b1_Md').value;
+  const grade = document.getElementById('b1_conc').value;
+  const sg    = document.getElementById('b1_steel').value;
+
+  const { fcd, fctd } = CONC[grade];
+  const { fsd } = STEEL[sg];
+
+  const d  = h - cover - dia/20;       // cm
+  const bm = b/100; const dm = d/100;   // m
+  const d2 = dm * dm;                   // m²
+
+  const Mcd_max = 0.32 * bm * d2 * fcd;  // t·m
+  const mu      = Md / (bm * d2 * fcd);
+
+  let omega = null, As_req = null, errMsg = '';
+  if (mu > 0.5) {
+    errMsg = 'μ = ' + mu.toFixed(3) + ' > 0.5 — חתך בלתי מספיק! יש להגדיל חתך.';
+  } else {
+    omega  = Math.max(0.1, 1 - Math.sqrt(Math.max(0, 1 - 2*mu)));
+    // As [m²] = Md [t·m] / (dm [m] · (1 - ω/2) · fsd [t/m²])
+    As_req = Md / (dm * (1 - omega/2) * fsd) * 10000; // cm²
+  }
+
+  const As_min1 = 0.3 * b * h * fctd / fsd; // = 0.3*(b*h/10000[m²])*fctd/fsd * 10000 cm²
+  const As_min2 = 0.0015 * b * h;
+  const As_min  = Math.max(As_min1, As_min2);
+
+  let html = `<div class="results-grid">
+    <div class="result-box"><div class="r-label">גובה יעיל d</div><div class="r-value">${d.toFixed(1)}</div><div class="r-unit">ס"מ</div></div>
+    <div class="result-box"><div class="r-label">M<sub>cd,max</sub></div><div class="r-value">${Mcd_max.toFixed(2)}</div><div class="r-unit">t·m</div></div>
+    <div class="result-box"><div class="r-label">μ</div><div class="r-value">${mu.toFixed(4)}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">ω</div><div class="r-value">${omega!==null?omega.toFixed(4):'N/A'}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">A<sub>s</sub> נדרש</div><div class="r-value">${As_req!==null?As_req.toFixed(2):'N/A'}</div><div class="r-unit">ס"מ²</div></div>
+    <div class="result-box"><div class="r-label">A<sub>s,min</sub></div><div class="r-value">${As_min.toFixed(2)}</div><div class="r-unit">ס"מ²</div></div>
+  </div>`;
+
+  if (errMsg) {
+    html += `<div class="status-bar status-ng"><div class="status-dot">✗</div>${errMsg}</div>`;
+  } else {
+    const ok = (Md <= Mcd_max) && (As_req >= As_min);
+    if (ok) {
+      html += `<div class="status-bar status-ok"><div class="status-dot">✓</div>
+        OK — M<sub>d</sub>=${Md} t·m ≤ M<sub>cd,max</sub>=${Mcd_max.toFixed(2)} t·m &nbsp;|&nbsp;
+        A<sub>s</sub>=${As_req.toFixed(2)} ס"מ² ≥ A<sub>s,min</sub>=${As_min.toFixed(2)} ס"מ²
+      </div>`;
+    } else {
+      let reasons = [];
+      if (Md > Mcd_max) reasons.push(`M<sub>d</sub>=${Md} > M<sub>cd,max</sub>=${Mcd_max.toFixed(2)}`);
+      if (As_req < As_min) reasons.push(`A<sub>s</sub>=${As_req.toFixed(2)} < A<sub>s,min</sub>=${As_min.toFixed(2)} ס"מ²`);
+      html += `<div class="status-bar status-ng"><div class="status-dot">✗</div>NG — ${reasons.join(' | ')}</div>`;
+    }
+
+    // Suggestions
+    const sugg = DIAMETERS.map(dd => {
+      const a1 = barArea(dd);
+      const n  = Math.ceil(As_req/a1);
+      return { dd, n, area: n*a1 };
+    }).filter(s => s.n <= 12 && s.n >= 1);
+
+    html += `<div class="formula-block" style="margin-top:14px;"><div class="ftitle">הצעות ברזל לכפיפה</div>`;
+    sugg.slice(0,8).forEach(s => {
+      const st = s.area >= As_min ? '<span class="tag tag-ok">OK</span>' : '<span class="tag tag-ng">NG</span>';
+      html += `<div>${s.n}Ø${s.dd} → A<sub>s</sub>=${s.area.toFixed(2)} ס"מ² ${st}</div>`;
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('res_bending').innerHTML = html;
+}
+
+// =====================================================================
+// TAB 2 — SHEAR
+// =====================================================================
+function calcShear() {
+  const b    = +document.getElementById('sh_b').value;
+  const d    = +document.getElementById('sh_d').value;
+  const Vd   = +document.getElementById('sh_Vd').value;
+  const As   = +document.getElementById('sh_As').value;
+  const grade= document.getElementById('sh_conc').value;
+  const sg   = document.getElementById('sh_steel').value;
+
+  const { fcd, fctd } = CONC[grade];
+  const { fsd } = STEEL[sg];
+  const fck = CONC[grade].fck; // MPa
+
+  const bm   = b/100;  // m
+  const dm   = d/100;  // m
+  const d_mm = d*10;   // mm
+
+  const rho_l = Math.min(As/(b*d), 0.02);
+  const K     = Math.min(1 + Math.sqrt(200/d_mm), 2.0);
+
+  // Vrd,c in MPa unit factor
+  // Formula: Vrd_c [MN/m²] = (0.18/1.5)·K·(100·rho·fck)^(1/3)
+  // Vrd_c [N/mm²] same; then V [ton] = Vrd_c_MPa · b[m] · d[m] · 1000 / 9.81
+  // simpler: 1 MPa = 10.1972 t/m²
+  const conv = 10.1972; // MPa -> t/m²
+
+  const Vrd_c_MPa     = (0.18/1.5) * K * Math.pow(Math.max(100*rho_l*fck,0.001), 1/3);
+  const Vrd_c_ton     = Vrd_c_MPa * conv * bm * dm;
+
+  const Vrd_cmin_MPa  = 0.035 * Math.pow(K, 1.5) * Math.sqrt(fck);
+  const Vrd_cmin_ton  = Vrd_cmin_MPa * conv * bm * dm;
+
+  const Vrd_c_use     = Math.max(Vrd_c_ton, Vrd_cmin_ton);
+
+  const Vrd_max_MPa   = 0.18 * (1 - fck/250) * fck;
+  const Vrd_max_ton   = Vrd_max_MPa * conv * 0.9 * bm * dm;
+
+  const need = Vd > Vrd_c_use;
+  let Asv_sv = 0;
+  if (need) {
+    // fsd [t/m²] · 0.9·d[m] → t/m²·m = t/m; Vd [t] / (t/m) = m → ×10000 for cm²/m
+    Asv_sv = (Vd - Vrd_c_use) / (fsd * 0.9 * dm) * 10000;
+  }
+
+  // stirrup suggestion
+  function stirrupRec(asvS) {
+    const sDias = [6,8,10,12], spaces = [7.5,10,12.5,15,20,25];
+    for (const sp of spaces) {
+      for (const dd of sDias) {
+        const a = 2 * barArea(dd) * 100/sp;
+        if (a >= asvS) return `Ø${dd}@${sp}ס"מ (2 רגליים) → A<sub>sv</sub>/s=${a.toFixed(2)} ס"מ²/מ'`;
+      }
+    }
+    return 'נדרש עיצוב מיוחד — הגדל חתך';
+  }
+
+  let html = `<div class="results-grid">
+    <div class="result-box"><div class="r-label">ρ<sub>l</sub></div><div class="r-value">${rho_l.toFixed(5)}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">K</div><div class="r-value">${K.toFixed(3)}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">V<sub>rd,c</sub></div><div class="r-value">${Vrd_c_ton.toFixed(2)}</div><div class="r-unit">טון</div></div>
+    <div class="result-box"><div class="r-label">V<sub>rd,c,min</sub></div><div class="r-value">${Vrd_cmin_ton.toFixed(2)}</div><div class="r-unit">טון</div></div>
+    <div class="result-box"><div class="r-label">V<sub>rd,c,use</sub></div><div class="r-value">${Vrd_c_use.toFixed(2)}</div><div class="r-unit">טון</div></div>
+    <div class="result-box"><div class="r-label">V<sub>rd,max</sub></div><div class="r-value">${Vrd_max_ton.toFixed(2)}</div><div class="r-unit">טון</div></div>
+    ${need ? `<div class="result-box"><div class="r-label">A<sub>sv</sub>/s נדרש</div><div class="r-value">${Asv_sv.toFixed(2)}</div><div class="r-unit">ס"מ²/מ'</div></div>` : ''}
+  </div>`;
+
+  if (Vd > Vrd_max_ton) {
+    html += `<div class="status-bar status-ng"><div class="status-dot">✗</div>NG — V<sub>d</sub>=${Vd} t > V<sub>rd,max</sub>=${Vrd_max_ton.toFixed(2)} t | יש להגדיל חתך!</div>`;
+  } else if (!need) {
+    html += `<div class="status-bar status-ok"><div class="status-dot">✓</div>OK — V<sub>d</sub>=${Vd} t ≤ V<sub>rd,c</sub>=${Vrd_c_use.toFixed(2)} t | אין צורך בברזלי גזירה</div>`;
+  } else {
+    html += `<div class="status-bar status-warn"><div class="status-dot">!</div>נדרשים ברזלי גזירה | V<sub>d</sub>=${Vd} t | A<sub>sv</sub>/s=${Asv_sv.toFixed(2)} ס"מ²/מ'</div>`;
+    html += `<div class="stirrup-rec">&#128295; המלצה: ${stirrupRec(Asv_sv)}</div>`;
+  }
+
+  html += `<div class="formula-block" style="margin-top:14px;">
+    <div class="ftitle">פירוט חישוב גזירה</div>
+    <div>f<sub>ck</sub>=${fck} MPa | b=${b} ס"מ | d=${d} ס"מ | ρ<sub>l</sub>=${rho_l.toFixed(5)}</div>
+    <div>K = min(1+√(200/${d_mm}), 2) = ${K.toFixed(3)}</div>
+    <div>V<sub>rd,c</sub> = (0.18/1.5)×${K.toFixed(3)}×(100×${rho_l.toFixed(5)}×${fck})^(1/3)×${bm.toFixed(2)}×${dm.toFixed(2)}×${conv.toFixed(1)} = ${Vrd_c_ton.toFixed(2)} t</div>
+    <div>V<sub>rd,max</sub> = 0.18×(1-${fck}/250)×${fck}×0.9×${bm.toFixed(2)}×${dm.toFixed(2)}×${conv.toFixed(1)} = ${Vrd_max_ton.toFixed(2)} t</div>
+  </div>`;
+
+  document.getElementById('res_shear').innerHTML = html;
+}
+
+// =====================================================================
+// TAB 3 — ANCHORAGE
+// =====================================================================
+function calcAnchorage() {
+  const dia   = +document.getElementById('anc_dia').value;
+  const grade = document.getElementById('anc_conc').value;
+  const sg    = document.getElementById('anc_steel').value;
+  const pos   = document.getElementById('anc_pos').value;
+
+  const { fctd } = CONC[grade];
+  const { fsd }  = STEEL[sg];
+
+  const eta1 = pos === 'bottom' ? 1.0 : 0.7;
+  const eta2 = dia <= 32 ? 1.0 : 0.7;
+
+  const fbd    = 2.25 * eta1 * eta2 * fctd;          // t/m²
+  const lb_rqd = (dia/400) * (fsd/fbd);               // m
+  const lb_min = Math.max(0.3*lb_rqd, 10*dia/1000, 0.1); // m
+
+  let html = `<div class="results-grid">
+    <div class="result-box"><div class="r-label">η₁</div><div class="r-value">${eta1.toFixed(1)}</div><div class="r-unit">${pos==='bottom'?'תחתון':'עליון'}</div></div>
+    <div class="result-box"><div class="r-label">η₂</div><div class="r-value">${eta2.toFixed(1)}</div><div class="r-unit">Ø≤32</div></div>
+    <div class="result-box"><div class="r-label">f<sub>bd</sub></div><div class="r-value">${fbd.toFixed(1)}</div><div class="r-unit">t/m²</div></div>
+    <div class="result-box"><div class="r-label">l<sub>b,rqd</sub></div><div class="r-value">${lb_rqd.toFixed(3)}</div><div class="r-unit">מ'</div></div>
+    <div class="result-box"><div class="r-label">l<sub>b,rqd</sub></div><div class="r-value">${(lb_rqd*100).toFixed(1)}</div><div class="r-unit">ס"מ</div></div>
+    <div class="result-box"><div class="r-label">l<sub>b,min</sub></div><div class="r-value">${(lb_min*100).toFixed(1)}</div><div class="r-unit">ס"מ</div></div>
+  </div>`;
+
+  html += `<div class="formula-block" style="margin-top:14px;">
+    <div class="ftitle">פירוט — Ø${dia} | ${grade} | ${sg} | ${pos==='bottom'?'ברזל תחתון':'ברזל עליון'}</div>
+    <div>f<sub>ctd</sub> = ${fctd} t/m²</div>
+    <div>f<sub>bd</sub> = 2.25×${eta1}×${eta2}×${fctd} = ${fbd.toFixed(1)} t/m²</div>
+    <div>l<sub>b,rqd</sub> = (${dia}/400)×(${fsd}/${fbd.toFixed(1)}) = ${lb_rqd.toFixed(3)} מ' = ${(lb_rqd*100).toFixed(1)} ס"מ</div>
+    <div>l<sub>b,min</sub> = max(0.3×${lb_rqd.toFixed(3)}, 10×${dia}/1000, 0.1) = ${lb_min.toFixed(3)} מ' = ${(lb_min*100).toFixed(1)} ס"מ</div>
+  </div>`;
+
+  html += `<div class="status-bar status-ok"><div class="status-dot">✓</div>
+    אורך עיגון נדרש: <strong>${(lb_rqd*100).toFixed(0)} ס"מ</strong> &nbsp;|&nbsp; אורך מינימום: <strong>${(lb_min*100).toFixed(0)} ס"מ</strong>
+  </div>`;
+
+  document.getElementById('res_anchorage').innerHTML = html;
+}
+
+// =====================================================================
+// TAB 4 — WALLS
+// =====================================================================
+function calcWall() {
+  const t    = +document.getElementById('wall_t').value;
+  const H    = +document.getElementById('wall_H').value;
+  const Asv  = +document.getElementById('wall_Asv').value;
+  const Ash  = +document.getElementById('wall_Ash').value;
+  const grade= document.getElementById('wall_conc').value;
+
+  const { fcd } = CONC[grade];
+  const lambda   = 2 * H*100 / t;  // H in m → cm; both in cm
+  const bracket  = 1 - Math.pow(lambda/86.6, 2);
+  const Nrd      = bracket > 0 ? fcd * (t/100) * bracket : 0; // t/m (per 1m width)
+  const Nser     = Nrd / 1.45;
+
+  const As_min_vert  = 0.003 * t * 100; // cm²/m
+  const As_min_horiz = 0.001 * t * 100; // cm²/m
+
+  const vert_ok  = Asv >= As_min_vert;
+  const horiz_ok = Ash >= As_min_horiz;
+  const lam_ok   = lambda < 86.6;
+
+  let html = `<div class="results-grid">
+    <div class="result-box"><div class="r-label">λ = 2H/t</div><div class="r-value">${lambda.toFixed(2)}</div><div class="r-unit">— <span class="tag ${lam_ok?'tag-ok':'tag-ng'}">${lam_ok?'OK':'!!'}</span></div></div>
+    <div class="result-box"><div class="r-label">N<sub>rd</sub></div><div class="r-value">${Nrd.toFixed(2)}</div><div class="r-unit">t/מ'</div></div>
+    <div class="result-box"><div class="r-label">N<sub>ser</sub></div><div class="r-value">${Nser.toFixed(2)}</div><div class="r-unit">t/מ'</div></div>
+    <div class="result-box"><div class="r-label">A<sub>s,min,vert</sub></div><div class="r-value">${As_min_vert.toFixed(2)}</div><div class="r-unit">ס"מ²/מ'</div></div>
+    <div class="result-box"><div class="r-label">A<sub>s,min,horiz</sub></div><div class="r-value">${As_min_horiz.toFixed(2)}</div><div class="r-unit">ס"מ²/מ'</div></div>
+    <div class="result-box"><div class="r-label">פלדה אנכית</div><div class="r-value">${Asv}</div><div class="r-unit">ס"מ²/מ' <span class="tag ${vert_ok?'tag-ok':'tag-ng'}">${vert_ok?'OK':'NG'}</span></div></div>
+    <div class="result-box"><div class="r-label">פלדה אופקית</div><div class="r-value">${Ash}</div><div class="r-unit">ס"מ²/מ' <span class="tag ${horiz_ok?'tag-ok':'tag-ng'}">${horiz_ok?'OK':'NG'}</span></div></div>
+  </div>`;
+
+  const all_ok = lam_ok && vert_ok && horiz_ok && Nrd > 0;
+  if (all_ok) {
+    html += `<div class="status-bar status-ok"><div class="status-dot">✓</div>OK — N<sub>rd</sub>=${Nrd.toFixed(2)} t/מ' | N<sub>ser</sub>=${Nser.toFixed(2)} t/מ' | פלדה מינימלית מסופקת</div>`;
+  } else {
+    let r = [];
+    if (!lam_ok)   r.push(`λ=${lambda.toFixed(1)} ≥ 86.6 — קיר רזה מדי`);
+    if (Nrd <= 0)  r.push('N<sub>rd</sub> ≤ 0 — כשל! הגדל עובי');
+    if (!vert_ok)  r.push(`פלדה אנכית ${Asv} < ${As_min_vert.toFixed(2)} ס"מ²/מ'`);
+    if (!horiz_ok) r.push(`פלדה אופקית ${Ash} < ${As_min_horiz.toFixed(2)} ס"מ²/מ'`);
+    html += `<div class="status-bar status-ng"><div class="status-dot">✗</div>NG — ${r.join(' | ')}</div>`;
+  }
+
+  document.getElementById('res_wall').innerHTML = html;
+}
+
+// =====================================================================
+// TAB 5 — COLUMNS
+// =====================================================================
+function calcColumn() {
+  const b    = +document.getElementById('col_b').value;
+  const h    = +document.getElementById('col_h').value;
+  const rho  = +document.getElementById('col_rho').value;
+  const Nd   = +document.getElementById('col_Nd').value;
+  const My   = +document.getElementById('col_My').value;
+  const Mz   = +document.getElementById('col_Mz').value;
+  const grade= document.getElementById('col_conc').value;
+  const sg   = document.getElementById('col_steel').value;
+
+  const { fcd } = CONC[grade];
+  const { fsd } = STEEL[sg];
+
+  const A    = b * h;                                       // cm²
+  const Nrd  = (fcd + rho/100*(fsd-fcd)) * A/10000;        // ton
+  const Nser = Nrd / 1.55;                                  // ton
+  const As   = rho/100 * A;                                 // cm²
+  const As_min = Math.max(0.003*A, 4*barArea(16));          // cm²
+  const As_max = 0.08 * A;                                  // cm²
+  const util   = Nd / Nrd;
+  const ey     = My / Math.max(Nd, 0.001);                  // m
+  const ez     = Mz / Math.max(Nd, 0.001);                  // m
+
+  const ok_As = As >= As_min && As <= As_max;
+  const ok_N  = Nd <= Nrd;
+
+  let html = `<div class="results-grid">
+    <div class="result-box"><div class="r-label">A (שטח)</div><div class="r-value">${A.toFixed(0)}</div><div class="r-unit">ס"מ²</div></div>
+    <div class="result-box"><div class="r-label">A<sub>s</sub></div><div class="r-value">${As.toFixed(2)}</div><div class="r-unit">ס"מ²</div></div>
+    <div class="result-box"><div class="r-label">A<sub>s,min</sub></div><div class="r-value">${As_min.toFixed(2)}</div><div class="r-unit">ס"מ²</div></div>
+    <div class="result-box"><div class="r-label">A<sub>s,max</sub></div><div class="r-value">${As_max.toFixed(2)}</div><div class="r-unit">ס"מ²</div></div>
+    <div class="result-box"><div class="r-label">N<sub>rd</sub></div><div class="r-value">${Nrd.toFixed(1)}</div><div class="r-unit">טון</div></div>
+    <div class="result-box"><div class="r-label">N<sub>ser</sub></div><div class="r-value">${Nser.toFixed(1)}</div><div class="r-unit">טון</div></div>
+    <div class="result-box"><div class="r-label">ניצולת N<sub>d</sub>/N<sub>rd</sub></div><div class="r-value">${(util*100).toFixed(1)}%</div><div class="r-unit"><span class="tag ${util<=1?'tag-ok':'tag-ng'}">${util<=1?'OK':'NG'}</span></div></div>
+    <div class="result-box"><div class="r-label">e<sub>y</sub> = M<sub>y</sub>/N</div><div class="r-value">${ey.toFixed(3)}</div><div class="r-unit">מ'</div></div>
+    <div class="result-box"><div class="r-label">e<sub>z</sub> = M<sub>z</sub>/N</div><div class="r-value">${ez.toFixed(3)}</div><div class="r-unit">מ'</div></div>
+  </div>`;
+
+  if (ok_As && ok_N) {
+    html += `<div class="status-bar status-ok"><div class="status-dot">✓</div>OK — ניצולת ${(util*100).toFixed(1)}% | A<sub>s</sub>=${As.toFixed(2)} ס"מ² <span class="tag tag-ok">OK</span></div>`;
+  } else {
+    let r = [];
+    if (!ok_N)    r.push(`N<sub>d</sub>=${Nd}t > N<sub>rd</sub>=${Nrd.toFixed(1)}t`);
+    if (As<As_min)r.push(`A<sub>s</sub>${As.toFixed(1)} < A<sub>s,min</sub>=${As_min.toFixed(2)}`);
+    if (As>As_max)r.push(`A<sub>s</sub>${As.toFixed(1)} > A<sub>s,max</sub>=${As_max.toFixed(2)}`);
+    html += `<div class="status-bar status-ng"><div class="status-dot">✗</div>NG — ${r.join(' | ')}</div>`;
+  }
+
+  // bar suggestions for column
+  html += `<div class="formula-block" style="margin-top:14px;"><div class="ftitle">הצעות ברזל לעמוד</div>`;
+  [12,16,20,25,32].forEach(dd => {
+    const a1 = barArea(dd);
+    const n  = Math.max(4, Math.ceil(As/a1));
+    const atot = n*a1;
+    const st = (atot>=As_min&&atot<=As_max)?'<span class="tag tag-ok">OK</span>':'<span class="tag tag-ng">NG</span>';
+    html += `<div>${n}Ø${dd} → ${atot.toFixed(2)} ס"מ² ${st}</div>`;
+  });
+  html += '</div>';
+
+  document.getElementById('res_column').innerHTML = html;
+}
+
+// =====================================================================
+// TAB 6 — SEISMIC
+// =====================================================================
+let seisChart = null;
+
+const CITIES = [
+  {name:'אילת',zone:'3'},{name:'תל אביב',zone:'2b'},{name:'חיפה',zone:'2b'},
+  {name:'ירושלים',zone:'2a'},{name:'נתניה',zone:'2b'},{name:'באר שבע',zone:'1'},
+  {name:'אשדוד',zone:'2b'},{name:'ראשל"צ',zone:'2b'},{name:'טבריה',zone:'3'},
+  {name:'צפת',zone:'3'},{name:'רחובות',zone:'2b'},{name:'רמת גן',zone:'2a'},
+  {name:'בני ברק',zone:'2b'},{name:'עכו',zone:'3'},{name:'נצרת',zone:'3'},
+  {name:'אשקלון',zone:'2b'}
+];
+
+function buildCities() {
+  const el = document.getElementById('cityGrid');
+  el.innerHTML = CITIES.map(c =>
+    `<button class="city-btn" onclick="selCity(this,'${c.zone}')">${c.name}</button>`
+  ).join('');
+}
+
+function selCity(el, zone) {
+  document.querySelectorAll('.city-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('seis_zone').value = zone;
+}
+
+const SOIL_PARAMS = {
+  A: {S:1.0, TB:0.15, TC:0.4,  TD:2.0},
+  B: {S:1.2, TB:0.15, TC:0.5,  TD:2.0},
+  C: {S:1.15,TB:0.20, TC:0.6,  TD:2.0},
+  D: {S:1.35,TB:0.20, TC:0.8,  TD:2.0},
+  E: {S:1.4, TB:0.15, TC:0.5,  TD:2.0}
+};
+const AG_MAP = {'1':0.07,'2a':0.10,'2b':0.15,'3':0.20};
+
+function specSa(T, ag, gI, S, TB, TC, TD) {
+  const base = ag * gI * 9.81; // m/s²
+  if (T <= 0)  return base * S;
+  if (T <= TB) return base * S * (1 + T/TB*(2.5-1));
+  if (T <= TC) return base * S * 2.5;
+  if (T <= TD) return base * S * 2.5 * TC/T;
+  return base * S * 2.5 * TC * TD / (T*T);
+}
+
+function calcSeismic() {
+  const zone = document.getElementById('seis_zone').value;
+  const soil = document.getElementById('seis_soil').value;
+  const gI   = +document.getElementById('seis_imp').value;
+  const T    = +document.getElementById('seis_T').value;
+
+  const ag   = AG_MAP[zone];
+  const {S, TB, TC, TD} = SOIL_PARAMS[soil];
+  const Sa_T = specSa(T, ag, gI, S, TB, TC, TD);
+
+  let html = `<div class="results-grid">
+    <div class="result-box"><div class="r-label">ag</div><div class="r-value">${ag}g</div><div class="r-unit">${(ag*9.81).toFixed(3)} m/s²</div></div>
+    <div class="result-box"><div class="r-label">מקדם קרקע S</div><div class="r-value">${S}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">T<sub>B</sub></div><div class="r-value">${TB}</div><div class="r-unit">שנ'</div></div>
+    <div class="result-box"><div class="r-label">T<sub>C</sub></div><div class="r-value">${TC}</div><div class="r-unit">שנ'</div></div>
+    <div class="result-box"><div class="r-label">T<sub>D</sub></div><div class="r-value">${TD}</div><div class="r-unit">שנ'</div></div>
+    <div class="result-box"><div class="r-label">Sa(T=${T}s)</div><div class="r-value">${Sa_T.toFixed(3)}</div><div class="r-unit">m/s²</div></div>
+    <div class="result-box"><div class="r-label">Sa/g</div><div class="r-value">${(Sa_T/9.81).toFixed(3)}</div><div class="r-unit">g</div></div>
+    <div class="result-box"><div class="r-label">ag·γI</div><div class="r-value">${(ag*gI).toFixed(3)}</div><div class="r-unit">g</div></div>
+  </div>`;
+  html += `<div class="status-bar status-ok"><div class="status-dot">✓</div>אזור ${zone} | קרקע ${soil} | γI=${gI} | T=${T}s → Sa=${Sa_T.toFixed(3)} m/s² = ${(Sa_T/9.81*100).toFixed(1)}%g</div>`;
+  document.getElementById('res_seismic').innerHTML = html;
+
+  // Chart
+  const labels=[], data=[];
+  for (let t=0; t<=4.005; t+=0.04) {
+    labels.push(t.toFixed(2));
+    data.push(+(specSa(t, ag, gI, S, TB, TC, TD)/9.81).toFixed(5));
+  }
+  // mark T point
+  const tIdx = labels.findIndex(l => Math.abs(+l - T) < 0.025);
+  const ptData = data.map((_,i)=> i===tIdx ? data[i] : null);
+
+  const ctx = document.getElementById('seismicChart').getContext('2d');
+  if (seisChart) seisChart.destroy();
+  seisChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:`ספקטרום תגובה Sa(T) [g] — אזור ${zone}, קרקע ${soil}`,
+        data,
+        borderColor:'#2a5298',
+        backgroundColor:'rgba(42,82,152,0.1)',
+        borderWidth:2.5, pointRadius:0, fill:true, tension:0.1
+      },{
+        label:`T=${T}s | Sa=${(Sa_T/9.81).toFixed(3)}g`,
+        data:ptData,
+        borderColor:'#c8a951',
+        backgroundColor:'#c8a951',
+        pointRadius:8, showLine:false
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{rtl:true, labels:{font:{family:'Segoe UI',size:12}}},
+        tooltip:{callbacks:{label:c=>`Sa = ${c.parsed.y.toFixed(3)}g`}}
+      },
+      scales:{
+        x:{title:{display:true,text:'תקופה T (שניות)',font:{size:12}}, ticks:{maxTicksLimit:12}},
+        y:{title:{display:true,text:'Sa (g)',font:{size:12}}, beginAtZero:true}
+      }
+    }
+  });
+}
+
+// =====================================================================
+// TAB 7 — SLENDERNESS
+// =====================================================================
+function calcSlenderness() {
+  const L    = +document.getElementById('sl_L').value;
+  const b    = +document.getElementById('sl_b').value;
+  const h    = +document.getElementById('sl_h').value;
+  const bc   = +document.getElementById('sl_bc').value;
+  const Nd   = +document.getElementById('sl_Nd').value;
+  const rho  = +document.getElementById('sl_rho').value;
+  const grade= document.getElementById('sl_conc').value;
+
+  const { fcd } = CONC[grade];
+  const lo    = bc * L;            // m (effective length)
+  const i     = Math.min(b,h) / Math.sqrt(12); // cm
+  const lambda= lo * 100 / i;
+
+  const A_col = b * h;             // cm²
+  // n = Nd / Nrd_conc
+  const Nrd_pure = fcd * A_col / 10000; // ton (concrete only)
+  const n = Nd / Math.max(Nrd_pure, 0.001);
+
+  const Abc = 0.7, Bbc = 1.1, Cbc = 0.7;
+  const lam_lim = 20 * Abc * Bbc * Cbc / Math.sqrt(Math.max(n, 0.001));
+
+  const is_short = lambda <= lam_lim;
+
+  let html = `<div class="results-grid">
+    <div class="result-box"><div class="r-label">Aorunt יעיל l₀</div><div class="r-value">${lo.toFixed(2)}</div><div class="r-unit">מ' (β=${bc})</div></div>
+    <div class="result-box"><div class="r-label">רדיוס אינרציה i</div><div class="r-value">${i.toFixed(2)}</div><div class="r-unit">ס"מ</div></div>
+    <div class="result-box"><div class="r-label">λ</div><div class="r-value">${lambda.toFixed(2)}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">N<sub>rd,conc</sub></div><div class="r-value">${Nrd_pure.toFixed(1)}</div><div class="r-unit">טון</div></div>
+    <div class="result-box"><div class="r-label">n = N<sub>d</sub>/N<sub>rd,c</sub></div><div class="r-value">${n.toFixed(4)}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">λ<sub>lim</sub></div><div class="r-value">${lam_lim.toFixed(2)}</div><div class="r-unit">—</div></div>
+    <div class="result-box"><div class="r-label">סטטוס</div><div class="r-value">${is_short?'קצר':'רזה'}</div><div class="r-unit"><span class="tag ${is_short?'tag-ok':'tag-ng'}">${is_short?'OK':'NG'}</span></div></div>
+  </div>`;
+
+  if (is_short) {
+    html += `<div class="status-bar status-ok"><div class="status-dot">✓</div>עמוד קצר — λ=${lambda.toFixed(1)} ≤ λ<sub>lim</sub>=${lam_lim.toFixed(1)} | אין צורך בניתוח מסדר שני</div>`;
+  } else {
+    html += `<div class="status-bar status-ng"><div class="status-dot">✗</div>עמוד רזה — λ=${lambda.toFixed(1)} > λ<sub>lim</sub>=${lam_lim.toFixed(1)} | נדרש ניתוח מסדר שני!</div>`;
+    html += `<div class="note">&#9888; עמוד רזה (slender): יש לבצע ניתוח מסדר שני לפי IS-413 §5.8 (שיטה נומינלית או עקומות אינטראקציה).</div>`;
+  }
+
+  html += `<div class="formula-block" style="margin-top:14px;">
+    <div class="ftitle">פירוט חישוב</div>
+    <div>β=${bc} | l₀ = ${bc}×${L} = ${lo.toFixed(2)} מ'</div>
+    <div>i = min(${b},${h})/√12 = ${Math.min(b,h)}/√12 = ${i.toFixed(2)} ס"מ</div>
+    <div>λ = ${lo.toFixed(2)}×100/${i.toFixed(2)} = ${lambda.toFixed(2)}</div>
+    <div>N<sub>rd,conc</sub> = ${fcd}×${A_col}/10000 = ${Nrd_pure.toFixed(1)} t</div>
+    <div>n = ${Nd}/${Nrd_pure.toFixed(1)} = ${n.toFixed(4)}</div>
+    <div>λ<sub>lim</sub> = 20×0.7×1.1×0.7/√${n.toFixed(4)} = ${lam_lim.toFixed(2)}</div>
+  </div>`;
+
+  document.getElementById('res_slenderness').innerHTML = html;
+}
+
+// =====================================================================
+// TAB 8 — CONCRETE PROPERTIES (static table)
+// =====================================================================
+function buildConcreteProps() {
+  const grades = ['B20','B25','B30','B40','B50','B60'];
+  let tbody = '';
+  grades.forEach(g => {
+    const {fcd,fctd,Ec,fck} = CONC[g];
+    const fbd_bot = (2.25*1.0*1.0*fctd).toFixed(0);
+    const fbd_top = (2.25*0.7*1.0*fctd).toFixed(0);
+    const vmin    = (0.035*Math.pow(1.0,1.5)*Math.sqrt(fck)).toFixed(3);
+    const hl      = (g==='B30'||g==='B40') ? ' class="hl-row"' : '';
+    tbody += `<tr${hl}><td><strong>${g}</strong></td><td>${fck}</td><td>${fcd}</td><td>${fctd}</td><td>${Ec.toLocaleString()}</td><td>${fbd_bot}</td><td>${fbd_top}</td><td>${vmin}</td></tr>`;
+  });
+  document.getElementById('propTbody').innerHTML = tbody;
+
+  // cards
+  let cards = '';
+  grades.forEach(g => {
+    const {fcd,fctd,Ec,fck} = CONC[g];
+    const fbd = (2.25*1.0*1.0*fctd).toFixed(0);
+    cards += `<div class="prop-card">
+      <div class="pc-grade">${g}</div>
+      <div class="pc-row">f<sub>ck</sub> = ${fck} MPa</div>
+      <div class="pc-row">f<sub>cd</sub> = ${fcd} t/m²</div>
+      <div class="pc-row">f<sub>ctd</sub> = ${fctd} t/m²</div>
+      <div class="pc-row">E<sub>c</sub> = ${(Ec/1000).toFixed(0)}·10³ t/m²</div>
+      <div class="pc-row">f<sub>bd</sub> = ${fbd} t/m²</div>
+    </div>`;
+  });
+  document.getElementById('propCards').innerHTML = cards;
+}
+
+// =====================================================================
+// TAB 9 — STEEL AREAS
+// =====================================================================
+function buildSteelTables() {
+  // n-bars table
+  let nt = '';
+  DIAMETERS.forEach(d => {
+    const a1 = barArea(d);
+    let row = `<tr><td><strong>Ø${d}</strong></td><td>${a1.toFixed(3)}</td>`;
+    for (let n=1;n<=8;n++) row += `<td>${(n*a1).toFixed(2)}</td>`;
+    nt += row + '</tr>';
+  });
+  document.getElementById('steelNTbody').innerHTML = nt;
+
+  // spacing table
+  const spaces = [7.5,10,12.5,15,20,25,30];
+  let st = '';
+  DIAMETERS.forEach(d => {
+    const a1 = barArea(d);
+    let row = `<tr><td><strong>Ø${d}</strong></td>`;
+    spaces.forEach(s => row += `<td>${(a1*100/s).toFixed(2)}</td>`);
+    st += row + '</tr>';
+  });
+  document.getElementById('steelSTbody').innerHTML = st;
+}
+
+function calcSteelArea() {
+  const dia     = +document.getElementById('sa_dia').value;
+  const n       = +document.getElementById('sa_n').value;
+  const spacing = +document.getElementById('sa_spacing').value;
+  const a1      = barArea(dia);
+  const tot     = n * a1;
+  const pm      = a1 * 100 / spacing;
+  const perim   = Math.PI * dia / 10; // cm
+
+  document.getElementById('res_steel_quick').innerHTML = `
+    <div class="results-grid">
+      <div class="result-box"><div class="r-label">A<sub>1</sub> לברזל Ø${dia}</div><div class="r-value">${a1.toFixed(3)}</div><div class="r-unit">ס"מ²</div></div>
+      <div class="result-box"><div class="r-label">${n}×Ø${dia}</div><div class="r-value">${tot.toFixed(2)}</div><div class="r-unit">ס"מ²</div></div>
+      <div class="result-box"><div class="r-label">@${spacing}ס"מ לרוחב</div><div class="r-value">${pm.toFixed(2)}</div><div class="r-unit">ס"מ²/מ'</div></div>
+      <div class="result-box"><div class="r-label">פריפריה</div><div class="r-value">${perim.toFixed(2)}</div><div class="r-unit">ס"מ</div></div>
+      <div class="result-box"><div class="r-label">משקל Ø${dia}</div><div class="r-value">${(a1*7.85/10000*1e4).toFixed(3)}</div><div class="r-unit">ק"ג/מ'</div></div>
+    </div>
+    <div class="status-bar status-ok"><div class="status-dot">✓</div>${n}Ø${dia} = ${tot.toFixed(2)} ס"מ² &nbsp;|&nbsp; @${spacing}ס"מ = ${pm.toFixed(2)} ס"מ²/מ'</div>`;
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  buildCities();
+  buildConcreteProps();
+  buildSteelTables();
+  // run initial calculations so results show on first load
+  calcBending();
+  calcSeismic();
+});
+</script>
+</body>
+</html>
