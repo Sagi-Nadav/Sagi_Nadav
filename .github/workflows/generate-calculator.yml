@@ -18,16 +18,11 @@ jobs:
       - name: Install Claude Code
         uses: pleaseai/setup-claude-code@v1.1.4
 
-      - name: Authenticate Claude Code
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: claude login --api-key "$ANTHROPIC_API_KEY"
-
       - name: Generate Calculator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          claude --dangerously-skip-permissions -p "Build a comprehensive single-file Hebrew RTL reinforced concrete web calculator at concrete-calculator.html implementing IS-413. Include tabs: כפיפה (bending: Mcd_max=0.32*b*d^2*fcd, omega=max(0.1,1-sqrt(1-2Md/bd2fcd)), As=Md/(d*(1-omega/2)*fsd/100)), גזירה (shear: K=min(1+sqrt(200/d_mm),2), Vrd_c, Vrd_max, Asv/sv), עיגון (anchorage: lb=fsd/(4*fbd)), קירות (walls: Nser=Nrd/1.45), עמודים (columns: Nser=((rho*fsd*1e-2)+(1-rho)*fcd*1e-4)*A*B/1.55), ספקטרום רעידה (seismic with Chart.js), התמירות, תכונות בטון, שטחי ברזל. Concrete: B30 fcd=1300, B40 fcd=1740, B50 fcd=2170, B60 fcd=2600 all in t/m2. Professional blue #1e3a5f RTL Hebrew design." --allowedTools "Write,Bash,Read,Edit"
+          claude --dangerously-skip-permissions -p "Build a comprehensive single-file Hebrew RTL reinforced concrete web calculator at concrete-calculator.html implementing IS-413. Include tabs: [...]
 
       - name: Commit and Push
         run: |
