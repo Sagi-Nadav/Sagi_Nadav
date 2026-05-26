@@ -22,7 +22,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          claude --dangerously-skip-permissions -p "Build a comprehensive single-file Hebrew RTL reinforced concrete web calculator at concrete-calculator.html implementing IS-413. Include tabs: [...]
+          claude --dangerously-skip-permissions -p "Build a comprehensive single-file Hebrew RTL reinforced concrete web calculator at concrete-calculator.html implementing IS-413. Include tabs for design calculations, material properties, and code references."
 
       - name: Commit and Push
         run: |
