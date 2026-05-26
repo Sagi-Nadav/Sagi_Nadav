@@ -18,46 +18,16 @@ jobs:
       - name: Install Claude Code
         uses: pleaseai/setup-claude-code@v1.1.4
 
-             - name: Authenticate Claude Code
-         env:
-           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-         run: |
-           claude login --api-key "$ANTHROPIC_API_KEY"
-           claude login
-
       - name: Generate Calculator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          claude --dangerously-skip-permissions -p "
-          Build a comprehensive single-file Hebrew RTL reinforced concrete web calculator
-          at concrete-calculator.html, implementing IS-413 (Israeli Standard) calculations.
-
-          CONCRETE PROPERTIES TABLE (embed as JS constant):
-          B30: fcd=1300 t/m², rhoMin=0.0013, fctm=2.3 MPa, rhoVmin=0.001, Ec=26200, fctk=1.63, fctd=0.5433, fbd_good=2.45, fbd_poor=1.71
-          B40: fcd=1740 t/m², rhoMin=0.0016, fctm=2.8 MPa, rhoVmin=0.0012, Ec=28200, fctk=1.94, fctd=0.6467, fbd_good=2.91, fbd_poor=2.04
-          B50: fcd=2170 t/m², rhoMin=0.0018, fctm=3.2 MPa, rhoVmin=0.0014, Ec=30000, fctk=2.2, fctd=0.7333, fbd_good=3.4, fbd_poor=2.38
-          B60: fcd=2600 t/m², rhoMin=0.0021, fctm=3.6 MPa, rhoVmin=0.0016, Ec=31700, fctk=2.65, fctd=0.8833, fbd_good=3.97, fbd_poor=2.78
-
-          TABS TO IMPLEMENT:
-          1. כפיפה: Mcd_max=0.32*b*d^2*fcd, omega=max(0.1,1-sqrt(1-2*Md/(b*d^2*fcd))), As_calc=Md/(d*(1-omega/2)*fsd/100)
-          2. גזירה: K=min(1+sqrt(200/(d*1000)),2), Vrd_c, Vrd_max=0.6*(1-0.7*fck/250)*fcd*b*0.9*d*cos(theta)*sin(theta), Asv_sv=Vd/(0.9*d*(1/tan(theta))*fsd)
-          3. עיגון: lb_phi=fsd/(4*fbd), la1=direct?lb*alpha1*2/3:lb*alpha1
-          4. קירות: As_m=2*(PI*phi^2/4/100)/(spacing/100), Nrd=0.95*((wall_t-2*ecc)/100)*fcd+(fsd/100)*As_m, Nser=Nrd/1.45
-          5. עמודים: As=N*PI*phi^2/4*0.01, Nser=((rho*fsd*1e-2)+(1-rho)*fcd*1e-4)*A*B/1.55
-          6. ספקטרום רעידה: top 50 Israeli cities, Fa/Fv tables A-E, SDS=Fa*Ss, SD1=Fv*S1, T0=0.2*SD1/SDS, TS=SD1/SDS, TL=4, Sa curve, Chart.js chart, Cd=Sa*I/K
-          7. התמירות: k12=24.4*(10/(Fser*10))^(1/3), h_req=L0/k12*100
-          8. תכונות בטון: static table B30-B60
-          9. שטחי ברזל: phi 8-36 vs bars 1-15 and spacing 10-30cm
-
-          Professional blue #1e3a5f, RTL Hebrew, Chart.js CDN, live calculations, mobile responsive.
-          " \
-          --allowedTools "Write,Bash,Read,Edit"
+          claude --dangerously-skip-permissions -p "Build a comprehensive single-file Hebrew RTL reinforced concrete web calculator at concrete-calculator.html implementing IS-413. Include tabs: כפיפה (bending: Mcd_max=0.32*b*d^2*fcd, omega=max(0.1,1-sqrt(1-2Md/bd2fcd)), As=Md/(d*(1-omega/2)*fsd/100)), גזירה (shear: K=min(1+sqrt(200/d_mm),2), Vrd_c, Vrd_max, Asv/sv), עיגון (anchorage: lb=fsd/(4*fbd)), קירות (walls: Nser=Nrd/1.45), עמודים (columns: Nser=((rho*fsd*1e-2)+(1-rho)*fcd*1e-4)*A*B/1.55), ספקטרום רעידה (seismic with Chart.js), התמירות, תכונות בטון, שטחי ברזל. Concrete: B30 fcd=1300, B40 fcd=1740, B50 fcd=2170, B60 fcd=2600 all in t/m2. Professional blue #1e3a5f RTL Hebrew design." --allowedTools "Write,Bash,Read,Edit"
 
       - name: Commit and Push
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
           git add concrete-calculator.html
-          git diff --cached --quiet || git commit -m "Generate IS-413 concrete calculator via Claude Code"
+          git diff --cached --quiet || git commit -m "Generate IS-413 concrete calculator"
           git push origin main
