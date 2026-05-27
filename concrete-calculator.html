@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מחשבון בטון מזוין IS-413</title>
+<title>מחשבון בטון IS-466 חלק 1</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root{--navy:#1e3a5f;--nb:#122840;--nl:#2a5298;--acc:#c8a951;--bg:#f0f4f8;--ok:#2e7d32;--ok-b:#e8f5e9;--ng:#c62828;--ng-b:#ffebee}
@@ -35,344 +35,37 @@ table{width:100%;border-collapse:collapse;font-size:.82rem}th{background:var(--n
 td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-child(even) td{background:#f5f7fa}
 .f{background:#f0f4f8;border-right:4px solid var(--acc);padding:8px 12px;border-radius:6px;font-family:monospace;font-size:.82rem;margin:8px 0;direction:ltr;text-align:left}
 @media print{header,.tabs{display:none}.content{display:block!important}}
-</style>
-</head>
+</style></head>
 <body>
-<header><div><h1>&#x1F3D7; מחשבון בטון IS-413</h1><p>תקן ישראלי ת"י 413</p></div><div class="badge">IS-413</div></header>
-<div class="tabs">
-<button class="tab a" onclick="show(0,this)">כפיפה</button>
-<button class="tab" onclick="show(1,this)">גזירה</button>
-<button class="tab" onclick="show(2,this)">עיגון</button>
-<button class="tab" onclick="show(3,this)">קירות</button>
-<button class="tab" onclick="show(4,this)">עמודים</button>
-<button class="tab" onclick="show(5,this)">ספקטרום</button>
-<button class="tab" onclick="show(6,this)">התמירות</button>
-<button class="tab" onclick="show(7,this)">תכונות בטון</button>
-<button class="tab" onclick="show(8,this)">שטחי ברזל</button>
-</div>
-
-<div class="content a" id="t0">
-<div class="card"><h2>כפיפה (Bending)</h2>
-<div class="row">
-<div>
-<div class="fg"><label>רוחב b [cm]</label><input id="b0" type="number" value="30" step="5"></div>
-<div class="fg"><label>גובה h [cm]</label><input id="h0" type="number" value="60" step="5"></div>
-<div class="fg"><label>כיסוי c [cm]</label><input id="c0" type="number" value="3.5" step="0.5"></div>
-<div class="fg"><label>קוטר ברזל [mm]</label><input id="phi0" type="number" value="20" step="2"></div>
-</div>
-<div>
-<div class="fg"><label>סוג בטון</label>
-<select id="con0"><option value="1300,83">B30 fcd=1300</option><option value="1740,100">B40 fcd=1740</option><option value="2170,117">B50 fcd=2170</option><option value="2600,133">B60 fcd=2600</option></select></div>
-<div class="fg"><label>סוג פלדה</label>
-<select id="steel0"><option value="34800">B400 fsd=34800</option><option value="43500" selected>B500 fsd=43500</option></select></div>
-<div class="fg"><label>מומנט Md [t.m]</label><input id="M0" type="number" value="25" step="1"></div>
-</div>
-</div>
-<button class="btn" onclick="calcBend()">חשב כפיפה</button>
-<div class="res" id="res0"></div>
-</div>
-<div class="card"><h2>נוסחאות כפיפה</h2>
-<div class="f">d = h - c - phi/20 [cm]</div>
-<div class="f">Mcd_max = 0.32 * b[m] * d[m]^2 * fcd [t.m]</div>
-<div class="f">mu = Md / (b * d^2 * fcd)</div>
-<div class="f">omega = max(0.1, 1 - sqrt(1 - 2*mu))</div>
-<div class="f">As = Md / (d[m] * (1 - omega/2) * fsd/100) [cm2]</div>
-</div>
-</div>
-
-<div class="content" id="t1">
-<div class="card"><h2>גזירה (Shear)</h2>
-<div class="row">
-<div>
-<div class="fg"><label>רוחב b [cm]</label><input id="b1" type="number" value="30" step="5"></div>
-<div class="fg"><label>גובה אפקטיבי d [cm]</label><input id="d1" type="number" value="55" step="5"></div>
-<div class="fg"><label>ברזל אורכי As [cm2]</label><input id="As1" type="number" value="12" step="1"></div>
-</div>
-<div>
-<div class="fg"><label>סוג בטון</label>
-<select id="con1"><option value="20,1300">B30 fck=20MPa</option><option value="27,1740">B40 fck=27MPa</option><option value="33,2170">B50 fck=33MPa</option><option value="40,2600">B60 fck=40MPa</option></select></div>
-<div class="fg"><label>פלדה אזיקים</label>
-<select id="steel1"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div>
-<div class="fg"><label>גזירה Vd [ton]</label><input id="V1" type="number" value="30" step="1"></div>
-</div>
-</div>
-<button class="btn" onclick="calcShear()">חשב גזירה</button>
-<div class="res" id="res1"></div>
-</div>
-<div class="card"><h2>נוסחאות גזירה</h2>
-<div class="f">K = min(1 + sqrt(200/d_mm), 2)</div>
-<div class="f">rho_l = min(As/(b*d), 0.02)</div>
-<div class="f">Vrd_c = 0.12*K*(100*rho_l*fck)^(1/3)*b[m]*d[m]*100 [ton]</div>
-<div class="f">Vrd_max = 0.18*(1-fck/250)*fck*0.9*b*d*100 [ton]</div>
-<div class="f">Asv/sv = (Vd-Vrd_c)/(fsd*0.9*d[m]) [cm2/m]</div>
-</div>
-</div>
-
-<div class="content" id="t2">
-<div class="card"><h2>עיגון (Anchorage)</h2>
-<div class="row">
-<div>
-<div class="fg"><label>קוטר ברזל [mm]</label><input id="phi2" type="number" value="20" step="2"></div>
-<div class="fg"><label>מיקום</label>
-<select id="pos2"><option value="1">תחתון eta1=1.0</option><option value="0.7">עליון eta1=0.7</option></select></div>
-</div>
-<div>
-<div class="fg"><label>סוג בטון</label>
-<select id="con2"><option value="83">B30 fctd=83</option><option value="100">B40 fctd=100</option><option value="117">B50 fctd=117</option><option value="133">B60 fctd=133</option></select></div>
-<div class="fg"><label>סוג פלדה</label>
-<select id="steel2"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div>
-</div>
-</div>
-<button class="btn" onclick="calcAnch()">חשב עיגון</button>
-<div class="res" id="res2"></div>
-</div>
-<div class="card"><h2>נוסחאות עיגון</h2>
-<div class="f">fbd = 2.25 * eta1 * fctd [t/m2]</div>
-<div class="f">lb_rqd = (phi/400) * (fsd/fbd) [m]</div>
-<div class="f">lb_min = max(0.3*lb_rqd, 10*phi/1000, 0.10) [m]</div>
-</div>
-</div>
-
-<div class="content" id="t3">
-<div class="card"><h2>קירות (Walls)</h2>
-<div class="row">
-<div>
-<div class="fg"><label>עובי t [cm]</label><input id="t3i" type="number" value="20" step="5"></div>
-<div class="fg"><label>גובה H [m]</label><input id="H3" type="number" value="3" step="0.5"></div>
-<div class="fg"><label>ברזל אנכי Asv [cm2/m]</label><input id="Asv3" type="number" value="5" step="1"></div>
-<div class="fg"><label>ברזל אופקי Ash [cm2/m]</label><input id="Ash3" type="number" value="3" step="1"></div>
-</div>
-<div>
-<div class="fg"><label>סוג בטון</label>
-<select id="con3"><option value="1300">B30</option><option value="1740">B40</option><option value="2170">B50</option><option value="2600">B60</option></select></div>
-<div class="fg"><label>תנאי קצה</label>
-<select id="bc3"><option value="2">פרקי-פרקי</option><option value="1">עצור-עצור</option><option value="2.8">פרקי-חופשי</option></select></div>
-</div>
-</div>
-<button class="btn" onclick="calcWall()">חשב קיר</button>
-<div class="res" id="res3"></div>
-</div>
-<div class="card"><h2>נוסחאות קירות</h2>
-<div class="f">lambda = factor * H[cm] / t[cm]</div>
-<div class="f">Nrd = fcd * (t/100) * (1-(lambda/86.6)^2) [t/m]</div>
-<div class="f">Nser = Nrd / 1.45 [t/m]</div>
-</div>
-</div>
-
-<div class="content" id="t4">
-<div class="card"><h2>עמודים (Columns)</h2>
-<div class="row">
-<div>
-<div class="fg"><label>רוחב b [cm]</label><input id="b4" type="number" value="40" step="5"></div>
-<div class="fg"><label>גובה h [cm]</label><input id="h4" type="number" value="40" step="5"></div>
-<div class="fg"><label>אחוז ברזל rho [%]</label><input id="rho4" type="number" value="2" step="0.5" min="0.3" max="8"></div>
-</div>
-<div>
-<div class="fg"><label>סוג בטון</label>
-<select id="con4"><option value="1300">B30</option><option value="1740">B40</option><option value="2170">B50</option><option value="2600">B60</option></select></div>
-<div class="fg"><label>סוג פלדה</label>
-<select id="steel4"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div>
-<div class="fg"><label>עומס Nd [ton]</label><input id="N4" type="number" value="200" step="10"></div>
-</div>
-</div>
-<button class="btn" onclick="calcCol()">חשב עמוד</button>
-<div class="res" id="res4"></div>
-</div>
-<div class="card"><h2>נוסחאות עמודים</h2>
-<div class="f">A = b * h [cm2]</div>
-<div class="f">Nrd = (rho/100*fsd + (1-rho/100)*fcd) * A/10000 [ton]</div>
-<div class="f">Nser = Nrd / 1.55 [ton]</div>
-</div>
-</div>
-
-<div class="content" id="t5">
-<div class="card"><h2>ספקטרום רעידת אדמה</h2>
-<div class="row">
-<div>
-<div class="fg"><label>אזור סייסמי</label>
-<select id="zone5" onchange="calcSpec()"><option value="0.07">אזור 1 ag=0.07g</option><option value="0.10" selected>אזור 2a ag=0.10g</option><option value="0.15">אזור 2b ag=0.15g</option><option value="0.20">אזור 3 ag=0.20g</option></select></div>
-<div class="fg"><label>סוג קרקע</label>
-<select id="soil5" onchange="calcSpec()"><option value="1.0,0.15,0.4,2.0">A - סלע</option><option value="1.2,0.15,0.5,2.5" selected>B - טוב</option><option value="1.15,0.2,0.6,2.5">C - בינוני</option><option value="1.35,0.2,0.8,2.5">D - רך</option><option value="1.4,0.15,0.5,2.5">E - רך מאוד</option></select></div>
-</div>
-<div>
-<div class="fg"><label>גורם חשיבות gI</label>
-<select id="gi5" onchange="calcSpec()"><option value="0.8">0.8 פחות חשוב</option><option value="1.0" selected>1.0 רגיל</option><option value="1.2">1.2 חשוב</option><option value="1.4">1.4 קריטי</option></select></div>
-<div class="fg"><label>תקופה T [sec]</label><input id="T5" type="number" value="0.5" step="0.05" min="0.01" onchange="calcSpec()"></div>
-</div>
-</div>
-<div class="res" id="res5"></div>
-<canvas id="specChart" style="margin-top:16px;max-height:280px"></canvas>
-</div>
-</div>
-
-<div class="content" id="t6">
-<div class="card"><h2>התמירות (Slenderness)</h2>
-<div class="row">
-<div>
-<div class="fg"><label>אורך L [m]</label><input id="L6" type="number" value="4" step="0.5"></div>
-<div class="fg"><label>רוחב b [cm]</label><input id="b6" type="number" value="40" step="5"></div>
-<div class="fg"><label>גובה h [cm]</label><input id="h6" type="number" value="40" step="5"></div>
-<div class="fg"><label>תנאי קצה</label>
-<select id="bc6"><option value="1.0">פרקי-פרקי lo=L</option><option value="0.7" selected>קצה עצור lo=0.7L</option><option value="0.5">שני קצוות עצורים lo=0.5L</option><option value="2.0">זיז lo=2L</option></select></div>
-</div>
-<div>
-<div class="fg"><label>סוג בטון</label>
-<select id="con6"><option value="1300">B30</option><option value="1740">B40</option><option value="2170">B50</option><option value="2600">B60</option></select></div>
-<div class="fg"><label>עומס Nd [ton]</label><input id="N6" type="number" value="200" step="10"></div>
-</div>
-</div>
-<button class="btn" onclick="calcSlend()">חשב התמירות</button>
-<div class="res" id="res6"></div>
-</div>
-<div class="card"><h2>נוסחאות התמירות</h2>
-<div class="f">lo = factor * L;  i = min(b,h)/sqrt(12) [cm]</div>
-<div class="f">lambda = lo*100 / i</div>
-<div class="f">n = Nd / (fcd * b * h / 10000)</div>
-<div class="f">lambda_lim = 10.78 / sqrt(n)</div>
-</div>
-</div>
-
-<div class="content" id="t7">
-<div class="card"><h2>תכונות בטון</h2>
-<table><tr><th>דרגה</th><th>fck[MPa]</th><th>fcd[t/m2]</th><th>fctd[t/m2]</th><th>Ec[t/m2]</th><th>fbd תחתון</th><th>fbd עליון</th></tr>
-<tr><td>B20</td><td>20</td><td>867</td><td>67</td><td>250000</td><td>150</td><td>105</td></tr>
-<tr><td>B25</td><td>25</td><td>1083</td><td>75</td><td>275000</td><td>169</td><td>118</td></tr>
-<tr><td><b>B30</b></td><td>30</td><td><b>1300</b></td><td>83</td><td>300000</td><td>187</td><td>131</td></tr>
-<tr><td><b>B40</b></td><td>40</td><td><b>1740</b></td><td>100</td><td>350000</td><td>225</td><td>158</td></tr>
-<tr><td><b>B50</b></td><td>50</td><td><b>2170</b></td><td>117</td><td>390000</td><td>263</td><td>184</td></tr>
-<tr><td><b>B60</b></td><td>60</td><td><b>2600</b></td><td>133</td><td>420000</td><td>300</td><td>210</td></tr>
-</table></div>
-<div class="card"><h2>תכונות פלדה</h2>
-<table><tr><th>דרגה</th><th>fyk[MPa]</th><th>fsd[t/m2]</th><th>Es[t/m2]</th></tr>
-<tr><td>B400</td><td>400</td><td>34800</td><td>20000000</td></tr>
-<tr><td><b>B500</b></td><td>500</td><td><b>43500</b></td><td>20000000</td></tr>
-</table></div>
-</div>
-
-<div class="content" id="t8">
-<div class="card"><h2>שטחי ברזל</h2>
-<div class="row" style="margin-bottom:12px">
-<div><div class="fg"><label>מספר ברזלים n</label><input id="n8" type="number" value="4" min="1" max="20"></div></div>
-<div><div class="fg"><label>קוטר [mm]</label>
-<select id="phi8"><option value="6">6 (0.28cm2)</option><option value="8">8 (0.50cm2)</option><option value="10">10 (0.79cm2)</option><option value="12">12 (1.13cm2)</option><option value="14">14 (1.54cm2)</option><option value="16">16 (2.01cm2)</option><option value="18">18 (2.54cm2)</option><option value="20" selected>20 (3.14cm2)</option><option value="22">22 (3.80cm2)</option><option value="25">25 (4.91cm2)</option><option value="28">28 (6.16cm2)</option><option value="32">32 (8.04cm2)</option></select></div></div>
-</div>
-<button class="btn btn-sm" onclick="calcArea()">חשב</button>
-<div class="res" id="res8" style="margin-top:10px"></div>
-</div>
-<div class="card"><h2>טבלת שטחים n ברזלים [cm2]</h2>
-<div style="overflow-x:auto"><table id="nTbl"><tr><th>phi\n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></table></div>
-</div>
-<div class="card"><h2>טבלת ריווח As/m [cm2/m]</h2>
-<div style="overflow-x:auto"><table id="spTbl"><tr><th>phi\ריווח[cm]</th><th>7.5</th><th>10</th><th>12.5</th><th>15</th><th>20</th><th>25</th><th>30</th></tr></table></div>
-</div>
-</div>
-
+<header><div><h1>&#x1F3D7; מחשבון בטון IS-466</h1><p>תקן ישראלי ת"י 466 חלק 1 — מבני בטון</p></div><div class="badge">IS-466</div></header>
+<div class="tabs"><button class="tab a" onclick="show(0,this)">כפיפה</button><button class="tab" onclick="show(1,this)">גזירה</button><button class="tab" onclick="show(2,this)">עיגון</button><button class="tab" onclick="show(3,this)">קירות</button><button class="tab" onclick="show(4,this)">עמודים</button><button class="tab" onclick="show(5,this)">ספקטרום</button><button class="tab" onclick="show(6,this)">התמירות</button><button class="tab" onclick="show(7,this)">תכונות בטון</button><button class="tab" onclick="show(8,this)">שטחי ברזל</button></div>
+<div class="content a" id="t0"><div class="card"><h2>כפיפה</h2><div class="row"><div><div class="fg"><label>b [cm]</label><input id="b0" type="number" value="30" step="5"></div><div class="fg"><label>h [cm]</label><input id="h0" type="number" value="60" step="5"></div><div class="fg"><label>c [cm]</label><input id="c0" type="number" value="3.5" step="0.5"></div><div class="fg"><label>∅ ברזל ראשי [מ"מ]<small style="display:block;color:#888;font-weight:400;font-size:.75rem">לחישוב d=h−c−∅/20</small></label><select id="phi0"><option value="8">∅8</option><option value="10">∅10</option><option value="12">∅12</option><option value="14">∅14</option><option value="16">∅16</option><option value="18">∅18</option><option value="20" selected>∅20</option><option value="22">∅22</option><option value="25">∅25</option><option value="28">∅28</option><option value="32">∅32</option></select></div></div><div><div class="fg"><label>בטון</label><select id="con0"><option value="1300,83">B30</option><option value="1740,100">B40</option><option value="2170,117">B50</option><option value="2600,133">B60</option></select></div><div class="fg"><label>פלדה</label><select id="steel0"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div><div class="fg"><label>Md [t.m]</label><input id="M0" type="number" value="25" step="1"></div></div></div><button class="btn" onclick="calcBend()">חשב</button><div class="res" id="res0"></div></div><div class="card"><h2>נוסחאות — ת"י 466 חלק 1</h2><div class="f">d=h−c−∅/20 [cm] | Mcd,max=0.32·b·d²·fcd | μ=Md/(b·d²·fcd) | ω=max(0.1,1−√(1−2μ)) | As=Md/(d·(1−ω/2)·fsd/100)</div></div></div>
+<div class="content" id="t1"><div class="card"><h2>גזירה</h2><div class="row"><div><div class="fg"><label>b [cm]</label><input id="b1" type="number" value="30" step="5"></div><div class="fg"><label>d [cm]</label><input id="d1" type="number" value="55" step="5"></div><div class="fg"><label>As [cm2]</label><input id="As1" type="number" value="12" step="1"></div></div><div><div class="fg"><label>בטון</label><select id="con1"><option value="20,1300">B30</option><option value="27,1740">B40</option><option value="33,2170">B50</option><option value="40,2600">B60</option></select></div><div class="fg"><label>פלדה</label><select id="steel1"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div><div class="fg"><label>Vd [ton]</label><input id="V1" type="number" value="30" step="1"></div></div></div><button class="btn" onclick="calcShear()">חשב</button><div class="res" id="res1"></div></div><div class="card"><h2>נוסחאות</h2><div class="f">K=min(1+sqrt(200/d_mm),2); Vrd_c=0.12*K*(100*rho*fck)^(1/3)*b*d; Asv/sv=(Vd-Vrd_c)/(fsd*0.9*d)</div></div></div>
+<div class="content" id="t2"><div class="card"><h2>עיגון</h2><div class="row"><div><div class="fg"><label>קוטר [mm]</label><input id="phi2" type="number" value="20" step="2"></div><div class="fg"><label>מיקום</label><select id="pos2"><option value="1">תחתון</option><option value="0.7">עליון</option></select></div></div><div><div class="fg"><label>בטון</label><select id="con2"><option value="83">B30</option><option value="100">B40</option><option value="117">B50</option><option value="133">B60</option></select></div><div class="fg"><label>פלדה</label><select id="steel2"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div></div></div><button class="btn" onclick="calcAnch()">חשב</button><div class="res" id="res2"></div></div><div class="card"><h2>נוסחאות</h2><div class="f">fbd=2.25*eta1*fctd; lb_rqd=(phi/400)*(fsd/fbd) [m]</div></div></div>
+<div class="content" id="t3"><div class="card"><h2>קירות</h2><div class="row"><div><div class="fg"><label>t [cm]</label><input id="t3i" type="number" value="20" step="5"></div><div class="fg"><label>H [m]</label><input id="H3" type="number" value="3" step="0.5"></div><div class="fg"><label>Asv [cm2/m]</label><input id="Asv3" type="number" value="5" step="1"></div><div class="fg"><label>Ash [cm2/m]</label><input id="Ash3" type="number" value="3" step="1"></div></div><div><div class="fg"><label>בטון</label><select id="con3"><option value="1300">B30</option><option value="1740">B40</option><option value="2170">B50</option><option value="2600">B60</option></select></div><div class="fg"><label>תנאי קצה</label><select id="bc3"><option value="2">פרקי-פרקי</option><option value="1">עצור-עצור</option><option value="2.8">פרקי-חופשי</option></select></div></div></div><button class="btn" onclick="calcWall()">חשב</button><div class="res" id="res3"></div></div><div class="card"><h2>נוסחאות</h2><div class="f">Nrd=fcd*(t/100)*(1-(lambda/86.6)^2); Nser=Nrd/1.45</div></div></div>
+<div class="content" id="t4"><div class="card"><h2>עמודים</h2><div class="row"><div><div class="fg"><label>b [cm]</label><input id="b4" type="number" value="40" step="5"></div><div class="fg"><label>h [cm]</label><input id="h4" type="number" value="40" step="5"></div><div class="fg"><label>rho [%]</label><input id="rho4" type="number" value="2" step="0.5" min="0.3" max="8"></div></div><div><div class="fg"><label>בטון</label><select id="con4"><option value="1300">B30</option><option value="1740">B40</option><option value="2170">B50</option><option value="2600">B60</option></select></div><div class="fg"><label>פלדה</label><select id="steel4"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div><div class="fg"><label>Nd [ton]</label><input id="N4" type="number" value="200" step="10"></div></div></div><button class="btn" onclick="calcCol()">חשב</button><div class="res" id="res4"></div></div><div class="card"><h2>נוסחאות</h2><div class="f">Nrd=(rho/100*fsd+(1-rho/100)*fcd)*A/10000; Nser=Nrd/1.55</div></div></div>
+<div class="content" id="t5"><div class="card"><h2>ספקטרום</h2><div class="row"><div><div class="fg"><label>אזור</label><select id="zone5" onchange="calcSpec()"><option value="0.07">1 (0.07g)</option><option value="0.10" selected>2a (0.10g)</option><option value="0.15">2b (0.15g)</option><option value="0.20">3 (0.20g)</option></select></div><div class="fg"><label>קרקע</label><select id="soil5" onchange="calcSpec()"><option value="1.0,0.15,0.4,2.0">A</option><option value="1.2,0.15,0.5,2.5" selected>B</option><option value="1.15,0.2,0.6,2.5">C</option><option value="1.35,0.2,0.8,2.5">D</option><option value="1.4,0.15,0.5,2.5">E</option></select></div></div><div><div class="fg"><label>gI</label><select id="gi5" onchange="calcSpec()"><option value="0.8">0.8</option><option value="1.0" selected>1.0</option><option value="1.2">1.2</option><option value="1.4">1.4</option></select></div><div class="fg"><label>T [sec]</label><input id="T5" type="number" value="0.5" step="0.05" min="0.01" onchange="calcSpec()"></div></div></div><div class="res" id="res5"></div><canvas id="specChart" style="margin-top:16px;max-height:280px"></canvas></div></div>
+<div class="content" id="t6"><div class="card"><h2>התמירות</h2><div class="row"><div><div class="fg"><label>L [m]</label><input id="L6" type="number" value="4" step="0.5"></div><div class="fg"><label>b [cm]</label><input id="b6" type="number" value="40" step="5"></div><div class="fg"><label>h [cm]</label><input id="h6" type="number" value="40" step="5"></div><div class="fg"><label>תנאי</label><select id="bc6"><option value="1.0">פרקי-פרקי</option><option value="0.7" selected>קצה עצור</option><option value="0.5">שני עצורים</option><option value="2.0">זיז</option></select></div></div><div><div class="fg"><label>בטון</label><select id="con6"><option value="1300">B30</option><option value="1740">B40</option><option value="2170">B50</option><option value="2600">B60</option></select></div><div class="fg"><label>Nd [ton]</label><input id="N6" type="number" value="200" step="10"></div></div></div><button class="btn" onclick="calcSlend()">חשב</button><div class="res" id="res6"></div></div><div class="card"><h2>נוסחאות</h2><div class="f">lambda=lo*100/i; lambda_lim=10.78/sqrt(n)</div></div></div>
+<div class="content" id="t7"><div class="card"><h2>תכונות בטון</h2><table><tr><th>דרגה</th><th>fck</th><th>fcd</th><th>fctd</th><th>Ec</th><th>fbd↓</th><th>fbd↑</th></tr><tr><td>B20</td><td>20</td><td>867</td><td>67</td><td>250000</td><td>150</td><td>105</td></tr><tr><td>B25</td><td>25</td><td>1083</td><td>75</td><td>275000</td><td>169</td><td>118</td></tr><tr><td><b>B30</b></td><td>30</td><td><b>1300</b></td><td>83</td><td>300000</td><td>187</td><td>131</td></tr><tr><td><b>B40</b></td><td>40</td><td><b>1740</b></td><td>100</td><td>350000</td><td>225</td><td>158</td></tr><tr><td><b>B50</b></td><td>50</td><td><b>2170</b></td><td>117</td><td>390000</td><td>263</td><td>184</td></tr><tr><td><b>B60</b></td><td>60</td><td><b>2600</b></td><td>133</td><td>420000</td><td>300</td><td>210</td></tr></table></div><div class="card"><h2>תכונות פלדה</h2><table><tr><th>דרגה</th><th>fyk</th><th>fsd</th><th>Es</th></tr><tr><td>B400</td><td>400</td><td>34800</td><td>20M</td></tr><tr><td><b>B500</b></td><td>500</td><td><b>43500</b></td><td>20M</td></tr></table></div></div>
+<div class="content" id="t8"><div class="card"><h2>שטחי ברזל</h2><div class="row" style="margin-bottom:12px"><div><div class="fg"><label>n</label><input id="n8" type="number" value="4" min="1" max="20"></div></div><div><div class="fg"><label>קוטר</label><select id="phi8"><option value="8">8</option><option value="10">10</option><option value="12">12</option><option value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20" selected>20</option><option value="22">22</option><option value="25">25</option><option value="28">28</option><option value="32">32</option></select></div></div></div><button class="btn btn-sm" onclick="calcArea()">חשב</button><div class="res" id="res8" style="margin-top:10px"></div></div><div class="card"><h2>טבלת שטחים [cm2]</h2><div style="overflow-x:auto"><table id="nTbl"><tr><th>Ø\n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></table></div></div><div class="card"><h2>טבלת ריווח [cm2/m]</h2><div style="overflow-x:auto"><table id="spTbl"><tr><th>Ø\cm</th><th>7.5</th><th>10</th><th>12.5</th><th>15</th><th>20</th><th>25</th><th>30</th></tr></table></div></div></div>
 <script>
 var B=[{d:6,a:.283},{d:8,a:.503},{d:10,a:.785},{d:12,a:1.131},{d:14,a:1.539},{d:16,a:2.011},{d:18,a:2.545},{d:20,a:3.142},{d:22,a:3.801},{d:25,a:4.909},{d:28,a:6.158},{d:32,a:8.042}];
 function g(id){return document.getElementById(id)}
 function v(id){return parseFloat(g(id).value)||0}
 function s(id,h){g(id).innerHTML=h}
 function rb(l,val,u){return'<div class="rb"><small>'+l+'</small><strong>'+val+' '+u+'</strong></div>'}
-function ok(ok,m){return'<span class="'+(ok?'ok':'ng')+'"> '+(ok?'OK ':'NG ')+m+'</span> '}
-function show(i,el){
- document.querySelectorAll('.content').forEach(function(e){e.classList.remove('a')});
- document.querySelectorAll('.tab').forEach(function(e){e.classList.remove('a')});
- g('t'+i).classList.add('a');el.classList.add('a');
- if(i==5)setTimeout(calcSpec,80);
- if(i==8)buildT();
-}
-function calcBend(){
- var p=g('con0').value.split(',');var fcd=+p[0],fctd=+p[1];
- var fsd=v('steel0'),b=v('b0'),h=v('h0'),c=v('c0'),phi=v('phi0'),Md=v('M0');
- var d=h-c-phi/20,bm=b/100,dm=d/100;
- var Mmax=0.32*bm*dm*dm*fcd;
- var mu=Md/(bm*dm*dm*fcd);
- if(mu>0.32){s('res0','<span class="ng">NG: mu='+mu.toFixed(3)+' > 0.32. הגדל חתך!</span>');return;}
- var omega=Math.max(0.1,1-Math.sqrt(Math.max(0,1-2*mu)));
- var As=Md/(dm*(1-omega/2)*fsd/100);
- var Asmin=Math.max(0.3*b*h/100*fctd/fsd*10000,0.0015*b*h);
- var AsD=Math.max(As,Asmin),sug='';
- for(var i=0;i<B.length;i++){var n=Math.ceil(AsD/B[i].a);if(n>=1&&n<=8){var t=n*B[i].a;if(t>=AsD*.99){sug=n+'x'+String.fromCharCode(216)+B[i].d+'='+t.toFixed(2)+'cm2';break;}}}
- s('res0','<div class="rg">'+rb('d',d.toFixed(1),'cm')+rb('Mcd,max',Mmax.toFixed(2),'t.m')+rb('mu',mu.toFixed(4),'')+rb('omega',omega.toFixed(4),'')+rb('As req',As.toFixed(2),'cm2')+rb('As min',Asmin.toFixed(2),'cm2')+rb('As design',AsD.toFixed(2),'cm2')+'</div>'+ok(mu<=0.32,'mu='+mu.toFixed(3)+' < 0.32')+'<br><b>הצעה:</b> '+sug);
-}
-function calcShear(){
- var cp=g('con1').value.split(',');var fck=+cp[0];
- var fsd=v('steel1'),b=v('b1'),d=v('d1'),As=v('As1'),Vd=v('V1');
- var bm=b/100,dm=d/100,dmm=d*10;
- var rL=Math.min(As/(b*d),0.02),K=Math.min(1+Math.sqrt(200/dmm),2);
- var Vc=0.12*K*Math.pow(100*rL*fck,1/3)*bm*dm*100;
- var Vcm=0.035*Math.pow(K,1.5)*Math.sqrt(fck)*bm*dm*100;
- var VU=Math.max(Vc,Vcm);
- var Vm=0.18*(1-fck/250)*fck*0.9*bm*dm*100;
- var h2='<div class="rg">'+rb('K',K.toFixed(3),'')+rb('rho_l',rL.toFixed(4),'')+rb('Vrd,c',VU.toFixed(2),'ton')+rb('Vrd,max',Vm.toFixed(2),'ton')+'</div>';
- if(Vd<=VU)h2+=ok(1,'אין צורך בברזל גזירה');
- else if(Vd>Vm)h2+=ok(0,'Vd>Vrd,max! הגדל חתך');
- else{
-  var av=(Vd-VU)/(fsd*0.9*dm);
-  var stir='';var phs=[6,8,10];
-  for(var i=0;i<phs.length;i++){var ab=Math.PI*phs[i]*phs[i]/400;var sv=Math.floor(2*ab*100/av/5)*5;if(sv>=7&&sv<=25){stir='2x'+String.fromCharCode(216)+phs[i]+'@'+sv+'cm = '+(2*ab*100/sv).toFixed(2)+' cm2/m';break;}}
-  h2+=rb('Asv/sv',av.toFixed(3),'cm2/m')+ok(1,'צריך אזיקים')+'<br><b>הצעה:</b> '+stir;
- }
- s('res1',h2);
-}
-function calcAnch(){
- var fctd=v('con2'),fsd=v('steel2'),phi=v('phi2'),eta1=v('pos2');
- var fbd=2.25*eta1*fctd;
- var lr=(phi/400)*(fsd/fbd);
- var lm=Math.max(0.3*lr,10*phi/1000,0.10);
- s('res2','<div class="rg">'+rb('fbd',fbd.toFixed(1),'t/m2')+rb('lb,rqd',lr.toFixed(3),'m')+rb('lb,rqd',(lr*100).toFixed(1),'cm')+rb('lb,min',lm.toFixed(3),'m')+rb('lb,min',(lm*100).toFixed(1),'cm')+'</div>');
-}
-function calcWall(){
- var fcd=v('con3'),t=v('t3i'),H=v('H3'),Asv=v('Asv3'),Ash=v('Ash3'),fac=v('bc3');
- var lam=fac*H*100/t;
- if(lam>=86.6){s('res3','<span class="ng">NG: lambda='+lam.toFixed(1)+' >= 86.6!</span>');return;}
- var Nrd=fcd*(t/100)*(1-Math.pow(lam/86.6,2));
- var Ns=Nrd/1.45;
- var Avm=0.003*t*100,Ahm=0.001*t*100;
- s('res3','<div class="rg">'+rb('lambda',lam.toFixed(1),'')+rb('Nrd',Nrd.toFixed(1),'t/m')+rb('Nser',Ns.toFixed(1),'t/m')+rb('Asv,min',Avm.toFixed(2),'cm2/m')+rb('Ash,min',Ahm.toFixed(2),'cm2/m')+'</div>'+ok(lam<86.6,'lambda='+lam.toFixed(1))+ok(Asv>=Avm,'Asv='+Asv+'>='+Avm.toFixed(2))+ok(Ash>=Ahm,'Ash='+Ash+'>='+Ahm.toFixed(2)));
-}
-function calcCol(){
- var fcd=v('con4'),fsd=v('steel4'),b=v('b4'),h=v('h4'),rho=v('rho4'),Nd=v('N4');
- var A=b*h;
- var Nrd=(rho/100*fsd+(1-rho/100)*fcd)*A/10000;
- var Ns=Nrd/1.55,As=rho/100*A;
- var Amn=Math.max(0.003*A,4*B[7].a),Amx=0.08*A;
- s('res4','<div class="rg">'+rb('A',A.toFixed(0),'cm2')+rb('As',As.toFixed(2),'cm2')+rb('Nrd',Nrd.toFixed(1),'ton')+rb('Nser',Ns.toFixed(1),'ton')+rb('ניצולת',(Nd/Nrd*100).toFixed(1),'%')+rb('As,min',Amn.toFixed(2),'cm2')+rb('As,max',Amx.toFixed(2),'cm2')+'</div>'+ok(Nd<=Nrd,'Nd='+Nd+' <= Nrd='+Nrd.toFixed(1))+ok(As>=Amn,'As>=As,min')+ok(As<=Amx,'As<=As,max'));
-}
-var SC=null;
-function calcSpec(){
- var ag=v('zone5'),gi=v('gi5'),T=v('T5');
- var sp=g('soil5').value.split(',');
- var S=+sp[0],TB=+sp[1],TC=+sp[2],TD=+sp[3],q=1.5;
- function Sa(t){var a=ag*gi*9.81;if(t<TB)return a*S*(1+(t/TB)*(2.5/q-1));if(t<TC)return a*S*2.5/q;if(t<TD)return a*S*2.5/q*TC/t;return a*S*2.5/q*TC*TD/(t*t);}
- var st=Sa(T);
- s('res5','<div class="rg">'+rb('ag*gI',(ag*gi).toFixed(3),'g')+rb('S',S,'')+rb('TB-TC',TB+' - '+TC,'s')+rb('Sa('+T+'s)',st.toFixed(3),'m/s2')+rb('Sa/g',(st/9.81).toFixed(4),'')+'</div>');
- var ts=[],ss=[];for(var t=0.02;t<=4;t+=0.04){ts.push(t.toFixed(2));ss.push(+Sa(t).toFixed(4));}
- if(SC){SC.destroy();SC=null;}
- SC=new Chart(g('specChart').getContext('2d'),{type:'line',data:{labels:ts,datasets:[{label:'Sa [m/s2]',data:ss,borderColor:'#1e3a5f',fill:true,backgroundColor:'rgba(30,58,95,0.1)',pointRadius:0,borderWidth:2}]},options:{responsive:true,scales:{x:{title:{display:true,text:'T [sec]'}},y:{title:{display:true,text:'Sa [m/s2]'},min:0}}}});
-}
-function calcSlend(){
- var fcd=v('con6'),L=v('L6'),b=v('b6'),h=v('h6'),fac=v('bc6'),Nd=v('N6');
- var lo=fac*L,im=Math.min(b,h)/Math.sqrt(12);
- var lam=lo*100/im,A=b*h,n=Nd/(fcd*A/10000);
- var ll=10.78/Math.sqrt(Math.max(n,0.01));
- s('res6','<div class="rg">'+rb('lo',lo.toFixed(2),'m')+rb('i',im.toFixed(2),'cm')+rb('lambda',lam.toFixed(1),'')+rb('n',n.toFixed(4),'')+rb('lambda,lim',ll.toFixed(1),'')+'</div>'+ok(lam<=ll,(lam<=ll?'עמוד קצר OK':'עמוד רזיל - חשב סדר שני'))+'<br>lambda='+lam.toFixed(1)+' '+(lam>ll?'>':'<=')+'lim='+ll.toFixed(1));
-}
-function calcArea(){
- var n=Math.round(v('n8')),phi=v('phi8'),bar=null;
- for(var i=0;i<B.length;i++)if(B[i].d==phi){bar=B[i];break;}
- if(!bar)bar=B[7];
- var tot=n*bar.a;
- s('res8','<div class="rg">'+rb('n x phi'+phi,n,'ברזלים')+rb('A/bar',bar.a.toFixed(3),'cm2')+rb('As total',tot.toFixed(3),'cm2')+rb('Weight',(n*bar.d*bar.d*0.00617).toFixed(2),'kg/m')+'</div>');
-}
-function buildT(){
- var nt=g('nTbl'),st=g('spTbl');
- if(nt.rows.length>1)return;
- for(var i=0;i<B.length;i++){var r=nt.insertRow();r.insertCell().textContent=String.fromCharCode(216)+B[i].d;for(var n=1;n<=8;n++)r.insertCell().textContent=(n*B[i].a).toFixed(2);}
- var sp=[7.5,10,12.5,15,20,25,30];
- for(var i=0;i<B.length;i++){var r=st.insertRow();r.insertCell().textContent=String.fromCharCode(216)+B[i].d;for(var j=0;j<sp.length;j++)r.insertCell().textContent=(B[i].a*100/sp[j]).toFixed(2);}
-}
+function ok(o,m){return'<span class="'+(o?'ok':'ng')+'">'+(o?'OK ':'NG ')+m+'</span> '}
+function show(i,el){document.querySelectorAll('.content').forEach(function(e){e.classList.remove('a')});document.querySelectorAll('.tab').forEach(function(e){e.classList.remove('a')});g('t'+i).classList.add('a');el.classList.add('a');if(i==5)setTimeout(calcSpec,80);if(i==8)buildT();}
+function calcBend(){var p=g('con0').value.split(',');var fcd=+p[0],fctd=+p[1];var fsd=v('steel0'),b=v('b0'),h=v('h0'),c=v('c0'),Md=v('M0');var phi=parseFloat(g('phi0').value)||20;var d=h-c-phi/20,bm=b/100,dm=d/100;var Mmax=0.32*bm*dm*dm*fcd;var mu=Md/(bm*dm*dm*fcd);if(mu>0.32){s('res0','<span class="ng">NG: μ='+mu.toFixed(3)+' > 0.32 — החתך אינו מספיק</span>'+drawSection(b,h,c,phi,0,0));return;}var omega=Math.max(0.1,1-Math.sqrt(Math.max(0,1-2*mu)));var As=Md/(dm*(1-omega/2)*fsd/100);var Asmin=Math.max(0.3*b*h/100*fctd/fsd*10000,0.0015*b*h);var AsD=Math.max(As,Asmin);var best=null;for(var ni=2;ni<=12&&!best;ni++){for(var bi=0;bi<B.length;bi++){if(ni*B[bi].a>=AsD*0.99){var sp=(ni>1)?(b-2*c-ni*B[bi].d/10)/(ni-1):99;if(sp>=5){best={n:ni,dia:B[bi].d,area:ni*B[bi].a};break;}}}}var utilPct=(Md/Mmax*100).toFixed(1);var clr=mu>0.25?'#ef9a9a':'#90caf9';var html='<div class="rg">'+rb('d',d.toFixed(1),'cm')+rb('Mcd,max',Mmax.toFixed(2),'t·m')+rb('μ מומנט מנורמל',mu.toFixed(4),'')+rb('ω',omega.toFixed(4),'')+rb('As נדרש',As.toFixed(2),'cm²')+rb('As,min',Asmin.toFixed(2),'cm²')+rb('As,calc',AsD.toFixed(2),'cm²')+'</div>';html+=ok(mu<=0.32,'μ < 0.32');if(best)html+='<div class="ok" style="margin-top:8px;display:block">ברזל נדרש: '+best.n+'∅'+best.dia+' = '+best.area.toFixed(2)+' cm²</div>';else html+='<div class="ng" style="margin-top:8px;display:block">לא נמצא פתרון — הרחב את החתך</div>';html+='<div style="margin-top:14px"><canvas id="bendChart" height="90"></canvas></div>';html+=drawSection(b,h,c,phi,best?best.n:0,best?best.dia:0);s('res0',html);setTimeout(function(){var ctx=g('bendChart');if(!ctx)return;if(bendCI)bendCI.destroy();bendCI=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:['Md (נדרש)','Mcd,max (קיבולת)'],datasets:[{data:[Md,Mmax],backgroundColor:[clr,'#1e3a5f'],borderRadius:4,borderWidth:0}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},title:{display:true,text:'ניצולת כפיפה: '+utilPct+'%'}},scales:{x:{min:0,title:{display:true,text:'מומנט [t·m]'}}}}});},50);}
+function drawSection(b,h,c,phi,nBars,phiBar){var SW=280,SH=330,ML=60,MT=40,MR=42,MB=45;var dW=SW-ML-MR,dH=SH-MT-MB;var sc=Math.min(dW/b,dH/h);var secW=b*sc,secH=h*sc;var ox=ML+(dW-secW)/2,oy=MT+(dH-secH)/2;var csc=c*sc;var phiPx=phiBar?(phiBar/10)*sc:0;var dVal=(nBars>0&&phiBar>0)?(h-c-phiBar/20).toFixed(1):(h-c-phi/20).toFixed(1);var barY=oy+secH-csc-(phiPx>0?phiPx/2:0);var svg='<svg width="'+SW+'" height="'+SH+'" style="margin-top:16px;background:#f8fafc;border-radius:8px;border:1px solid #dde;display:block;max-width:100%">';svg+='<text x="'+(SW/2)+'" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a5f">חתך רוחבי</text>';svg+='<rect x="'+ox+'" y="'+oy+'" width="'+secW+'" height="'+secH+'" fill="#dce6f3" stroke="#1e3a5f" stroke-width="2.5"/>';svg+='<rect x="'+(ox+csc)+'" y="'+(oy+csc)+'" width="'+(secW-2*csc)+'" height="'+(secH-2*csc)+'" fill="none" stroke="#c8a951" stroke-width="1" stroke-dasharray="5,3"/>';if(nBars>0&&phiPx>0){var spacing=(nBars>1)?(secW-2*csc-nBars*phiPx)/(nBars-1):0;if(spacing<0)spacing=0;var startX=ox+csc+phiPx/2;for(var i=0;i<nBars;i++){var bx=startX+i*(phiPx+spacing);svg+='<circle cx="'+bx.toFixed(1)+'" cy="'+barY.toFixed(1)+'" r="'+(phiPx/2).toFixed(1)+'" fill="#1e3a5f"/>';}svg+='<text x="'+(ox+secW/2).toFixed(1)+'" y="'+(barY+phiPx/2+13).toFixed(1)+'" text-anchor="middle" font-size="10" fill="#1e3a5f" font-weight="bold">'+nBars+'∅'+phiBar+'</text>';}var dimY=oy-18;svg+='<line x1="'+ox+'" y1="'+dimY+'" x2="'+(ox+secW)+'" y2="'+dimY+'" stroke="#444" stroke-width="1.2"/>';svg+='<line x1="'+ox+'" y1="'+(dimY-5)+'" x2="'+ox+'" y2="'+(dimY+5)+'" stroke="#444" stroke-width="1.2"/>';svg+='<line x1="'+(ox+secW)+'" y1="'+(dimY-5)+'" x2="'+(ox+secW)+'" y2="'+(dimY+5)+'" stroke="#444" stroke-width="1.2"/>';svg+='<text x="'+(ox+secW/2)+'" y="'+(dimY-4)+'" text-anchor="middle" font-size="10" fill="#333">b='+b+'cm</text>';var hx=ox+secW+22;svg+='<line x1="'+hx+'" y1="'+oy+'" x2="'+hx+'" y2="'+(oy+secH)+'" stroke="#444" stroke-width="1.2"/>';svg+='<line x1="'+(hx-5)+'" y1="'+oy+'" x2="'+(hx+5)+'" y2="'+oy+'" stroke="#444" stroke-width="1.2"/>';svg+='<line x1="'+(hx-5)+'" y1="'+(oy+secH)+'" x2="'+(hx+5)+'" y2="'+(oy+secH)+'" stroke="#444" stroke-width="1.2"/>';svg+='<text x="'+(hx+14)+'" y="'+(oy+secH/2)+'" text-anchor="middle" font-size="10" fill="#333" transform="rotate(90,'+(hx+14)+','+(oy+secH/2)+')">h='+h+'cm</text>';if(nBars>0&&phiPx>0){var ddx=ox-22;svg+='<line x1="'+ddx+'" y1="'+oy+'" x2="'+ddx+'" y2="'+barY+'" stroke="#2a5298" stroke-width="1.2"/>';svg+='<line x1="'+(ddx-5)+'" y1="'+oy+'" x2="'+(ddx+5)+'" y2="'+oy+'" stroke="#2a5298" stroke-width="1.2"/>';svg+='<line x1="'+(ddx-5)+'" y1="'+barY+'" x2="'+(ddx+5)+'" y2="'+barY+'" stroke="#2a5298" stroke-width="1.2"/>';svg+='<text x="'+(ddx-14)+'" y="'+((oy+barY)/2)+'" text-anchor="middle" font-size="10" fill="#2a5298" transform="rotate(-90,'+(ddx-14)+','+((oy+barY)/2)+')">d='+dVal+'cm</text>';}svg+='<text x="'+(ox+secW/2)+'" y="'+(oy+secH+16)+'" text-anchor="middle" font-size="9.5" fill="#c8a951">כיסוי c='+c+'cm</text>';svg+='</svg>';return svg;}
+function calcShear(){var cp=g('con1').value.split(',');var fck=+cp[0];var fsd=v('steel1'),b=v('b1'),d=v('d1'),As=v('As1'),Vd=v('V1');var bm=b/100,dm=d/100,dmm=d*10;var rL=Math.min(As/(b*d),0.02),K=Math.min(1+Math.sqrt(200/dmm),2);var Vc=0.12*K*Math.pow(100*rL*fck,1/3)*bm*dm*100;var VU=Math.max(Vc,0.035*Math.pow(K,1.5)*Math.sqrt(fck)*bm*dm*100);var Vm=0.18*(1-fck/250)*fck*0.9*bm*dm*100;var h2='<div class="rg">'+rb('K',K.toFixed(3),'')+rb('Vrd,c',VU.toFixed(2),'ton')+rb('Vrd,max',Vm.toFixed(2),'ton')+'</div>';if(Vd<=VU)h2+=ok(1,'אין צורך בברזל');else if(Vd>Vm)h2+=ok(0,'Vd>Vrd,max');else{var av=(Vd-VU)/(fsd*0.9*dm);var stir='';for(var i=0;i<3;i++){var ph=[6,8,10][i];var ab=Math.PI*ph*ph/400;var sv=Math.floor(2*ab*100/av/5)*5;if(sv>=7&&sv<=25){stir='2Ø'+ph+'@'+sv+'cm';break;}}h2+=rb('Asv/sv',av.toFixed(3),'cm2/m')+ok(1,'צריך אזיקים')+'<br><b>הצעה:</b> '+stir;}s('res1',h2);}
+function calcAnch(){var fctd=v('con2'),fsd=v('steel2'),phi=v('phi2'),eta1=v('pos2');var fbd=2.25*eta1*fctd;var lr=(phi/400)*(fsd/fbd);var lm=Math.max(0.3*lr,10*phi/1000,0.10);s('res2','<div class="rg">'+rb('fbd',fbd.toFixed(1),'t/m2')+rb('lb,rqd',lr.toFixed(3),'m')+rb('lb,rqd',(lr*100).toFixed(1),'cm')+rb('lb,min',lm.toFixed(3),'m')+rb('lb,min',(lm*100).toFixed(1),'cm')+'</div>');}
+function calcWall(){var fcd=v('con3'),t=v('t3i'),H=v('H3'),Asv=v('Asv3'),Ash=v('Ash3'),fac=v('bc3');var lam=fac*H*100/t;if(lam>=86.6){s('res3','<span class="ng">NG: lambda>=86.6</span>');return;}var Nrd=fcd*(t/100)*(1-Math.pow(lam/86.6,2));var Ns=Nrd/1.45;var Avm=0.003*t*100,Ahm=0.001*t*100;s('res3','<div class="rg">'+rb('lambda',lam.toFixed(1),'')+rb('Nrd',Nrd.toFixed(1),'t/m')+rb('Nser',Ns.toFixed(1),'t/m')+rb('Asv,min',Avm.toFixed(2),'cm2/m')+rb('Ash,min',Ahm.toFixed(2),'cm2/m')+'</div>'+ok(lam<86.6,'lambda OK')+ok(Asv>=Avm,'Asv OK')+ok(Ash>=Ahm,'Ash OK'));}
+function calcCol(){var fcd=v('con4'),fsd=v('steel4'),b=v('b4'),h=v('h4'),rho=v('rho4'),Nd=v('N4');var A=b*h;var Nrd=(rho/100*fsd+(1-rho/100)*fcd)*A/10000;var Ns=Nrd/1.55,As=rho/100*A;var Amn=Math.max(0.003*A,4*B[7].a),Amx=0.08*A;s('res4','<div class="rg">'+rb('A',A.toFixed(0),'cm2')+rb('As',As.toFixed(2),'cm2')+rb('Nrd',Nrd.toFixed(1),'ton')+rb('Nser',Ns.toFixed(1),'ton')+rb('ניצולת',(Nd/Nrd*100).toFixed(1),'%')+rb('As,min',Amn.toFixed(2),'cm2')+rb('As,max',Amx.toFixed(2),'cm2')+'</div>'+ok(Nd<=Nrd,'Nd<=Nrd')+ok(As>=Amn,'As>=min')+ok(As<=Amx,'As<=max'));}
+var SC=null,bendCI=null;
+function calcSpec(){var ag=v('zone5'),gi=v('gi5'),T=v('T5');var sp=g('soil5').value.split(',');var S=+sp[0],TB=+sp[1],TC=+sp[2],TD=+sp[3],q=1.5;function Sa(t){var a=ag*gi*9.81;if(t<TB)return a*S*(1+(t/TB)*(2.5/q-1));if(t<TC)return a*S*2.5/q;if(t<TD)return a*S*2.5/q*TC/t;return a*S*2.5/q*TC*TD/(t*t);}var st=Sa(T);s('res5','<div class="rg">'+rb('ag*gI',(ag*gi).toFixed(3),'g')+rb('S',S,'')+rb('Sa(T)',st.toFixed(3),'m/s2')+rb('Sa/g',(st/9.81).toFixed(4),'')+'</div>');var ts=[],ss=[];for(var t=0.02;t<=4;t+=0.04){ts.push(t.toFixed(2));ss.push(+Sa(t).toFixed(4));}if(SC){SC.destroy();SC=null;}SC=new Chart(g('specChart').getContext('2d'),{type:'line',data:{labels:ts,datasets:[{label:'Sa [m/s2]',data:ss,borderColor:'#1e3a5f',fill:true,backgroundColor:'rgba(30,58,95,0.1)',pointRadius:0,borderWidth:2}]},options:{responsive:true,scales:{x:{title:{display:true,text:'T [sec]'}},y:{title:{display:true,text:'Sa [m/s2]'},min:0}}}});}
+function calcSlend(){var fcd=v('con6'),L=v('L6'),b=v('b6'),h=v('h6'),fac=v('bc6'),Nd=v('N6');var lo=fac*L,im=Math.min(b,h)/Math.sqrt(12);var lam=lo*100/im,A=b*h,n=Nd/(fcd*A/10000);var ll=10.78/Math.sqrt(Math.max(n,0.01));s('res6','<div class="rg">'+rb('lo',lo.toFixed(2),'m')+rb('i',im.toFixed(2),'cm')+rb('lambda',lam.toFixed(1),'')+rb('n',n.toFixed(4),'')+rb('lim',ll.toFixed(1),'')+'</div>'+ok(lam<=ll,(lam<=ll?'עמוד קצר':'עמוד רזיל'))+'<br>lambda='+lam.toFixed(1)+' '+(lam>ll?'>':'<=')+'lim='+ll.toFixed(1));}
+function calcArea(){var n=Math.round(v('n8')),phi=v('phi8'),bar=B[7];for(var i=0;i<B.length;i++)if(B[i].d==phi){bar=B[i];break;}var tot=n*bar.a;s('res8','<div class="rg">'+rb(n+' x Ø'+phi,tot.toFixed(3),'cm2')+rb('kg/m',(n*bar.d*bar.d*0.00617).toFixed(2),'')+'</div>');}
+function buildT(){var nt=g('nTbl'),st=g('spTbl');if(nt.rows.length>1)return;for(var i=0;i<B.length;i++){var r=nt.insertRow();r.insertCell().textContent='Ø'+B[i].d;for(var n=1;n<=8;n++)r.insertCell().textContent=(n*B[i].a).toFixed(2);}var sp=[7.5,10,12.5,15,20,25,30];for(var i=0;i<B.length;i++){var r=st.insertRow();r.insertCell().textContent='Ø'+B[i].d;for(var j=0;j<sp.length;j++)r.insertCell().textContent=(B[i].a*100/sp[j]).toFixed(2);}}
 calcSpec();buildT();
-</script>
-</body>
-</html>
+</script></body></html>
