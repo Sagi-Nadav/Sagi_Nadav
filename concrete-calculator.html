@@ -83,9 +83,8 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
       <button class="ibtn" onclick="importFromBeam('M0',null,null)">&#x2193; קבל Md ממהלכי כוחות</button>
       <div class="stype"><span>סוג אלמנט:</span><label><input type="radio" name="stype0" value="beam" checked onchange="updateStype()"> קורה</label><label><input type="radio" name="stype0" value="slab" onchange="updateStype()"> תקרה/רצפה</label></div>
       <div class="fg"><label id="b0lbl">b [cm]</label><input id="b0" type="number" value="30" step="5"></div>
-      <div class="fg"><label>h [cm]</label><input id="h0" type="number" value="60" step="5"></div>
+      <div class="fg"><label>d [cm] — עומק אפקטיבי</label><input id="d0" type="number" value="55" step="5"></div>
       <div class="fg"><label>c [cm]</label><input id="c0" type="number" value="3" step="0.5"></div>
-      <div class="fg" id="phi0row"><label>&#x2300; ברזל ראשי [mm]<small style="display:block;color:#888;font-weight:400;font-size:.75rem">קוטר ברזל — קובע d=h−c−∅/20</small></label><select id="phi0"><option value="8">∅8</option><option value="10">∅10</option><option value="12">∅12</option><option value="14">∅14</option><option value="16">∅16</option><option value="18">∅18</option><option value="20" selected>∅20</option><option value="22">∅22</option><option value="25">∅25</option><option value="28">∅28</option><option value="32">∅32</option></select></div>
       <div class="fg"><label>בטון</label><select id="con0"><option value="1300,83,29.6,30">B30</option><option value="1740,100,35.7,40">B40</option><option value="2170,117,41.8,50">B50</option><option value="2600,133,44.9,60">B60</option></select></div>
       <div class="fg"><label>פלדה</label><select id="steel0"><option value="34800,400">B400</option><option value="43500,500" selected>B500</option></select></div>
       <div class="fg"><label>Md [t·m]</label><input id="M0" type="number" value="25" step="1"></div>
@@ -93,7 +92,7 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
     </div>
     <div class="card">
       <h2>נוסחאות — ת"י 466 חלק 1</h2>
-      <div class="f">d = h − c − ∅/20 [cm]</div><div class="f">Mcd,max = 0.32·b·d²·fcd</div>
+      <div class="f">Mcd,max = 0.32·b·d²·fcd</div>
       <div class="f">μ = Md/(b·d²·fcd) ≤ 0.32</div><div class="f">ω = max(0.1, 1−√(1−2μ))</div>
       <div class="f">As = Md/(d·(1−ω/2)·fsd/100)</div>
       <div class="f">ρmin = max(0.26·fctm/fyk, 0.0013)</div><div class="f">As,min = ρmin·b·d [cm²]</div>
@@ -273,9 +272,9 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
         <label>L₃ [m]</label>
         <input id="bL3" type="number" value="6" step="0.5">
       </div>
-      <div class="fg"><label>g — עומס קבוע [t/m]</label><input id="bg" type="number" value="1.5" step="0.1" oninput="updatePd()"></div>
-      <div class="fg"><label>q — עומס משתנה [t/m]</label><input id="bq" type="number" value="1.0" step="0.1" oninput="updatePd()"></div>
-      <div class="fg"><label>pd = 1.4g + 1.6q [t/m]</label><input id="bpd" readonly style="background:#f0f4f8;color:#333"></div>
+      <div class="fg"><label>D.L — עומס קבוע [t/m]</label><input id="bg" type="number" value="1.5" step="0.1" oninput="updatePd()"></div>
+      <div class="fg"><label>L.L — עומס משתנה [t/m]</label><input id="bq" type="number" value="1.0" step="0.1" oninput="updatePd()"></div>
+      <div class="fg"><label>q = 1.4·D.L + 1.6·L.L [t/m]</label><input id="bpd" readonly style="background:#f0f4f8;color:#333"></div>
       <button class="btn" onclick="calcBeam()">חשב</button>
     </div>
     <!-- Beam / load diagram -->
@@ -392,14 +391,14 @@ function computeReactions(w,spans,M){
 
 /* ── Beam SVG diagram ─── */
 function drawBeamDiagram(bt,spans,pd,gk,qk,reactions){
-  var VW=580,VH=165,BL=44,BR=14,beamW=VW-BL-BR,beamY=86;
+  var VW=580,VH=190,BL=44,BR=14,beamW=VW-BL-BR,beamY=86;
   var totalL=spans.reduce(function(a,b){return a+b;},0);
   // support x positions
   var supX=[BL];var cpos=0;
   for(var i=0;i<spans.length;i++){cpos+=spans[i];supX.push(BL+(cpos/totalL)*beamW);}
   var svg='<svg viewBox="0 0 '+VW+' '+VH+'" width="100%" style="display:block;border-radius:8px;background:#f5f8fc;border:1px solid #dde">';
   // load label
-  svg+='<text x="'+(VW/2)+'" y="12" text-anchor="middle" font-size="10" font-weight="bold" fill="#c62828">pd = '+pd.toFixed(2)+' t/m   (1.4 × '+gk.toFixed(2)+'g  +  1.6 × '+qk.toFixed(2)+'q)</text>';
+  svg+='<text x="'+(VW/2)+'" y="12" text-anchor="middle" font-size="10" font-weight="bold" fill="#c62828">q = '+pd.toFixed(2)+' t/m   (1.4 × D.L '+gk.toFixed(2)+'  +  1.6 × L.L '+qk.toFixed(2)+')</text>';
   // UDL arrows
   var aTop=18,aBot=beamY-5,nArr=Math.min(18,Math.ceil(beamW/30));
   svg+='<line x1="'+BL+'" y1="'+aTop+'" x2="'+(BL+beamW)+'" y2="'+aTop+'" stroke="#c62828" stroke-width="1.8"/>';
@@ -432,14 +431,15 @@ function drawBeamDiagram(bt,spans,pd,gk,qk,reactions){
       svg+='<text x="'+px+'" y="'+(ry+rayLen+23)+'" text-anchor="middle" font-size="8.5" fill="#1565c0">R='+reactions[i].toFixed(2)+'t</text>';
     }
   }
-  // Span labels above beam
+  // Span labels — bottom of SVG (below reactions)
+  var lblBot=VH-8;
   for(var i=0;i<spans.length;i++){
     var x1=supX[i],x2=supX[i+1],mx=(x1+x2)/2;
     var ltext=(spans.length>1?'L'+(i+1):' L')+' = '+spans[i].toFixed(2)+' m';
-    svg+='<line x1="'+(x1+3)+'" y1="'+(beamY-20)+'" x2="'+(x2-3)+'" y2="'+(beamY-20)+'" stroke="#333" stroke-width="0.8"/>';
-    svg+='<line x1="'+(x1+3)+'" y1="'+(beamY-24)+'" x2="'+(x1+3)+'" y2="'+(beamY-16)+'" stroke="#333" stroke-width="0.8"/>';
-    svg+='<line x1="'+(x2-3)+'" y1="'+(beamY-24)+'" x2="'+(x2-3)+'" y2="'+(beamY-16)+'" stroke="#333" stroke-width="0.8"/>';
-    svg+='<text x="'+mx+'" y="'+(beamY-22)+'" text-anchor="middle" font-size="9.5" fill="#1e3a5f" font-weight="bold">'+ltext+'</text>';
+    svg+='<line x1="'+(x1+3)+'" y1="'+(lblBot-14)+'" x2="'+(x2-3)+'" y2="'+(lblBot-14)+'" stroke="#1e3a5f" stroke-width="0.8"/>';
+    svg+='<line x1="'+(x1+3)+'" y1="'+(lblBot-18)+'" x2="'+(x1+3)+'" y2="'+(lblBot-10)+'" stroke="#1e3a5f" stroke-width="0.8"/>';
+    svg+='<line x1="'+(x2-3)+'" y1="'+(lblBot-18)+'" x2="'+(x2-3)+'" y2="'+(lblBot-10)+'" stroke="#1e3a5f" stroke-width="0.8"/>';
+    svg+='<text x="'+mx+'" y="'+lblBot+'" text-anchor="middle" font-size="9.5" fill="#1e3a5f" font-weight="bold">'+ltext+'</text>';
   }
   svg+='</svg>';
   return svg;
@@ -639,7 +639,6 @@ function calcBeam(){
 function updateStype(){
   var isSlab=document.querySelector('input[name="stype0"]:checked').value==='slab';
   g('b0lbl').textContent=isSlab?'רוחב רצועה [cm] (בד"כ 100)':'b [cm]';
-  g('phi0row').style.display=isSlab?'none':'block';
 }
 
 /* ── calcBend ── */
@@ -647,34 +646,81 @@ var bendCI=null;
 function calcBend(){
   var p=g('con0').value.split(',');var fcd=+p[0],fctd=+p[1],fctm=+p[2];
   var ps=g('steel0').value.split(',');var fsd=+ps[0],fyk=+ps[1];
-  var b=v('b0'),h=v('h0'),c=v('c0'),Md=v('M0');
+  var b=v('b0'),d=v('d0'),c=v('c0'),Md=v('M0');
   var isSlab=document.querySelector('input[name="stype0"]:checked').value==='slab';
-  var phi=isSlab?16:(parseFloat(g('phi0').value)||20);
-  var d=h-c-phi/20,bm=b/100,dm=d/100;
+  var bm=b/100,dm=d/100;
+  var hEst=d+c+1; // estimated total height for cross-section drawing
   var Mmax=0.32*bm*dm*dm*fcd;
   var mu=Md/(bm*dm*dm*fcd);
-  if(mu>0.32){s('res0','<span class="ng">✗ μ='+mu.toFixed(3)+' > 0.32 — הגדל חתך</span>'+drawSec(b,h,c,phi,0,0,isSlab?'slab':'beam'));showCard('res0-card');return;}
+  if(mu>0.32){s('res0','<span class="ng">✗ μ='+mu.toFixed(3)+' > 0.32 — הגדל חתך</span>'+drawSec(b,hEst,c,20,0,0,isSlab?'slab':'beam'));showCard('res0-card');return;}
   var omega=Math.max(0.1,1-Math.sqrt(Math.max(0,1-2*mu)));
   var As=Md/(dm*(1-omega/2)*fsd/100);
-  var fykTm=fyk*102,rhoMin=Math.max(0.26*fctm/fykTm,0.0013);
-  var Asmin=rhoMin*b*d/100,AsD=Math.max(As,Asmin);
+  // ρmin per IS-466: max(0.26·fctm/fyk, 0.0013) — fctm stored as MPa×10, fyk in MPa
+  var rhoMin=Math.max(0.26*(fctm/10)/fyk,0.0013);
+  var Asmin=rhoMin*b*d,AsD=Math.max(As,Asmin);
   var utilPct=(Md/Mmax*100).toFixed(1),clr=mu>0.25?'#ef9a9a':'#90caf9';
-  var html='<div class="rg">'+rb('d',d.toFixed(1),'cm','h−c−∅/20')+rb('Mcd,max',Mmax.toFixed(2),'t·m','0.32·b·d²·fcd')+rb('μ',mu.toFixed(4),'','Md/(b·d²·fcd)')+rb('ω',omega.toFixed(4),'','1−√(1−2μ)')+rb('As,req',As.toFixed(2),'cm²','Md/(d·(1−ω/2)·fsd/100)')+rb('ρmin',rhoMin.toFixed(4),'','max(0.26·fctm/fyk,0.0013)')+rb('As,min',Asmin.toFixed(2),'cm²','ρmin·b·d')+rb('As,calc',AsD.toFixed(2),'cm²','max(req,min)')+'</div>';
+  var html='<div class="rg">'+rb('Mcd,max',Mmax.toFixed(2),'t·m','0.32·b·d²·fcd')+rb('μ',mu.toFixed(4),'','Md/(b·d²·fcd)')+rb('ω',omega.toFixed(4),'','1−√(1−2μ)')+rb('As,req',As.toFixed(2),'cm²','Md/(d·(1−ω/2)·fsd/100)')+rb('ρmin',rhoMin.toFixed(4),'','max(0.26·fctm/fyk,0.0013)')+rb('As,min',Asmin.toFixed(2),'cm²','ρmin·b·d')+rb('As,calc',AsD.toFixed(2),'cm²','max(req,min)')+'</div>';
   html+='<div style="margin-top:12px"><canvas id="bendChart" height="80"></canvas></div>';
   if(isSlab){
     var spacings=[10,15,20,30];
-    html+='<div style="margin-top:14px"><b>טבלת ברזל לתקרה/רצפה — As,calc = '+AsD.toFixed(2)+' cm²/m</b><div style="overflow-x:auto;margin-top:6px"><table><tr><th>∅ [mm]</th>';
-    spacings.forEach(function(sp){html+='<th>@'+sp+' cm</th>';});html+='</tr>';
-    [10,12,14,16,18,20,22,25].forEach(function(dia){var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;html+='<tr><td><b>∅'+dia+'</b></td>';spacings.forEach(function(sp){var a=bar.a*100/sp;html+='<td '+(a>=AsD*0.99?'style="background:#e8f5e9;font-weight:700"':'')+'>'+a.toFixed(2)+'</td>';});html+='</tr>';});
+    var diams=[8,10,12,14,16,18,20,22,25];
+    // Find best spacing per diameter, pick top 3 closest to AsD
+    var cands=[];
+    diams.forEach(function(dia){
+      var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;
+      var bestC=null;
+      spacings.forEach(function(sp){var a=bar.a*100/sp;if(a>=AsD*0.99&&(!bestC||a<bestC.a))bestC={dia:dia,sp:sp,a:a};});
+      if(bestC)cands.push(bestC);
+    });
+    cands.sort(function(x,y){return x.a-y.a;});
+    var top3={};var tc=0;
+    cands.forEach(function(c){if(tc<3)top3[c.dia+','+c.sp]=(++tc);});
+    html+='<div style="margin-top:14px"><b>טבלת ברזל — תקרה/רצפה | As,calc = '+AsD.toFixed(2)+' cm²/m</b>';
+    if(cands.length>0)html+='<div style="font-size:.78rem;color:#555;margin:3px 0 4px">★ מומלץ | ▲ 2nd | ▽ 3rd</div>';
+    html+='<div style="overflow-x:auto"><table><tr><th>∅ [mm]</th>';
+    spacings.forEach(function(sp){html+='<th>@'+sp+'</th>';});html+='</tr>';
+    diams.forEach(function(dia){
+      var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;
+      html+='<tr><td><b>∅'+dia+'</b></td>';
+      spacings.forEach(function(sp){
+        var a=bar.a*100/sp,key=dia+','+sp,rank=top3[key],st='';
+        if(rank===1)st='background:#b9f6ca;font-weight:800;color:#1b5e20;border:2px solid #2e7d32';
+        else if(rank===2)st='background:#c8e6c9;font-weight:700;color:#2e7d32';
+        else if(rank===3)st='background:#dcedc8;font-weight:600;color:#33691e';
+        else if(a>=AsD*0.99&&a<AsD*1.6)st='background:#f1f8e9';
+        html+='<td'+(st?' style="'+st+'"':'')+'>'+a.toFixed(2)+(rank===1?' ★':rank===2?' ▲':rank===3?' ▽':'')+'</td>';
+      });
+      html+='</tr>';
+    });
     html+='</table></div></div>';
     html+='<div class="status-report">'+statusItem(mu<=0.32,'בדיקת כפיפה — μ = '+mu.toFixed(3),'≤ 0.32','','(חתך כשיר)')+statusItem(true,'As,min = '+Asmin.toFixed(2)+' cm²/m','ρmin = '+rhoMin.toFixed(4),'','')+'</div>';
   } else {
-    var best=null;
-    for(var ni=2;ni<=12&&!best;ni++){for(var bi=0;bi<B.length;bi++){if(ni*B[bi].a>=AsD*0.99){var sp=(ni>1)?(b-2*c-ni*B[bi].d/10)/(ni-1):99;if(sp>=5){best={n:ni,dia:B[bi].d,area:ni*B[bi].a,sp:sp};break;}}}}
-    if(best)html+='<div class="ok" style="margin-top:10px;display:block;font-size:.95rem">✓ ברזל תחתון: '+best.n+'∅'+best.dia+' = '+best.area.toFixed(2)+' cm²</div>';
-    else html+='<div class="ng" style="margin-top:10px;display:block">✗ לא נמצא — הרחב חתך</div>';
-    html+=drawSec(b,h,c,phi,best?best.n:0,best?best.dia:0,'beam');
-    html+='<div class="status-report">'+statusItem(mu<=0.32,'בדיקת כפיפה — μ = '+mu.toFixed(3),'≤ 0.32','','(חתך כשיר)')+statusItem(AsD>=Asmin,'As,calc = '+AsD.toFixed(2)+' cm²','≥ As,min = '+Asmin.toFixed(2),'cm²','')+( best?statusItem(best.sp>=5,'רווח = '+best.sp.toFixed(1)+' cm','≥ 5','cm','(מינימום ת"י 466)'):'') +statusItem(Md<=Mmax,'Md = '+Md.toFixed(2)+' t·m','≤ Mcd,max = '+Mmax.toFixed(2),'t·m','(קיבולת כפיפה)')+'</div>';
+    // Beam: find top 3 different-diameter combinations
+    var beamC=[];
+    for(var bi2=0;bi2<B.length;bi2++){
+      for(var ni=2;ni<=12;ni++){
+        var ta=ni*B[bi2].a;
+        if(ta>=AsD*0.99){
+          var tsp=(ni>1)?((b-2*c-ni*B[bi2].d/10)/(ni-1)):99;
+          if(tsp>=5){beamC.push({n:ni,dia:B[bi2].d,area:ta,sp:tsp});break;}
+        }
+      }
+    }
+    beamC.sort(function(x,y){return x.area-y.area;});
+    var usedD={},top3b=[];
+    beamC.forEach(function(c){if(top3b.length<3&&!usedD[c.dia]){top3b.push(c);usedD[c.dia]=true;}});
+    var best=top3b[0]||null;
+    if(top3b.length>0){
+      var rowClr=['background:#b9f6ca;color:#1b5e20;font-weight:800','background:#c8e6c9;color:#2e7d32;font-weight:700','background:#dcedc8;color:#33691e;font-weight:600'];
+      var rowMark=['★ מומלץ','▲','▽'];
+      html+='<div style="margin-top:12px"><b>הצעות ברזל — As,calc = '+AsD.toFixed(2)+' cm²</b><div style="overflow-x:auto;margin-top:6px"><table><tr><th>קוטר</th><th>כמות</th><th>שטח cm²</th><th>רווח cm</th><th></th></tr>';
+      top3b.forEach(function(bc,idx){html+='<tr style="'+rowClr[idx]+'"><td>∅'+bc.dia+'</td><td>'+bc.n+'</td><td>'+bc.area.toFixed(2)+'</td><td>'+bc.sp.toFixed(1)+'</td><td>'+rowMark[idx]+'</td></tr>';});
+      html+='</table></div></div>';
+    } else {
+      html+='<div class="ng" style="margin-top:10px;display:block">✗ לא נמצא — הרחב חתך</div>';
+    }
+    html+=drawSec(b,hEst,c,best?best.dia:20,best?best.n:0,best?best.dia:0,'beam');
+    html+='<div class="status-report">'+statusItem(mu<=0.32,'בדיקת כפיפה — μ = '+mu.toFixed(3),'≤ 0.32','','(חתך כשיר)')+statusItem(AsD>=Asmin,'As,calc = '+AsD.toFixed(2)+' cm²','≥ As,min = '+Asmin.toFixed(2),'cm²','')+(best?statusItem(best.sp>=5,'רווח = '+best.sp.toFixed(1)+' cm','≥ 5','cm','(מינימום ת"י 466)'):'')+statusItem(Md<=Mmax,'Md = '+Md.toFixed(2)+' t·m','≤ Mcd,max = '+Mmax.toFixed(2),'t·m','(קיבולת כפיפה)')+'</div>';
   }
   s('res0',html);showCard('res0-card');
   setTimeout(function(){var ctx=g('bendChart');if(!ctx)return;if(bendCI)bendCI.destroy();bendCI=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:['Md','Mcd,max'],datasets:[{data:[Md,Mmax],backgroundColor:[clr,'#e65100'],borderRadius:4,borderWidth:0}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Bending Utilization: '+utilPct+'%'}},}});},50);
