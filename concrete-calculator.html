@@ -107,10 +107,10 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
   <div class="tab-grid cols2">
     <div class="card">
       <h2>גזירה</h2>
-      <button class="ibtn" onclick="importFromBeam(null,'V1','d1')">&#x2193; קבל Vd ו-d ממהלכי כוחות</button>
+      <button class="ibtn" onclick="importForShear()">&#x2193; קבל Vd + d + ρl מכפיפה / מהלכי כוחות</button>
       <div class="fg"><label>b [cm]</label><input id="b1" type="number" value="30" step="5"></div>
       <div class="fg"><label>d [cm]</label><input id="d1" type="number" value="55" step="5"></div>
-      <div class="fg"><label>As [cm²]</label><input id="As1" type="number" value="12" step="1"></div>
+      <div class="fg"><label>ρl [%] — אחוז זיון</label><input id="rho1" type="number" value="0.40" step="0.05" min="0.05" max="4"></div>
       <div class="fg"><label>בטון</label><select id="con1"><option value="20,1300">B30</option><option value="27,1740">B40</option><option value="33,2170">B50</option><option value="40,2600">B60</option></select></div>
       <div class="fg"><label>פלדה</label><select id="steel1"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div>
       <div class="fg"><label>Vd [t]</label><input id="V1" type="number" value="30" step="1"></div>
@@ -305,9 +305,10 @@ var B=[{d:6,a:.283},{d:8,a:.503},{d:10,a:.785},{d:12,a:1.131},{d:14,a:1.539},{d:
 function g(id){return document.getElementById(id)}
 function v(id){return parseFloat(g(id).value)||0}
 function s(id,h){var el=g(id);if(el)el.innerHTML=h;}
-var lastMd=0,lastVd=0,lastD=0;
+var lastMd=0,lastVd=0,lastD=0,lastRho=0;
 function rb(l,val,u,f){return'<div class="rb"><small>'+l+'</small><strong>'+val+(u?' '+u:'')+'</strong>'+(f?'<span class="rf">'+f+'</span>':'')+'</div>'}
 function importFromBeam(mid,vid,did){if(mid&&g(mid))g(mid).value=lastMd.toFixed(2);if(vid&&g(vid))g(vid).value=lastVd.toFixed(1);if(did&&g(did))g(did).value=lastD.toFixed(1);}
+function importForShear(){if(g('V1')&&lastVd>0)g('V1').value=lastVd.toFixed(1);if(g('d1')&&lastD>0)g('d1').value=lastD.toFixed(1);if(g('rho1')&&lastRho>0)g('rho1').value=lastRho.toFixed(3);}
 function ok(o,m){return'<span class="'+(o?'ok':'ng')+'">'+(o?'✓ ':'✗ ')+m+'</span> '}
 function showCard(id){var el=g(id);if(el)el.style.display='block';}
 function statusItem(pass,label,val,unit,cond){var cls=pass?'pass':'fail';var icon=pass?'✅':'❌';return'<div class="status-item '+cls+'"><span class="si-icon">'+icon+'</span><span class="si-text">'+label+'</span><span class="si-val">'+val+(unit?' '+unit:'')+' '+(cond||'')+'</span></div>';}
@@ -658,8 +659,10 @@ function calcBend(){
   // ρmin per IS-466: max(0.26·fctm/fyk, 0.0013) — fctm stored as MPa×10, fyk in MPa
   var rhoMin=Math.max(0.26*(fctm/10)/fyk,0.0013);
   var Asmin=rhoMin*b*d,AsD=Math.max(As,Asmin);
+  var rhoCalc=AsD/(b*d); // calculated ρ
+  lastRho=rhoCalc*100; lastD=d; // export for shear tab
   var utilPct=(Md/Mmax*100).toFixed(1),clr=mu>0.25?'#ef9a9a':'#90caf9';
-  var html='<div class="rg">'+rb('Mcd,max',Mmax.toFixed(2),'t·m','0.32·b·d²·fcd')+rb('μ',mu.toFixed(4),'','Md/(b·d²·fcd)')+rb('ω',omega.toFixed(4),'','1−√(1−2μ)')+rb('As,req',As.toFixed(2),'cm²','Md/(d·(1−ω/2)·fsd/100)')+rb('ρmin',rhoMin.toFixed(4),'','max(0.26·fctm/fyk,0.0013)')+rb('As,min',Asmin.toFixed(2),'cm²','ρmin·b·d')+rb('As,calc',AsD.toFixed(2),'cm²','max(req,min)')+'</div>';
+  var html='<div class="rg">'+rb('Mcd,max',Mmax.toFixed(2),'t·m','0.32·b·d²·fcd')+rb('μ',mu.toFixed(4),'','Md/(b·d²·fcd)')+rb('ω',omega.toFixed(4),'','1−√(1−2μ)')+rb('As,req',As.toFixed(2),'cm²','Md/(d·(1−ω/2)·fsd/100)')+rb('ρmin',rhoMin.toFixed(4),'','max(0.26·fctm/fyk,0.0013)')+rb('As,min',Asmin.toFixed(2),'cm²','ρmin·b·d')+rb('As,calc',AsD.toFixed(2),'cm²','max(req,min)')+rb('ρ calc',(rhoCalc*100).toFixed(3)+'%','','As,calc/(b·d)')+'</div>';
   html+='<div style="margin-top:12px"><canvas id="bendChart" height="80"></canvas></div>';
   if(isSlab){
     var spacings=[10,15,20,30];
@@ -763,15 +766,47 @@ function drawSection(b,h,c,phi,nBars,phiBar){return drawSec(b,h,c,phi,nBars,phiB
 /* ── calcShear ── */
 function calcShear(){
   var cp=g('con1').value.split(',');var fck=+cp[0];
-  var fsd=v('steel1'),b=v('b1'),d=v('d1'),As=v('As1'),Vd=v('V1');
+  var fsd=v('steel1'),b=v('b1'),d=v('d1'),rholPct=v('rho1'),Vd=v('V1');
   var bm=b/100,dm=d/100,dmm=d*10;
-  var rL=Math.min(As/(b*d),0.02),K=Math.min(1+Math.sqrt(200/dmm),2);
+  var rL=Math.min(rholPct/100,0.02),K=Math.min(1+Math.sqrt(200/dmm),2);
   var Vc=0.12*K*Math.pow(100*rL*fck,1/3)*bm*dm*100;
   var VU=Math.max(Vc,0.035*Math.pow(K,1.5)*Math.sqrt(fck)*bm*dm*100);
   var Vm=0.18*(1-fck/250)*fck*0.9*bm*dm*100;
-  var h2='<div class="rg">'+rb('K',K.toFixed(3),'')+rb('Vrd,c',VU.toFixed(2),'t')+rb('Vrd,max',Vm.toFixed(2),'t')+'</div>';
+  var needsStir=(Vd>VU)&&(Vd<=Vm);
+  // avCm = required Asv/sv [cm²/cm], derived correctly from units
+  var avCm=needsStir?(Vd-VU)*10000/(fsd*0.9*d):0;
+  var svMax=Math.min(Math.floor(0.75*d/5)*5,40); // IS-466 s,max [cm]
+  var h2='<div class="rg">'+rb('K',K.toFixed(3),'')+rb('ρl',rholPct.toFixed(3),'%','input')+rb('Vrd,c',VU.toFixed(2),'t')+rb('Vrd,max',Vm.toFixed(2),'t')+'</div>';
   h2+='<div class="status-report">'+statusItem(Vd<=VU,'Vd = '+Vd.toFixed(2)+' t','vs Vrd,c = '+VU.toFixed(2),'t',Vd<=VU?'(ללא ברזל אזיקים)':'(נדרשים אזיקים!)')+statusItem(Vd<=Vm,'Vd = '+Vd.toFixed(2)+' t','vs Vrd,max = '+Vm.toFixed(2),'t',Vd<=Vm?'(גזירה תקינה)':'(הגדל חתך!)')+'</div>';
-  if(Vd>VU&&Vd<=Vm){var av=(Vd-VU)/(fsd*0.9*dm);var stir='';for(var i=0;i<3;i++){var ph=[6,8,10][i];var ab=Math.PI*ph*ph/400;var sv=Math.floor(2*ab*100/av/5)*5;if(sv>=7&&sv<=25){stir='2∅'+ph+' @'+sv+' cm';break;}}h2+=rb('Asv/sv נדרש',av.toFixed(3),'cm²/m')+ok(1,'נדרשים אזיקים')+'<br><b>הצעה: </b>'+stir;}
+  // Stirrup recommendation table
+  h2+='<div style="margin-top:14px"><b>טבלת חישוקים / קלמרות</b>';
+  if(needsStir)h2+='<div style="font-size:.78rem;color:#555;margin:3px 0 5px">Asv,req/s = '+(avCm*10).toFixed(3)+' cm²/10cm | s,max = '+svMax+' cm (0.75d)</div>';
+  else if(Vd>Vm)h2+='<div style="font-size:.78rem;color:#c62828;margin:3px 0 5px">⚠ Vd > Vrd,max — הגדל חתך!</div>';
+  else h2+='<div style="font-size:.78rem;color:#2e7d32;margin:3px 0 5px">Vrd,c ≥ Vd — חישוקים קונסטרוקטיביים בלבד</div>';
+  h2+='<div style="overflow-x:auto"><table><tr><th>∅</th><th>רגליים</th><th>Asv [cm²]</th><th>s מחושב [cm]</th><th>s מומלץ [cm]</th><th>הערה</th></tr>';
+  [{phi:6,legs:2},{phi:8,legs:2},{phi:10,legs:2},{phi:12,legs:2},{phi:8,legs:4},{phi:10,legs:4}].forEach(function(opt){
+    var Atot=opt.legs*Math.PI*opt.phi*opt.phi/400;
+    var svCalc,svRec,note='',bg='';
+    if(needsStir){
+      svCalc=Atot/avCm;
+      if(svCalc<5){note='<span style="color:#c62828">לא מספיק</span>';bg='background:#fff9c4';}
+      else{
+        svRec=Math.min(Math.floor(svCalc/5)*5,svMax);
+        if(svRec<5)svRec=5;
+        if(svRec>=10&&svRec<=25){bg='background:#e8f5e9';note='✓ מומלץ';}
+        else{bg='background:#f1f8e9';note='✓';}
+      }
+    }else{
+      svCalc=null;svRec=Math.min(20,svMax);
+      bg=(Vd<=Vm)?'background:#f1f8e9':'background:#ffebee';
+      note=(Vd<=Vm)?'קונסטרוקטיבי':'—';
+    }
+    h2+='<tr style="'+bg+'"><td><b>∅'+opt.phi+'</b></td><td>'+opt.legs+'</td><td>'+Atot.toFixed(3)+'</td>';
+    h2+='<td>'+(svCalc!==null?(svCalc<5?'< 5':svCalc.toFixed(1)):'—')+'</td>';
+    h2+='<td><b>'+(svRec!==undefined?svRec:'—')+'</b></td>';
+    h2+='<td>'+note+'</td></tr>';
+  });
+  h2+='</table></div></div>';
   s('res1',h2);showCard('res1-card');
 }
 
