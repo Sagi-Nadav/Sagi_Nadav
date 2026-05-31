@@ -54,7 +54,7 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
 .status-item .si-val{font-weight:700;font-family:monospace;direction:ltr}
 .export-box{margin-top:12px;background:#eef2f7;border-right:3px solid #1565c0;border-radius:6px;padding:9px 12px;font-size:.82rem;color:#1a2332;direction:ltr;text-align:left}
 .export-box b{color:#1565c0}
-.chart-wrap{position:relative;height:300px}
+.chart-wrap{position:relative;height:420px}
 #t9 .card h2{border-bottom-color:#1565c0;color:#1565c0}#t9 .rb{border-right-color:#1565c0}#t9 .rb strong{color:#1565c0}
 #t0 .card h2{border-bottom-color:#e65100;color:#e65100}#t0 .rb{border-right-color:#e65100}#t0 .rb strong{color:#e65100}
 #t1 .card h2{border-bottom-color:#b71c1c;color:#b71c1c}#t1 .rb{border-right-color:#b71c1c}#t1 .rb strong{color:#b71c1c}
@@ -92,10 +92,12 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
     </div>
     <div class="card">
       <h2>נוסחאות — ת"י 466 חלק 1</h2>
-      <div class="f">Mcd,max = 0.32·b·d²·fcd</div>
-      <div class="f">μ = Md/(b·d²·fcd) ≤ 0.32</div><div class="f">ω = max(0.1, 1−√(1−2μ))</div>
-      <div class="f">As = Md/(d·(1−ω/2)·fsd/100)</div>
-      <div class="f">ρmin = max(0.26·fctm/fyk, 0.0013)</div><div class="f">As,min = ρmin·b·d [cm²]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.1</span>Mcd,max = 0.32·b·d²·fcd</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.1</span>μ = Md/(b·d²·fcd) ≤ 0.32</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.1</span>ω = max(0.1, 1−√(1−2μ))</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.1</span>As,req = Md×10000 / (d·(1−ω/2)·fsd) [cm²]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§9.2.1.1</span>ρmin = max(0.26·fctm/fyk, 0.0013)</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§9.2.1.1</span>As,min = ρmin·b·d [cm²]</div>
       <div class="legend-box" style="margin-top:10px"><b>מקרא:</b><br>d — עומק אפקטיבי [cm] | Mcd,max — קיבולת כפיפה מקס׳<br>μ — מומנט מנורמל (≤0.32) | ω — אחוז מכאני<br>As,req — ברזל דרוש | As,min — מינימום ת"י 466</div>
     </div>
   </div>
@@ -116,7 +118,13 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
       <div class="fg"><label>Vd [t]</label><input id="V1" type="number" value="30" step="1"></div>
       <button class="btn" onclick="calcShear()">חשב</button>
     </div>
-    <div class="card"><h2>נוסחאות</h2><div class="f">K = min(1+√(200/d_mm),2)</div><div class="f">Vrd,c = 0.12·K·(100·ρl·fck)^(1/3)·b·d</div><div class="f">Asv/sv = (Vd−Vrd,c)/(fsd·0.9·d)</div></div>
+    <div class="card"><h2>נוסחאות — ת"י 466 חלק 1</h2>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.2</span>K = min(1+√(200/d_mm), 2)</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.2</span>Vrd,c = 0.12·K·(100·ρl·fck)^(1/3)·b·d</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.2</span>Vrd,c,min = 0.035·K^1.5·√fck·b·d</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.3</span>Vrd,max = 0.18·(1−fck/250)·fck·0.9·b·d</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.3</span>Asv/sv = (Vd−Vrd,c)/(fsd·0.9·d) [cm²/cm]</div>
+    </div>
   </div>
   <div class="tab-grid" style="margin-top:14px"><div class="card" id="res1-card" style="display:none"><h2>תוצאות</h2><div id="res1"></div></div></div>
 </div>
@@ -275,6 +283,12 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
       <div class="fg"><label>D.L — עומס קבוע [t/m]</label><input id="bg" type="number" value="1.5" step="0.1" oninput="updatePd()"></div>
       <div class="fg"><label>L.L — עומס משתנה [t/m]</label><input id="bq" type="number" value="1.0" step="0.1" oninput="updatePd()"></div>
       <div class="fg"><label>q = 1.4·D.L + 1.6·L.L [t/m]</label><input id="bpd" readonly style="background:#f0f4f8;color:#333"></div>
+      <hr style="border:none;border-top:1px solid #dde;margin:8px 0">
+      <div style="font-size:.85rem;font-weight:700;color:#1e3a5f;margin-bottom:6px">עומס מרוכז (אופציונלי)</div>
+      <div class="fg"><label>P D.L [t]</label><input id="bPDL" type="number" value="0" step="0.5" oninput="updatePd()"></div>
+      <div class="fg"><label>P L.L [t]</label><input id="bPLL" type="number" value="0" step="0.5" oninput="updatePd()"></div>
+      <div class="fg"><label>Pd = 1.4·PD.L + 1.6·PL.L [t]</label><input id="bPpd" readonly style="background:#f0f4f8;color:#333"></div>
+      <div class="fg"><label>מיקום a [m] מסמך שמאלי</label><input id="bPos" type="number" value="3" step="0.5" oninput="updatePd()"></div>
       <button class="btn" onclick="calcBeam()">חשב</button>
     </div>
     <!-- Beam / load diagram -->
@@ -284,15 +298,12 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
       <div id="resBeam" style="margin-top:10px"></div>
     </div>
   </div>
-  <!-- Moment diagram — full width, tall -->
-  <div class="tab-grid" style="margin-top:14px">
+  <!-- Moment + Shear diagrams — side by side -->
+  <div class="tab-grid cols2" style="margin-top:14px">
     <div class="card">
-      <h2>&#x1F4C9; דיאגרמת מומנטים [t·m] — מוסכמה: כפיפה כלפי מטה (+)</h2>
+      <h2>&#x1F4C9; דיאגרמת מומנטים [t·m]</h2>
       <div class="chart-wrap"><canvas id="beamMChart"></canvas></div>
     </div>
-  </div>
-  <!-- Shear diagram — full width, tall -->
-  <div class="tab-grid" style="margin-top:14px">
     <div class="card">
       <h2>&#x1F4CA; דיאגרמת גזירה [t]</h2>
       <div class="chart-wrap"><canvas id="beamSChart"></canvas></div>
@@ -325,6 +336,8 @@ function show(i,el){
 function updatePd(){
   var gk=parseFloat((g('bg')||{}).value)||0,qk=parseFloat((g('bq')||{}).value)||0;
   if(g('bpd'))g('bpd').value=(1.4*gk+1.6*qk).toFixed(3);
+  var pdl=parseFloat((g('bPDL')||{}).value)||0,pll=parseFloat((g('bPLL')||{}).value)||0;
+  if(g('bPpd'))g('bPpd').value=(1.4*pdl+1.6*pll).toFixed(3);
 }
 
 function updateBtypeUI(){
@@ -362,6 +375,66 @@ function solve3Moment(w,spans){
   return M;
 }
 
+/* ── Point load superposition via 3-moment theorem ─────────
+   P applied at global position aGlobal along beam.
+   Returns support moment increments due to P alone. */
+function solve3MomentPt(P,aGlobal,spans){
+  var n=spans.length;
+  var dM=[];for(var i=0;i<=n;i++)dM.push(0);
+  if(n===1||P===0)return dM;
+  // Find which span contains the load
+  var spanIdx=0,pos=0;
+  for(var i=0;i<n;i++){if(aGlobal<=pos+spans[i]+1e-9){spanIdx=i;break;}pos+=spans[i];}
+  var aLocal=aGlobal-pos; // distance from left support of loaded span
+  var L=spans[spanIdx];
+  var alpha=aLocal,beta=L-aLocal; // distance from left, right support of loaded span
+  // 3-moment RHS contribution at support j (= spanIdx) and j+1 (= spanIdx+1)
+  // For interior support k adjacent to loaded span:
+  //   Left span (span k-1 = loaded): RHS += -P*beta*(L²-beta²)/L  at support k=spanIdx+1
+  //   Right span (span k = loaded):  RHS += -P*alpha*(L²-alpha²)/L at support k=spanIdx
+  var rhsLeft=-P*beta*(L*L-beta*beta)/L;   // contribution at support spanIdx+1 (right end of loaded span)
+  var rhsRight=-P*alpha*(L*L-alpha*alpha)/L; // contribution at support spanIdx   (left end of loaded span)
+  if(n===2){
+    // only one interior support (index 1)
+    var L1=spans[0],L2=spans[1];
+    var rhs=0;
+    if(spanIdx===0)rhs=rhsRight; // loaded span is span 0, interior support = support 1 (left end side)
+    else rhs=rhsLeft;             // loaded span is span 1, interior support = support 1 (right end side)
+    dM[1]=rhs/(4*(L1+L2)/2); // simplified: same denominator as UDL version
+    // Full formula: 2(L1+L2)*M1 = rhs → M1 = rhs / (2*(L1+L2))
+    dM[1]=rhs/(2*(L1+L2));
+    return dM;
+  }
+  if(n===3){
+    var L1=spans[0],L2=spans[1],L3=spans[2];
+    var a11=2*(L1+L2),a12=L2,a21=L2,a22=2*(L2+L3);
+    var b1=0,b2=0;
+    if(spanIdx===0){b1=rhsRight;} // load in span 0: affects rhs at support 1
+    else if(spanIdx===1){b1=rhsLeft;b2=rhsRight;} // load in span 1: affects both supports
+    else{b2=rhsLeft;} // load in span 2: affects rhs at support 2
+    var det=a11*a22-a12*a21;
+    dM[1]=(b1*a22-b2*a12)/det;
+    dM[2]=(a11*b2-a21*b1)/det;
+    return dM;
+  }
+  return dM;
+}
+
+/* M(x) in a span with a point load: superpose UDL span-M + point-load contribution */
+function spanMwithP(w,P,aLocal,lx,Li,Mi,Mj){
+  // Reaction at left: R = (Mj-Mi)/L + w*L/2 + P*(Li-aLocal)/Li
+  var Ri=(Mj-Mi)/Li+w*Li/2+P*(Li-aLocal)/Li;
+  var m=Ri*lx-w*lx*lx/2+Mi;
+  if(lx>aLocal)m-=P*(lx-aLocal);
+  return m;
+}
+function spanVwithP(w,P,aLocal,lx,Li,Mi,Mj){
+  var Ri=(Mj-Mi)/Li+w*Li/2+P*(Li-aLocal)/Li;
+  var v=Ri-w*lx;
+  if(lx>aLocal)v-=P;
+  return v;
+}
+
 /* Reaction at left end of span i: R_i_left = (M[i+1]-M[i])/L_i + w*L_i/2 */
 function spanLeftR(w,L,Mi,Mj){return(Mj-Mi)/L+w*L/2;}
 
@@ -391,7 +464,7 @@ function computeReactions(w,spans,M){
 }
 
 /* ── Beam SVG diagram ─── */
-function drawBeamDiagram(bt,spans,pd,gk,qk,reactions){
+function drawBeamDiagram(bt,spans,pd,gk,qk,reactions,Ppd,aPos,loadedSpan){
   var VW=580,VH=190,BL=44,BR=14,beamW=VW-BL-BR,beamY=86;
   var totalL=spans.reduce(function(a,b){return a+b;},0);
   // support x positions
@@ -441,6 +514,14 @@ function drawBeamDiagram(bt,spans,pd,gk,qk,reactions){
     svg+='<line x1="'+(x1+3)+'" y1="'+(lblBot-18)+'" x2="'+(x1+3)+'" y2="'+(lblBot-10)+'" stroke="#1e3a5f" stroke-width="0.8"/>';
     svg+='<line x1="'+(x2-3)+'" y1="'+(lblBot-18)+'" x2="'+(x2-3)+'" y2="'+(lblBot-10)+'" stroke="#1e3a5f" stroke-width="0.8"/>';
     svg+='<text x="'+mx+'" y="'+lblBot+'" text-anchor="middle" font-size="9.5" fill="#1e3a5f" font-weight="bold">'+ltext+'</text>';
+  }
+  // Point load arrow
+  if(Ppd>0&&loadedSpan>=0&&aPos>0&&aPos<totalLen){
+    var px=BL+(aPos/totalLen)*beamW;
+    var pArrTop=aTop,pArrBot=beamY-5;
+    svg+='<line x1="'+px+'" y1="'+pArrTop+'" x2="'+px+'" y2="'+(pArrBot-6)+'" stroke="#7b1fa2" stroke-width="3"/>';
+    svg+='<polygon points="'+px+','+pArrBot+' '+(px-5)+','+(pArrBot-10)+' '+(px+5)+','+(pArrBot-10)+'" fill="#7b1fa2"/>';
+    svg+='<text x="'+px+'" y="'+(pArrTop-3)+'" text-anchor="middle" font-size="9" font-weight="bold" fill="#7b1fa2">Pd='+Ppd.toFixed(1)+'t</text>';
   }
   svg+='</svg>';
   return svg;
@@ -519,13 +600,18 @@ function calcBeam(){
   var gk=v('bg'),qk=v('bq');
   var pd=1.4*gk+1.6*qk;
   g('bpd').value=pd.toFixed(3);
+  // Point load
+  var bPDLv=parseFloat((g('bPDL')||{}).value)||0,bPLLv=parseFloat((g('bPLL')||{}).value)||0;
+  var Ppd=1.4*bPDLv+1.6*bPLLv;
+  if(g('bPpd'))g('bPpd').value=Ppd.toFixed(3);
+  var aPos=parseFloat((g('bPos')||{}).value)||0;
   // Build spans array
   var spans=[];
   if(bt==='ss'||bt==='ct')spans=[v('bL1')];
   else if(bt==='2span')spans=[v('bL1'),v('bL2')];
   else spans=[v('bL1'),v('bL2'),v('bL3')];
   for(var i=0;i<spans.length;i++)if(spans[i]<=0){s('beamDiagram','<span class="ng">הזן מפתחות חיוביים</span>');return;}
-  if(pd<=0){s('beamDiagram','<span class="ng">הזן עומסים חיוביים</span>');return;}
+  if(pd<=0&&Ppd<=0){s('beamDiagram','<span class="ng">הזן עומסים חיוביים</span>');return;}
   var totalLen=spans.reduce(function(a,b){return a+b;},0);
   var nPts=300;
   var Mdata=[],Vdata=[];
@@ -535,55 +621,83 @@ function calcBeam(){
   var reactions=[],moments=[];
   var summaryHtml='';
 
+  // Determine loaded span for point load
+  var loadedSpan=-1,aLocal=0;
+  if(Ppd>0&&aPos>0&&aPos<totalLen){
+    var posAcc=0;
+    for(var i=0;i<spans.length;i++){if(aPos<=posAcc+spans[i]+1e-9){loadedSpan=i;aLocal=aPos-posAcc;break;}posAcc+=spans[i];}
+  }
+
   if(bt==='ct'){
     // Cantilever: fixed end at x=0, free at x=L
     var L=spans[0];
-    moments=[0,0];reactions=[pd*L];
-    for(var i=0;i<=nPts;i++){var x=i/nPts*L;Mdata.push({x:x,y:+(-pd*(L-x)*(L-x)/2).toFixed(4)});Vdata.push({x:x,y:+(-pd*(L-x)).toFixed(4)});}
-    var Mmax=pd*L*L/2,Vmax=pd*L;
-    keyMPts=[{x:0,y:-Mmax,label:'M = -'+Mmax.toFixed(2)+' t·m'}];
-    keyVPts=[{x:0,y:-Vmax,label:'V = -'+Vmax.toFixed(2)+' t'}];
-    lastMd=Mmax;lastVd=Vmax;lastD=0;
-    summaryHtml='<div class="rg">'+rb('|M_fixed| = pd·L²/2',Mmax.toFixed(2),'t·m','@ x=0 (fixed end)')+rb('|V_fixed| = pd·L',Vmax.toFixed(2),'t','@ x=0 (fixed end)')+rb('R_fixed = pd·L',Vmax.toFixed(2),'t','')+'</div>';
+    var aPt=(loadedSpan===0)?aLocal:L; // clamp if outside span
+    moments=[0,0];
+    reactions=[pd*L+(loadedSpan===0?Ppd:0)];
+    for(var i=0;i<=nPts;i++){
+      var x=i/nPts*L;
+      var M=-(pd*(L-x)*(L-x)/2);var V=-(pd*(L-x));
+      if(loadedSpan===0&&x<=aPt){M-=Ppd*(aPt-x);V-=Ppd;}
+      Mdata.push({x:x,y:+M.toFixed(4)});Vdata.push({x:x,y:+V.toFixed(4)});
+    }
+    var Mfix=pd*L*L/2+(loadedSpan===0?Ppd*aPt:0);
+    var Vfix=pd*L+(loadedSpan===0?Ppd:0);
+    keyMPts=[{x:0,y:-Mfix,label:'M = -'+Mfix.toFixed(2)+' t·m'}];
+    keyVPts=[{x:0,y:-Vfix,label:'V = -'+Vfix.toFixed(2)+' t'}];
+    lastMd=Mfix;lastVd=Vfix;lastD=0;
+    summaryHtml='<div class="rg">'+rb('|M_fixed|',Mfix.toFixed(2),'t·m','@ x=0 (fixed end)')+rb('|V_fixed|',Vfix.toFixed(2),'t','@ x=0 (fixed end)')+rb('R_fixed',Vfix.toFixed(2),'t','')+'</div>';
 
   } else {
-    // General: solve via 3-moment theorem
-    moments=solve3Moment(pd,spans);
-    reactions=computeReactions(pd,spans,moments);
+    // General: solve via 3-moment theorem (UDL + point load superposition)
+    var momUDL=solve3Moment(pd,spans);
+    var momPt=(loadedSpan>=0)?solve3MomentPt(Ppd,aPos,spans):momUDL.map(function(){return 0;});
+    moments=momUDL.map(function(m,i){return m+momPt[i];});
+    // Compute reactions with point load
+    reactions=[];for(var i=0;i<=spans.length;i++)reactions.push(0);
+    for(var i=0;i<spans.length;i++){
+      var Li=spans[i],Mi=moments[i],Mj=moments[i+1];
+      var Pi=(i===loadedSpan)?Ppd:0,ai=(i===loadedSpan)?aLocal:0;
+      var Ri=(Mj-Mi)/Li+pd*Li/2+Pi*(Li-ai)/Li;
+      var Rj=pd*Li+Pi-Ri;
+      reactions[i]+=Ri;reactions[i+1]+=Rj;
+    }
     // Generate data
     for(var i=0;i<=nPts;i++){
       var x=i/nPts*totalLen;
-      // find which span
       var si=spans.length-1,lx=totalLen-spans[spans.length-1];
-      var pos=0;
-      for(var j=0;j<spans.length;j++){if(x<=pos+spans[j]+1e-9){si=j;lx=x-pos;break;}pos+=spans[j];}
-      var M=spanM(pd,lx,spans[si],moments[si],moments[si+1]);
-      var V=spanV(pd,lx,spans[si],moments[si],moments[si+1]);
+      var pos2=0;
+      for(var j=0;j<spans.length;j++){if(x<=pos2+spans[j]+1e-9){si=j;lx=x-pos2;break;}pos2+=spans[j];}
+      var M,V;
+      if(si===loadedSpan){
+        M=spanMwithP(pd,Ppd,aLocal,lx,spans[si],moments[si],moments[si+1]);
+        V=spanVwithP(pd,Ppd,aLocal,lx,spans[si],moments[si],moments[si+1]);
+      }else{
+        M=spanM(pd,lx,spans[si],moments[si],moments[si+1]);
+        V=spanV(pd,lx,spans[si],moments[si],moments[si+1]);
+      }
       Mdata.push({x:x,y:+M.toFixed(4)});Vdata.push({x:x,y:+V.toFixed(4)});
     }
-    // Key points
-    // Support moments
+    // Key points — support moments
     for(var i=1;i<moments.length-1;i++){
       if(Math.abs(moments[i])>1e-4)keyMPts.push({x:supportsX[i],y:moments[i],label:'M='+moments[i].toFixed(2)+' t·m'});
     }
-    // Max sagging in each span
+    // Max sagging — scan each span numerically
     for(var i=0;i<spans.length;i++){
       var Li=spans[i],Mi=moments[i],Mj=moments[i+1];
-      var Ri=spanLeftR(pd,Li,Mi,Mj);
-      var xMax=Ri/pd; // dM/dx=0 → x=R/w
-      if(xMax>0&&xMax<Li){
-        var Mspan=spanM(pd,xMax,Li,Mi,Mj);
-        if(Mspan>1e-4){
-          var xAbs=supportsX[i]+xMax;
-          keyMPts.push({x:xAbs,y:Mspan,label:'M=+'+Mspan.toFixed(2)+' t·m'});
-        }
+      var bestM=-Infinity,bestX=0;
+      for(var k=0;k<=100;k++){
+        var lxk=k/100*Li;
+        var Mk=(i===loadedSpan)?spanMwithP(pd,Ppd,aLocal,lxk,Li,Mi,Mj):spanM(pd,lxk,Li,Mi,Mj);
+        if(Mk>bestM){bestM=Mk;bestX=lxk;}
       }
+      if(bestM>1e-4)keyMPts.push({x:supportsX[i]+bestX,y:bestM,label:'M=+'+bestM.toFixed(2)+' t·m'});
     }
-    // Shear: at each span boundary
+    // Shear key points at supports
     for(var i=0;i<supportsX.length;i++){
-      var px=supportsX[i];
-      keyVPts.push({x:px,y:Vdata[Math.round(i/supportsX.length*(Vdata.length-1))].y,label:'V='+reactions[i].toFixed(2)+' t'});
+      keyVPts.push({x:supportsX[i],y:Vdata[Math.round(i/supportsX.length*(Vdata.length-1))].y,label:'R='+reactions[i].toFixed(2)+' t'});
     }
+    // Point load key point
+    if(loadedSpan>=0)keyMPts.push({x:aPos,y:Mdata[Math.round(aPos/totalLen*nPts)].y,label:'P @'+aPos.toFixed(1)+'m'});
     // Max M and V for export
     var maxMabs=0,maxVabs=0;
     Mdata.forEach(function(p){if(Math.abs(p.y)>maxMabs)maxMabs=Math.abs(p.y);});
@@ -591,8 +705,14 @@ function calcBeam(){
     lastMd=maxMabs;lastVd=maxVabs;lastD=0;
     // Summary grid
     summaryHtml='<div class="rg">';
+    if(loadedSpan>=0)summaryHtml+=rb('Pd (מרוכז)',Ppd.toFixed(2),'t','@ a = '+aPos.toFixed(2)+' m');
     for(var i=1;i<moments.length-1;i++)summaryHtml+=rb('M_support '+(i),moments[i].toFixed(2),'t·m','hogging');
-    for(var i=0;i<spans.length;i++){var Li=spans[i],Mi=moments[i],Mj=moments[i+1];var Ri=spanLeftR(pd,Li,Mi,Mj);var xm=Ri/pd;if(xm>0&&xm<Li){summaryHtml+=rb('M_span '+(i+1)+' max',spanM(pd,xm,Li,Mi,Mj).toFixed(2),'t·m','sagging');}}
+    for(var i=0;i<spans.length;i++){
+      var Li=spans[i],Mi=moments[i],Mj=moments[i+1];
+      var bestM2=-Infinity;
+      for(var k=0;k<=100;k++){var lxk=k/100*Li;var Mk2=(i===loadedSpan)?spanMwithP(pd,Ppd,aLocal,lxk,Li,Mi,Mj):spanM(pd,lxk,Li,Mi,Mj);if(Mk2>bestM2)bestM2=Mk2;}
+      if(bestM2>1e-4)summaryHtml+=rb('M_span '+(i+1)+' max',bestM2.toFixed(2),'t·m','sagging');
+    }
     for(var i=0;i<reactions.length;i++)summaryHtml+=rb('R_'+(String.fromCharCode(65+i)),reactions[i].toFixed(2),'t','');
     summaryHtml+=rb('Vmax',maxVabs.toFixed(2),'t','max |V|');
     summaryHtml+='</div>';
@@ -601,7 +721,7 @@ function calcBeam(){
   summaryHtml+='<div class="export-box"><b>Export:</b> Md = '+lastMd.toFixed(2)+' t·m  |  Vd = '+lastVd.toFixed(2)+' t</div>';
   s('resBeam',summaryHtml);
   // Beam diagram
-  s('beamDiagram',drawBeamDiagram(bt,spans,pd,gk,qk,reactions));
+  s('beamDiagram',drawBeamDiagram(bt,spans,pd,gk,qk,reactions,Ppd,aPos,loadedSpan));
 
   // Chart scale options
   var scaleBase={x:{type:'linear',min:0,max:totalLen,title:{display:true,text:'x [m]'},ticks:{maxTicksLimit:12,callback:function(vl){return vl.toFixed(1)+' m';}}},y:{title:{display:true,text:''}}};
@@ -655,14 +775,18 @@ function calcBend(){
   var mu=Md/(bm*dm*dm*fcd);
   if(mu>0.32){s('res0','<span class="ng">✗ μ='+mu.toFixed(3)+' > 0.32 — הגדל חתך</span>'+drawSec(b,hEst,c,20,0,0,isSlab?'slab':'beam'));showCard('res0-card');return;}
   var omega=Math.max(0.1,1-Math.sqrt(Math.max(0,1-2*mu)));
-  var As=Md/(dm*(1-omega/2)*fsd/100);
-  // ρmin per IS-466: max(0.26·fctm/fyk, 0.0013) — fctm stored as MPa×10, fyk in MPa
+  // As [cm²]: Md[t·m]×10000 / (dm[m] × (1−ω/2) × fsd[t/m²]) — §6.1 IS-466
+  var As=Md*10000/(dm*(1-omega/2)*fsd);
+  // ρmin per IS-466 §9.2.1.1: max(0.26·fctm/fyk, 0.0013) — fctm stored as MPa×10, fyk in MPa
   var rhoMin=Math.max(0.26*(fctm/10)/fyk,0.0013);
   var Asmin=rhoMin*b*d,AsD=Math.max(As,Asmin);
+  var asMinGoverns=(Asmin>As);
   var rhoCalc=AsD/(b*d); // calculated ρ
   lastRho=rhoCalc*100; lastD=d; // export for shear tab
   var utilPct=(Md/Mmax*100).toFixed(1),clr=mu>0.25?'#ef9a9a':'#90caf9';
-  var html='<div class="rg">'+rb('Mcd,max',Mmax.toFixed(2),'t·m','0.32·b·d²·fcd')+rb('μ',mu.toFixed(4),'','Md/(b·d²·fcd)')+rb('ω',omega.toFixed(4),'','1−√(1−2μ)')+rb('As,req',As.toFixed(2),'cm²','Md/(d·(1−ω/2)·fsd/100)')+rb('ρmin',rhoMin.toFixed(4),'','max(0.26·fctm/fyk,0.0013)')+rb('As,min',Asmin.toFixed(2),'cm²','ρmin·b·d')+rb('As,calc',AsD.toFixed(2),'cm²','max(req,min)')+rb('ρ calc',(rhoCalc*100).toFixed(3)+'%','','As,calc/(b·d)')+'</div>';
+  var asReqStyle=asMinGoverns?'color:#e65100;font-weight:bold':'';
+  var html='<div class="rg">'+rb('Mcd,max',Mmax.toFixed(2),'t·m','0.32·b·d²·fcd §6.1')+rb('μ',mu.toFixed(4),'','Md/(b·d²·fcd)')+rb('ω',omega.toFixed(4),'','1−√(1−2μ)')+rb('As,req','<span style="'+asReqStyle+'">'+As.toFixed(2)+'</span>','cm²','Md×10000/(dm·(1−ω/2)·fsd)')+rb('ρmin',rhoMin.toFixed(4),'','max(0.26·fctm/fyk,0.0013) §9.2.1.1')+rb('As,min',Asmin.toFixed(2),'cm²','ρmin·b·d')+rb('As,calc',AsD.toFixed(2),'cm²','max(req,min)')+rb('ρ calc',(rhoCalc*100).toFixed(3)+'%','','As,calc/(b·d)')+'</div>';
+  if(asMinGoverns)html+='<div style="margin:8px 0;padding:8px 12px;background:#fff3e0;border-right:4px solid #e65100;border-radius:4px;font-size:.88rem;color:#bf360c">⚠ ברזל מינימלי קובע — As,min = '+Asmin.toFixed(2)+' cm² > As,req = '+As.toFixed(2)+' cm² (ת"י 466 §9.2.1.1)</div>';
   html+='<div style="margin-top:12px"><canvas id="bendChart" height="80"></canvas></div>';
   if(isSlab){
     var spacings=[10,15,20,30];
@@ -731,7 +855,7 @@ function calcBend(){
 
 /* ── drawSec ── */
 function drawSec(b,h,c,phi,nBars,phiBar,type){
-  var SW=340,SH=380,ML=70,MT=50,MR=50,MB=55;
+  var SW=340,SH=440,ML=70,MT=50,MR=50,MB=100;
   var dW=SW-ML-MR,dH=SH-MT-MB;var sc=Math.min(dW/b,dH/h);
   var secW=b*sc,secH=h*sc;var ox=ML+(dW-secW)/2,oy=MT+(dH-secH)/2;
   var csc=c*sc,phiPx=phiBar?(phiBar/10)*sc:0;
@@ -746,15 +870,25 @@ function drawSec(b,h,c,phi,nBars,phiBar,type){
   svg+='<rect x="'+ox+'" y="'+oy+'" width="'+secW+'" height="'+secH+'" fill="#dce6f3" stroke="#1e3a5f" stroke-width="2.5" rx="2"/>';
   svg+='<rect x="'+ox+'" y="'+oy+'" width="'+secW+'" height="'+secH+'" fill="url(#hatch)" opacity="0.4" rx="2"/>';
   svg+='<line x1="'+(ox+secW-csc*0.5)+'" y1="'+(oy+2)+'" x2="'+(ox+secW-csc*0.5)+'" y2="'+(oy+csc)+'" stroke="#c8a951" stroke-width="1" stroke-dasharray="2,2"/>';
-  svg+='<text x="'+(ox+secW+6)+'" y="'+(oy+csc/2+4)+'" font-size="8.5" fill="#b8941f">c='+c+' cm</text>';
+  svg+='<text x="'+(ox+secW/2)+'" y="'+(oy+csc-3)+'" text-anchor="middle" font-size="8.5" fill="#b8941f">c = '+c+' cm</text>';
   var stW=secW-2*csc,stH=secH-2*csc,stx=ox+csc,sty=oy+csc;
   svg+='<rect x="'+stx+'" y="'+sty+'" width="'+stW+'" height="'+stH+'" fill="none" stroke="#444" stroke-width="2" rx="4"/>';
   [[stx,sty],[stx+stW,sty],[stx,sty+stH],[stx+stW,sty+stH]].forEach(function(pt){svg+='<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="1.5" fill="#444"/>';});
-  svg+='<text x="'+(stx+stW/2)+'" y="'+(sty+stH+11)+'" text-anchor="middle" font-size="8" fill="#555">אזיקים ∅8</text>';
+  // stirrup label inside rect (centred vertically in stirrup band)
+  svg+='<text x="'+(stx+stW/2)+'" y="'+(sty+stH/2+4)+'" text-anchor="middle" font-size="8" fill="#555">אזיקים ∅8</text>';
   function drawBar(cx,cy,r,grad){var rc=Math.max(r,3);svg+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+rc.toFixed(1)+'" fill="url(#'+grad+')" stroke="#fff" stroke-width="1"/>';var cr=rc*0.45;svg+='<line x1="'+(cx-cr).toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+(cx+cr).toFixed(1)+'" y2="'+cy.toFixed(1)+'" stroke="rgba(255,255,255,0.5)" stroke-width="0.7"/><line x1="'+cx.toFixed(1)+'" y1="'+(cy-cr).toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+(cy+cr).toFixed(1)+'" stroke="rgba(255,255,255,0.5)" stroke-width="0.7"/>';}
-  if(nBars>0&&phiPx>0){var sp2=(nBars>1)?(secW-2*csc-nBars*phiPx)/(nBars-1):0;if(sp2<0)sp2=0;var sx=ox+csc+phiPx/2;for(var i=0;i<nBars;i++)drawBar(sx+i*(phiPx+sp2),tensionY,phiPx/2,'barGrad');var tLabel=isCant?'ברזל עליון (מתוח)':'ברזל תחתון (מתוח)';var labelY=isCant?(tensionY-phiPx/2-8):(tensionY+phiPx/2+14);svg+='<text x="'+(ox+secW/2).toFixed(1)+'" y="'+labelY.toFixed(1)+'" text-anchor="middle" font-size="9.5" fill="#1a3a6e" font-weight="bold">'+nBars+'∅'+phiBar+' — '+tLabel+'</text>';if(nBars>1){var spCm=((b-2*c-nBars*phiBar/10)/(nBars-1)).toFixed(1);svg+='<text x="'+(ox+secW/2).toFixed(1)+'" y="'+(labelY+(isCant?-12:14)).toFixed(1)+'" text-anchor="middle" font-size="8" fill="#555">רווח = '+spCm+' cm בין מוטות</text>';}}
+  if(nBars>0&&phiPx>0){
+    var sp2=(nBars>1)?(secW-2*csc-nBars*phiPx)/(nBars-1):0;if(sp2<0)sp2=0;
+    var sx=ox+csc+phiPx/2;for(var i=0;i<nBars;i++)drawBar(sx+i*(phiPx+sp2),tensionY,phiPx/2,'barGrad');
+    var tLabel=isCant?'ברזל עליון (מתוח)':'ברזל תחתון (מתוח)';
+    // label below the section (in the margin space) — clear of bars
+    var labelY=oy+secH+18;
+    svg+='<text x="'+(ox+secW/2).toFixed(1)+'" y="'+labelY.toFixed(1)+'" text-anchor="middle" font-size="9.5" fill="#1a3a6e" font-weight="bold">'+nBars+'∅'+phiBar+' — '+tLabel+'</text>';
+    if(nBars>1){var spCm=((b-2*c-nBars*phiBar/10)/(nBars-1)).toFixed(1);svg+='<text x="'+(ox+secW/2).toFixed(1)+'" y="'+(labelY+14).toFixed(1)+'" text-anchor="middle" font-size="8.5" fill="#555">רווח = '+spCm+' cm בין מוטות</text>';}
+  }
   var top2dia=Math.max(12,Math.round((phiBar||phi)*0.6/2)*2||12);var top2px=(top2dia/10)*sc;var tx1=ox+csc+top2px/2,tx2=ox+secW-csc-top2px/2;
   drawBar(tx1,compY,top2px/2,'barGrayGrad');drawBar(tx2,compY,top2px/2,'barGrayGrad');
+  // comp bar label outside the section on the opposite side from tension label
   svg+='<text x="'+(ox+secW/2)+'" y="'+(isCant?(compY+top2px/2+13):(compY-top2px/2-6))+'" text-anchor="middle" font-size="9" fill="#666">2∅'+top2dia+' '+(isCant?'תחתון':'עליון')+' (קונסטר׳)</text>';
   var dimY=oy-22;svg+='<line x1="'+ox+'" y1="'+dimY+'" x2="'+(ox+secW)+'" y2="'+dimY+'" stroke="#333" stroke-width="1.2"/>';svg+='<line x1="'+ox+'" y1="'+(dimY-6)+'" x2="'+ox+'" y2="'+oy+'" stroke="#333" stroke-width="0.8" stroke-dasharray="3,2"/>';svg+='<line x1="'+(ox+secW)+'" y1="'+(dimY-6)+'" x2="'+(ox+secW)+'" y2="'+oy+'" stroke="#333" stroke-width="0.8" stroke-dasharray="3,2"/>';svg+='<text x="'+(ox+secW/2)+'" y="'+(dimY-4)+'" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">b = '+b+' cm</text>';
   var hx=ox+secW+32;svg+='<line x1="'+hx+'" y1="'+oy+'" x2="'+hx+'" y2="'+(oy+secH)+'" stroke="#333" stroke-width="1.2"/>';svg+='<line x1="'+(hx-5)+'" y1="'+oy+'" x2="'+(hx+5)+'" y2="'+oy+'" stroke="#333" stroke-width="1.2"/>';svg+='<line x1="'+(hx-5)+'" y1="'+(oy+secH)+'" x2="'+(hx+5)+'" y2="'+(oy+secH)+'" stroke="#333" stroke-width="1.2"/>';svg+='<text x="'+(hx+14)+'" y="'+(oy+secH/2)+'" text-anchor="middle" font-size="10" fill="#333" font-weight="bold" transform="rotate(90,'+(hx+14)+','+(oy+secH/2)+')">h = '+h+' cm</text>';
