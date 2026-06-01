@@ -66,7 +66,6 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
   <button class="tab a" onclick="show(9,this)">מהלכי כוחות</button>
   <button class="tab" onclick="show(0,this)">כפיפה</button>
   <button class="tab" onclick="show(1,this)">גזירה</button>
-  <button class="tab" onclick="show(2,this)">עיגון</button>
   <button class="tab" onclick="show(3,this)">קירות</button>
   <button class="tab" onclick="show(4,this)">עמודים</button>
   <button class="tab" onclick="show(5,this)">ספקטרום</button>
@@ -108,42 +107,30 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
 <div class="content" id="t1">
   <div class="tab-grid cols2">
     <div class="card">
-      <h2>גזירה</h2>
+      <h2>גזירה — חישוקים</h2>
       <button class="ibtn" onclick="importForShear()">&#x2193; קבל Vd + d + ρl מכפיפה / מהלכי כוחות</button>
+      <div class="stype"><span>סוג אלמנט:</span><label><input type="radio" name="stype1" value="beam" checked> קורה</label><label><input type="radio" name="stype1" value="slab"> תקרה/רצפה</label></div>
       <div class="fg"><label>b [cm]</label><input id="b1" type="number" value="30" step="5"></div>
       <div class="fg"><label>d [cm]</label><input id="d1" type="number" value="55" step="5"></div>
       <div class="fg"><label>ρl [%] — אחוז זיון</label><input id="rho1" type="number" value="0.40" step="0.05" min="0.05" max="4"></div>
       <div class="fg"><label>בטון</label><select id="con1"><option value="20,1300">B30</option><option value="27,1740">B40</option><option value="33,2170">B50</option><option value="40,2600">B60</option></select></div>
       <div class="fg"><label>פלדה</label><select id="steel1"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div>
       <div class="fg"><label>Vd [t]</label><input id="V1" type="number" value="30" step="1"></div>
+      <div class="fg"><label>זווית תמסורת θ [°] — §6.2.3 (26.5° עד 45°)</label><input id="theta1" type="number" value="45" step="2.5" min="26.5" max="45"></div>
       <button class="btn" onclick="calcShear()">חשב</button>
     </div>
     <div class="card"><h2>נוסחאות — ת"י 466 חלק 1</h2>
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.2</span>K = min(1+√(200/d_mm), 2)</div>
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.2</span>Vrd,c = 0.12·K·(100·ρl·fck)^(1/3)·b·d</div>
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.2</span>Vrd,c,min = 0.035·K^1.5·√fck·b·d</div>
-      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.3</span>Vrd,max = 0.18·(1−fck/250)·fck·0.9·b·d</div>
-      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.3</span>Asv/sv = (Vd−Vrd,c)/(fsd·0.9·d) [cm²/cm]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.3</span>Vrd,max(θ) = Vrd,max(45°)·2/(cotθ+tanθ)</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.3</span>Asv/sv = (Vd−Vrd,c)/(fsd·0.9·d·cotθ) [cm²/cm]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">§6.2.3</span>θ_opt: cotθ+tanθ = 2·Vrd,max(45°)/Vd</div>
     </div>
   </div>
   <div class="tab-grid" style="margin-top:14px"><div class="card" id="res1-card" style="display:none"><h2>תוצאות</h2><div id="res1"></div></div></div>
 </div>
 
-<!-- ══ t2 עיגון ══ -->
-<div class="content" id="t2">
-  <div class="tab-grid cols2">
-    <div class="card">
-      <h2>עיגון</h2>
-      <div class="fg"><label>קוטר [mm]</label><input id="phi2" type="number" value="20" step="2"></div>
-      <div class="fg"><label>מיקום</label><select id="pos2"><option value="1">תחתון</option><option value="0.7">עליון</option></select></div>
-      <div class="fg"><label>בטון</label><select id="con2"><option value="83">B30</option><option value="100">B40</option><option value="117">B50</option><option value="133">B60</option></select></div>
-      <div class="fg"><label>פלדה</label><select id="steel2"><option value="34800">B400</option><option value="43500" selected>B500</option></select></div>
-      <button class="btn" onclick="calcAnch()">חשב</button>
-    </div>
-    <div class="card"><h2>נוסחאות</h2><div class="f">fbd = 2.25·η1·fctd</div><div class="f">lb,rqd = (∅/400)·(fsd/fbd) [m]</div><div class="f">lb,min = max(0.3·lb,rqd, 10∅, 10cm)</div></div>
-  </div>
-  <div class="tab-grid" style="margin-top:14px"><div class="card" id="res2-card" style="display:none"><h2>תוצאות</h2><div id="res2"></div></div></div>
-</div>
 
 <!-- ══ t3 קירות ══ -->
 <div class="content" id="t3">
@@ -515,13 +502,19 @@ function drawBeamDiagram(bt,spans,pd,gk,qk,reactions,Ppd,aPos,loadedSpan){
     svg+='<line x1="'+(x2-3)+'" y1="'+(lblBot-18)+'" x2="'+(x2-3)+'" y2="'+(lblBot-10)+'" stroke="#1e3a5f" stroke-width="0.8"/>';
     svg+='<text x="'+mx+'" y="'+lblBot+'" text-anchor="middle" font-size="9.5" fill="#1e3a5f" font-weight="bold">'+ltext+'</text>';
   }
-  // Point load arrow
+  // Point load arrow — taller than UDL, starts above horizontal load line
   if(Ppd>0&&loadedSpan>=0&&aPos>0&&aPos<totalLen){
     var px=BL+(aPos/totalLen)*beamW;
-    var pArrTop=aTop,pArrBot=beamY-5;
-    svg+='<line x1="'+px+'" y1="'+pArrTop+'" x2="'+px+'" y2="'+(pArrBot-6)+'" stroke="#7b1fa2" stroke-width="3"/>';
-    svg+='<polygon points="'+px+','+pArrBot+' '+(px-5)+','+(pArrBot-10)+' '+(px+5)+','+(pArrBot-10)+'" fill="#7b1fa2"/>';
-    svg+='<text x="'+px+'" y="'+(pArrTop-3)+'" text-anchor="middle" font-size="9" font-weight="bold" fill="#7b1fa2">Pd='+Ppd.toFixed(1)+'t</text>';
+    var ptop=3,pbot=beamY;
+    // dashed vertical position line
+    svg+='<line x1="'+px.toFixed(1)+'" y1="'+aTop+'" x2="'+px.toFixed(1)+'" y2="'+pbot+'" stroke="#7b1fa2" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
+    // solid arrow shaft above UDL level
+    svg+='<line x1="'+px.toFixed(1)+'" y1="'+ptop+'" x2="'+px.toFixed(1)+'" y2="'+(pbot-9)+'" stroke="#7b1fa2" stroke-width="4"/>';
+    svg+='<polygon points="'+px.toFixed(1)+','+pbot+' '+(px-7).toFixed(1)+','+(pbot-12)+' '+(px+7).toFixed(1)+','+(pbot-12)+'" fill="#7b1fa2"/>';
+    // label: left or right of arrow to avoid center overlap
+    var anchor=px>VW/2?'end':'start',lxPt=px>VW/2?(px-9):(px+9);
+    svg+='<text x="'+lxPt.toFixed(1)+'" y="'+(ptop+11)+'" text-anchor="'+anchor+'" font-size="9.5" font-weight="bold" fill="#7b1fa2">P='+Ppd.toFixed(2)+'t</text>';
+    svg+='<text x="'+lxPt.toFixed(1)+'" y="'+(ptop+22)+'" text-anchor="'+anchor+'" font-size="8" fill="#7b1fa2">a='+aPos.toFixed(2)+'m</text>';
   }
   svg+='</svg>';
   return svg;
@@ -902,20 +895,42 @@ function calcShear(){
   var cp=g('con1').value.split(',');var fck=+cp[0];
   var fsd=v('steel1'),b=v('b1'),d=v('d1'),rholPct=v('rho1'),Vd=v('V1');
   var bm=b/100,dm=d/100,dmm=d*10;
+  var isSlab=document.querySelector('input[name="stype1"]:checked').value==='slab';
+  // Angle θ for variable strut angle model §6.2.3
+  var theta=Math.min(45,Math.max(26.5,parseFloat((g('theta1')||{}).value)||45));
+  var thetaRad=theta*Math.PI/180;
+  var cotT=Math.cos(thetaRad)/Math.sin(thetaRad);
+  var tanT=1/cotT;
+  // §6.2.2 concrete shear capacity
   var rL=Math.min(rholPct/100,0.02),K=Math.min(1+Math.sqrt(200/dmm),2);
   var Vc=0.12*K*Math.pow(100*rL*fck,1/3)*bm*dm*100;
   var VU=Math.max(Vc,0.035*Math.pow(K,1.5)*Math.sqrt(fck)*bm*dm*100);
-  var Vm=0.18*(1-fck/250)*fck*0.9*bm*dm*100;
-  var needsStir=(Vd>VU)&&(Vd<=Vm);
-  // avCm = required Asv/sv [cm²/cm], derived correctly from units
-  var avCm=needsStir?(Vd-VU)*10000/(fsd*0.9*d):0;
+  // §6.2.3 max shear (θ=45°) and angle-adjusted
+  var Vm45=0.18*(1-fck/250)*fck*0.9*bm*dm*100; // Vrd,max at θ=45°
+  var VmT=Vm45*2/(cotT+tanT); // Vrd,max at angle θ
+  // Optimal angle (minimum stirrups while Vrd,max(θ)≥Vd)
+  var thetaOpt=45,cotOpt=1;
+  if(Vd>0&&Vd<=Vm45){
+    var r=Vm45/Vd;var disc=r*r-1;
+    if(disc>=0){cotOpt=Math.min(r+Math.sqrt(disc),2); // cotθ clamped to [1,2] → θ∈[26.5°,45°]
+      cotOpt=Math.max(1,cotOpt);thetaOpt=Math.atan(1/cotOpt)*180/Math.PI;}
+  }
+  var needsStir=(Vd>VU)&&(Vd<=VmT);
+  var avCm=needsStir?(Vd-VU)*10000/(fsd*0.9*d*cotT):0;
   var svMax=Math.min(Math.floor(0.75*d/5)*5,40); // IS-466 s,max [cm]
-  var h2='<div class="rg">'+rb('K',K.toFixed(3),'')+rb('ρl',rholPct.toFixed(3),'%','input')+rb('Vrd,c',VU.toFixed(2),'t')+rb('Vrd,max',Vm.toFixed(2),'t')+'</div>';
-  h2+='<div class="status-report">'+statusItem(Vd<=VU,'Vd = '+Vd.toFixed(2)+' t','vs Vrd,c = '+VU.toFixed(2),'t',Vd<=VU?'(ללא ברזל אזיקים)':'(נדרשים אזיקים!)')+statusItem(Vd<=Vm,'Vd = '+Vd.toFixed(2)+' t','vs Vrd,max = '+Vm.toFixed(2),'t',Vd<=Vm?'(גזירה תקינה)':'(הגדל חתך!)')+'</div>';
+  var h2='<div class="rg">'+rb('K',K.toFixed(3),'')+rb('ρl',rholPct.toFixed(3),'%','input')+rb('θ',theta.toFixed(1),'°','§6.2.3')+rb('Vrd,c',VU.toFixed(2),'t','§6.2.2')+rb('Vrd,max(45°)',Vm45.toFixed(2),'t','§6.2.3')+rb('Vrd,max(θ)',VmT.toFixed(2),'t','cotθ='+cotT.toFixed(2))+rb('θ_opt',thetaOpt.toFixed(1),'°','זווית מיטבית')+'</div>';
+  h2+='<div class="status-report">'+statusItem(Vd<=VU,'Vd = '+Vd.toFixed(2)+' t','vs Vrd,c = '+VU.toFixed(2),'t',Vd<=VU?'(ללא חישוקים חוזק)':'(נדרשים חישוקים!)')+statusItem(Vd<=VmT,'Vd = '+Vd.toFixed(2)+' t','vs Vrd,max(θ) = '+VmT.toFixed(2),'t',Vd<=VmT?'(גזירה תקינה)':'(הגדל חתך!)')+'</div>';
+  // Slab guidance
+  if(isSlab&&Vd>VU){
+    h2+='<div style="margin:10px 0;padding:10px 14px;background:#e3f2fd;border-right:4px solid #1565c0;border-radius:6px;font-size:.87rem">';
+    h2+='<b>תקרה — גזירה:</b> מומלץ להגדיל עובי התקרה לפני שמוסיפים חישוקים. ';
+    h2+='אם נדרשים חישוקים בתקרה יש להשתמש בחישוקי U (ספייקים) עם אורכי עיגון מלאים. ';
+    h2+='עבור תקרה שטוחה — יש לבדוק ניקוב (§6.4) בנפרד.</div>';
+  }
   // Stirrup recommendation table
-  h2+='<div style="margin-top:14px"><b>טבלת חישוקים / קלמרות</b>';
-  if(needsStir)h2+='<div style="font-size:.78rem;color:#555;margin:3px 0 5px">Asv,req/s = '+(avCm*10).toFixed(3)+' cm²/10cm | s,max = '+svMax+' cm (0.75d)</div>';
-  else if(Vd>Vm)h2+='<div style="font-size:.78rem;color:#c62828;margin:3px 0 5px">⚠ Vd > Vrd,max — הגדל חתך!</div>';
+  h2+='<div style="margin-top:14px"><b>טבלת חישוקים / קלמרות — θ = '+theta.toFixed(1)+'°</b>';
+  if(needsStir)h2+='<div style="font-size:.78rem;color:#555;margin:3px 0 5px">Asv,req/s = '+(avCm*10).toFixed(3)+' cm²/10cm | s,max = '+svMax+' cm (0.75d) | cotθ = '+cotT.toFixed(2)+'</div>';
+  else if(Vd>VmT)h2+='<div style="font-size:.78rem;color:#c62828;margin:3px 0 5px">⚠ Vd > Vrd,max(θ) — הגדל חתך!</div>';
   else h2+='<div style="font-size:.78rem;color:#2e7d32;margin:3px 0 5px">Vrd,c ≥ Vd — חישוקים קונסטרוקטיביים בלבד</div>';
   h2+='<div style="overflow-x:auto"><table><tr><th>∅</th><th>רגליים</th><th>Asv [cm²]</th><th>s מחושב [cm]</th><th>s מומלץ [cm]</th><th>הערה</th></tr>';
   [{phi:6,legs:2},{phi:8,legs:2},{phi:10,legs:2},{phi:12,legs:2},{phi:8,legs:4},{phi:10,legs:4}].forEach(function(opt){
@@ -932,8 +947,8 @@ function calcShear(){
       }
     }else{
       svCalc=null;svRec=Math.min(20,svMax);
-      bg=(Vd<=Vm)?'background:#f1f8e9':'background:#ffebee';
-      note=(Vd<=Vm)?'קונסטרוקטיבי':'—';
+      bg=(Vd<=VmT)?'background:#f1f8e9':'background:#ffebee';
+      note=(Vd<=VmT)?'קונסטרוקטיבי':'—';
     }
     h2+='<tr style="'+bg+'"><td><b>∅'+opt.phi+'</b></td><td>'+opt.legs+'</td><td>'+Atot.toFixed(3)+'</td>';
     h2+='<td>'+(svCalc!==null?(svCalc<5?'< 5':svCalc.toFixed(1)):'—')+'</td>';
