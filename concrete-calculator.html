@@ -59,6 +59,7 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
 #t0 .card h2{border-bottom-color:#e65100;color:#e65100}#t0 .rb{border-right-color:#e65100}#t0 .rb strong{color:#e65100}
 #t1 .card h2{border-bottom-color:#b71c1c;color:#b71c1c}#t1 .rb{border-right-color:#b71c1c}#t1 .rb strong{color:#b71c1c}
 #t2 .card h2{border-bottom-color:#1b5e20;color:#1b5e20}#t2 .rb{border-right-color:#1b5e20}#t2 .rb strong{color:#1b5e20}
+#tF .card h2{border-bottom-color:#e65100;color:#e65100}#tF .rb{border-right-color:#e65100}#tF .rb strong{color:#e65100}
 </style></head>
 <body>
 <header><div><h1>&#x1F4D0; גיליונות חישוב ברזל</h1><p>ת"י 466 חלק 1 — מבני בטון מזוין</p></div><div class="badge">IS-466</div></header>
@@ -72,6 +73,7 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
   <button class="tab" onclick="show(6,this)">התמירות</button>
   <button class="tab" onclick="show(7,this)">תכונות בטון</button>
   <button class="tab" onclick="show(8,this)">שטחי ברזל</button>
+  <button class="tab" onclick="show('F',this)">יסודות מנופים</button>
 </div>
 
 <!-- ══ t0 כפיפה ══ -->
@@ -294,6 +296,77 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
     <div class="card">
       <h2>&#x1F4CA; דיאגרמת גזירה [t]</h2>
       <div class="chart-wrap"><canvas id="beamSChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ tF יסודות מנופים ══ -->
+<div class="content" id="tF">
+  <div class="tab-grid cols2">
+    <div class="card">
+      <h2>יסוד מנוף — נתוני קלט</h2>
+      <div class="fg"><label>סוג מנוף</label>
+        <select id="craneType" onchange="updateCraneUI()">
+          <option value="embedded">שתול — שליפה + לחיצה + כוח אופקי</option>
+          <option value="chassis">שאסי — לחיצה בלבד</option>
+        </select>
+      </div>
+      <hr style="border:none;border-top:1px solid #dde;margin:8px 0">
+      <div style="font-size:.85rem;font-weight:700;color:#e65100;margin-bottom:6px">ממדי יסוד</div>
+      <div class="fg"><label>A [m] — אורך יסוד</label><input id="crA" type="number" value="4.0" step="0.5"></div>
+      <div class="fg"><label>B_f [m] — רוחב יסוד</label><input id="crBf" type="number" value="4.0" step="0.5"></div>
+      <div class="fg"><label>D [m] — עומק / גובה יסוד</label><input id="crD" type="number" value="2.0" step="0.25"></div>
+      <div class="fg"><label>a_leg [m] — גודל רגל מנוף (חולייה)</label><input id="crLeg" type="number" value="1.8" step="0.1"></div>
+      <hr style="border:none;border-top:1px solid #dde;margin:8px 0">
+      <div style="font-size:.85rem;font-weight:700;color:#e65100;margin-bottom:6px">עומסים מיצרן / קטלוג</div>
+      <div class="fg"><label>N1 — לחיצה מקסימלית מרגל [t]</label><input id="crN1" type="number" value="180" step="5"></div>
+      <div id="crTenRow" class="fg"><label>N2 — שליפה מקסימלית מרגל [t]</label><input id="crN2" type="number" value="120" step="5"></div>
+      <div id="crHRow" class="fg"><label>Fh — כוח אופקי [t]</label><input id="crFh" type="number" value="30" step="5"></div>
+      <div id="crMRow" class="fg"><label>M — מומנט בבסיס יסוד [t·m]</label><input id="crM" type="number" value="200" step="10"></div>
+      <hr style="border:none;border-top:1px solid #dde;margin:8px 0">
+      <div style="font-size:.85rem;font-weight:700;color:#e65100;margin-bottom:6px">חומרים (ת"י — B40 מינימום למנופים)</div>
+      <div class="fg"><label>בטון</label><select id="crCon"><option value="1740,100,35.7,40" selected>B40</option><option value="2170,117,41.8,50">B50</option></select></div>
+      <div class="fg"><label>פלדה</label><select id="crSteel"><option value="34800,400">B400</option><option value="43500,500" selected>B500</option></select></div>
+      <hr style="border:none;border-top:1px solid #dde;margin:8px 0">
+      <div style="font-size:.85rem;font-weight:700;color:#e65100;margin-bottom:6px">נתוני קרקע</div>
+      <div class="fg"><label>σ_allow [t/m²] — תסבולת מותרת</label><input id="crSig" type="number" value="20" step="5"></div>
+      <div class="fg"><label>δ [°] — זווית חיכוך (ממדוח קרקע)</label><input id="crDelta" type="number" value="30" step="5"></div>
+      <hr style="border:none;border-top:1px solid #dde;margin:8px 0">
+      <div style="font-size:.85rem;font-weight:700;color:#e65100;margin-bottom:6px">פיגורות — חדירה / שליפה (§6.4)</div>
+      <div class="fg"><label>קוטר פיגורה [mm]</label>
+        <select id="crPhiF"><option value="16">∅16</option><option value="20" selected>∅20</option><option value="25">∅25</option><option value="28">∅28</option><option value="32">∅32</option></select>
+      </div>
+      <div class="fg"><label>זווית פיגורות α [°]</label>
+        <select id="crAlpha"><option value="45">45°</option><option value="60" selected>60°</option></select>
+      </div>
+      <button class="btn" onclick="calcCrane()">חשב</button>
+    </div>
+    <div class="card">
+      <h2>נוסחאות — יסודות מנופים (פרק 7 / IS-466)</h2>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">משקל</span>W_sw = A·B·D·2.5 [t]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">מומנט כולל</span>M_max = M + Fh·D [t·m]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">קרקע</span>σmax = V/(A·B)·(1+6e/B) ≤ σ_allow</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">החלקה §2.2</span>SW = V·tanδ / Fh ≥ 1.5</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">היפוך §2.3</span>OS = W_sw·(A/2) / (N2·(A/2)+Fh·D+M) ≥ 1.5</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">פיגורות §6.4</span>Pd = max(N1,N2)·1.6 [t]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">פיגורות §6.4</span>T_branch = As·fsd[t/cm²]·sinα [t/ענף]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">פיגורות §6.4</span>n_branches · T_branch ≥ Pd</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">כפיפה §6.1</span>Md = σ_avg·l_cant²/2 [t·m/m]</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">כפיפה §6.1</span>As = Md·10000/(d·(1-ω/2)·fsd) [cm²/m]</div>
+      <div class="legend-box" style="margin-top:10px">
+        <b>מקרא:</b><br>
+        N1 — לחיצה מרגל מנוף | N2 — שליפה מרגל מנוף<br>
+        Fh — כוח אופקי | M — מומנט בבסיס [t·m]<br>
+        פיגורה — חישוק U שתול סביב רגל המנוף<br>
+        ענף — רגל פיגורה אחת חוצה מישור גזירה<br>
+        <b>דגש:</b> בטון B40 מינימום עפ"י יצרן מנוף
+      </div>
+    </div>
+  </div>
+  <div class="tab-grid" style="margin-top:14px">
+    <div class="card" id="resF-card" style="display:none">
+      <h2>תוצאות — יסוד מנוף</h2>
+      <div id="resF"></div>
     </div>
   </div>
 </div>
@@ -1002,5 +1075,152 @@ function calcSlend(){
 /* ── calcArea / buildT ── */
 function calcArea(){var n=Math.round(v('n8')),phi=v('phi8'),bar=B[7];for(var i=0;i<B.length;i++)if(B[i].d==phi){bar=B[i];break;}s('res8','<div class="rg">'+rb(n+' x ∅'+phi,(n*bar.a).toFixed(3),'cm²')+rb('kg/m',(n*bar.d*bar.d*0.00617).toFixed(2),'')+'</div>');}
 function buildT(){var nt=g('nTbl'),st=g('spTbl');if(nt.rows.length>1)return;for(var i=0;i<B.length;i++){var r=nt.insertRow();r.insertCell().textContent='∅'+B[i].d;for(var n=1;n<=8;n++)r.insertCell().textContent=(n*B[i].a).toFixed(2);}var sp=[10,15,20,30];for(var i=0;i<B.length;i++){var r=st.insertRow();r.insertCell().textContent='∅'+B[i].d;for(var j=0;j<sp.length;j++)r.insertCell().textContent=(B[i].a*100/sp[j]).toFixed(2);}}
+/* ── updateCraneUI ── */
+function updateCraneUI(){
+  var isChassis=g('craneType').value==='chassis';
+  g('crTenRow').style.display=isChassis?'none':'block';
+  g('crHRow').style.display=isChassis?'none':'block';
+  g('crMRow').style.display=isChassis?'none':'block';
+}
+
+/* ── calcCrane — crane foundation design ── */
+function calcCrane(){
+  var crType=g('craneType').value;
+  var fndA=v('crA'),fndB=v('crBf'),fndD=v('crD'),aLeg=v('crLeg');
+  var N1=v('crN1');
+  var N2=crType==='embedded'?v('crN2'):0;
+  var Fh=crType==='embedded'?v('crFh'):0;
+  var M_man=crType==='embedded'?v('crM'):0;
+  var conP=g('crCon').value.split(',');
+  var fcd=+conP[0],fctd=+conP[1],fctm=+conP[2],fck=+conP[3];
+  var stlP=g('crSteel').value.split(',');
+  var fsd=+stlP[0],fyk=+stlP[1];
+  var sigAllow=v('crSig'),deltaRad=v('crDelta')*Math.PI/180;
+  var phiF=parseFloat(g('crPhiF').value);
+  var alphaRad=parseFloat(g('crAlpha').value)*Math.PI/180;
+  var fsd_cm2=fsd/10000; // t/cm²: B500→4.35
+
+  // Self-weight
+  var Wsw=fndA*fndB*fndD*2.5; // [t]
+  var Vtotal=N1+Wsw;           // total downward (compression case)
+  var Mmax=M_man+Fh*fndD;      // total moment at base [t·m]
+  var ecc=Mmax/Math.max(Vtotal,0.01);
+
+  // Ground bearing (compression case)
+  var sigMax=(Vtotal/(fndA*fndB))*(1+6*ecc/fndB);
+  var sigMin=(Vtotal/(fndA*fndB))*(1-6*ecc/fndB);
+  var sigAvg=Vtotal/(fndA*fndB);
+  var liftOff=(sigMin<0);
+
+  // Sliding check (compression case gives max friction)
+  var SW=(Vtotal*Math.tan(deltaRad))/Math.max(Fh,0.001);
+
+  // Overturning check: stabilizing = Wsw only (conservative); overturning = uplift+horizontal+moment
+  var Mstab=Wsw*(fndA/2);
+  var Mover=N2*(fndA/2)+Fh*fndD+M_man;
+  var OS=Mstab/Math.max(Mover,0.001);
+
+  // Punching / stirrup (פיגורות) design
+  var Pd=Math.max(N1,N2)*1.6; // factored [t]
+  var As_F=Math.PI*Math.pow(phiF/20,2); // bar area [cm²]
+  var T_br=As_F*fsd_cm2*Math.sin(alphaRad); // capacity per branch [t]
+  var n_req=Math.ceil(Pd/Math.max(T_br,0.001));
+
+  // Suggest arrangements (rows × bars, 3 rows min per side, typical 6-12 bars/row)
+  var sugs=[];
+  [2,3,4].forEach(function(rows){
+    [6,8,10,12].forEach(function(bpr){
+      var n=rows*bpr;
+      if(n>=n_req&&sugs.length<4)sugs.push({rows:rows,bpr:bpr,n:n,cap:n*T_br});
+    });
+  });
+
+  // Bending steel — cantilever from crane leg face
+  var l_cant=(fndA-aLeg)/2; // cantilever span [m]
+  var Md_bend=sigAvg*l_cant*l_cant/2; // [t·m/m] per meter strip
+  var d_cm=fndD*100-9; // effective depth [cm] (75mm cover + ~15mm bar radius ≈ 9cm)
+  var bm_s=1.0,dm_s=d_cm/100; // 1m strip
+  var Mmax_sec=0.32*bm_s*dm_s*dm_s*fcd;
+  var mu=Md_bend/Math.max(bm_s*dm_s*dm_s*fcd,1e-9);
+  if(mu>0.32)mu=0.32; // guard
+  var omega=Math.max(0.1,1-Math.sqrt(Math.max(0,1-2*mu)));
+  var As_req=Md_bend*10000/(dm_s*(1-omega/2)*fsd);
+  var rhoMin=Math.max(0.26*(fctm/10)/fyk,0.0013);
+  var As_min=rhoMin*100*d_cm; // cm²/m (b=100cm, d=d_cm)
+  var As_calc=Math.max(As_req,As_min);
+  var asMinGov=(As_min>As_req);
+
+  // Steel table for bending
+  var spacings=[10,15,20];var diams=[12,14,16,20,25];
+  var cands=[];
+  diams.forEach(function(dia){
+    var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;
+    spacings.forEach(function(sp){var aa=bar.a*100/sp;if(aa>=As_calc*0.99)cands.push({dia:dia,sp:sp,aa:aa});});
+  });
+  cands.sort(function(x,y){return x.aa-y.aa;});
+  var top3={};var tc=0;
+  cands.forEach(function(c){if(tc<3)top3[c.dia+','+c.sp]=(++tc);});
+
+  // Build HTML
+  var h='';
+
+  // Section 1: Load summary
+  h+='<h3 style="margin:6px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F4CB; סיכום עומסים</h3>';
+  h+='<div class="rg">'+rb('W_sw יסוד',Wsw.toFixed(1),'t','A·B·D·2.5')+rb('V כולל (לחיצה)',(N1+Wsw).toFixed(1),'t','N1+Wsw');
+  if(crType==='embedded')h+=rb('V רלוונטי (שליפה)',(Wsw-N2).toFixed(1),'t','Wsw−N2');
+  h+=rb('M_max',Mmax.toFixed(1),'t·m','M+Fh·D')+rb('e = M/V',ecc.toFixed(2),'m','אקסצנטריות')+rb('Pd = max·1.6',Pd.toFixed(1),'t','לפיגורות')+'</div>';
+
+  // Section 2: Safety checks
+  h+='<h3 style="margin:12px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x2705; בדיקות בטיחות</h3>';
+  h+='<div class="status-report">';
+  h+=statusItem(sigMax<=sigAllow,'σmax = '+sigMax.toFixed(1)+' t/m²','≤ '+sigAllow+' t/m²','','תסבולת קרקע');
+  if(liftOff)h+='<div style="padding:6px 12px;margin-bottom:6px;background:#fff3e0;border-right:4px solid #e65100;border-radius:6px;font-size:.85rem">⚠ ניתוק יסוד: σmin = '+sigMin.toFixed(1)+' t/m² &lt; 0 — בדוק שליש/30%</div>';
+  if(crType==='embedded'){
+    h+=statusItem(SW>=1.5,'מקדם החלקה = '+SW.toFixed(2),'≥ 1.5','','V·tanδ/Fh');
+    h+=statusItem(OS>=1.5,'מקדם היפוך = '+OS.toFixed(2),'≥ 1.5','','M_stab/M_over');
+  }
+  h+='</div>';
+
+  // Section 3: פיגורות
+  h+='<h3 style="margin:12px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F527; פיגורות — חדירה ושליפה (§6.4)</h3>';
+  h+='<div class="rg">'+rb('Pd מחושב',Pd.toFixed(1),'t','max(N1,N2)×1.6')+rb('As ∅'+phiF,As_F.toFixed(3),'cm²','לפיגורה')+rb('α זווית',parseFloat(g('crAlpha').value),'°','')+rb('תסבולת/ענף',T_br.toFixed(2),'t','As·fsd·sinα')+rb('ענפים נדרשים',n_req,'','מינימום')+'</div>';
+  h+='<div style="margin-top:10px"><b>סידור פיגורות מומלץ — סביב כל רגל מנוף (עליון ותחתון זהה)</b>';
+  h+='<div style="font-size:.78rem;color:#555;margin:4px 0 5px">+ קלמרות ∅16 @40/40 ס"מ בכל שטח יסוד (פרק 7)</div>';
+  h+='<div style="overflow-x:auto"><table><tr><th>שורות</th><th>פיגורות/שורה</th><th>סה"כ ענפים</th><th>תסבולת [t]</th><th>ניצולת %</th><th></th></tr>';
+  if(sugs.length===0){h+='<tr><td colspan="6" style="color:#c62828;font-weight:700">⚠ לא נמצא פתרון — הגדל קוטר פיגורה</td></tr>';}
+  sugs.forEach(function(sg,idx){
+    var best=idx===0;
+    var bg=best?'background:#b9f6ca;font-weight:800;color:#1b5e20':'';
+    h+='<tr style="'+bg+'"><td>'+sg.rows+'</td><td>'+sg.bpr+'</td><td>'+sg.n+'</td><td>'+sg.cap.toFixed(1)+'</td><td>'+(Pd/sg.cap*100).toFixed(0)+'%</td><td>'+(best?'★ מומלץ':'✓')+'</td></tr>';
+  });
+  h+='</table></div></div>';
+
+  // Section 4: Bending
+  h+='<h3 style="margin:14px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F4D0; ברזל כפיפה — יסוד (§6.1)</h3>';
+  h+='<div class="rg">'+rb('l_cant = (A−a_leg)/2',l_cant.toFixed(2),'m','זרוע מהרגל לקצה')+rb('σ_avg',sigAvg.toFixed(2),'t/m²','V/(A·B)')+rb('Md',Md_bend.toFixed(2),'t·m/m','σ·l²/2')+rb('d',d_cm.toFixed(0),'cm','D−9cm')+rb('μ',mu.toFixed(4),'')+rb('As,req',As_req.toFixed(2),'cm²/m')+rb('As,min',As_min.toFixed(2),'cm²/m','ρmin·b·d')+rb('As,calc',As_calc.toFixed(2),'cm²/m',asMinGov?'⚠ מינימום קובע':'max(req,min)')+'</div>';
+  if(asMinGov)h+='<div style="margin:6px 0;padding:8px 12px;background:#fff3e0;border-right:4px solid #e65100;border-radius:4px;font-size:.88rem;color:#bf360c">⚠ ברזל מינימלי קובע — ת"י 466 §9.2.1.1</div>';
+  h+='<div style="margin-top:10px"><b>טבלת ברזל — As,calc = '+As_calc.toFixed(2)+' cm²/m</b>';
+  h+='<div style="font-size:.78rem;color:#555;margin:3px 0 4px">★ מומלץ | ▲ 2nd | ▽ 3rd</div>';
+  h+='<div style="overflow-x:auto"><table><tr><th>∅ [mm]</th>';
+  spacings.forEach(function(sp){h+='<th>@'+sp+' cm</th>';});h+='</tr>';
+  diams.forEach(function(dia){
+    var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;
+    h+='<tr><td><b>∅'+dia+'</b></td>';
+    spacings.forEach(function(sp){
+      var aa=bar.a*100/sp,key=dia+','+sp,rank=top3[key],st='';
+      if(rank===1)st='background:#b9f6ca;font-weight:800;color:#1b5e20;border:2px solid #2e7d32';
+      else if(rank===2)st='background:#c8e6c9;font-weight:700;color:#2e7d32';
+      else if(rank===3)st='background:#dcedc8;font-weight:600;color:#33691e';
+      else if(aa>=As_calc*0.99&&aa<As_calc*1.6)st='background:#f1f8e9';
+      h+='<td'+(st?' style="'+st+'"':'')+'>'+aa.toFixed(2)+(rank===1?' ★':rank===2?' ▲':rank===3?' ▽':'')+'</td>';
+    });h+='</tr>';
+  });
+  h+='</table></div></div>';
+
+  h+='<div class="legend-box" style="margin-top:14px"><b>הערות חשובות:</b><br>• בטון מינימלי B40 — הרכבת מנוף רק לאחר הגעה לחוזק מלא<br>• ברזל שליפה בכלונסאות: σ_allowed = 200 MPa (200 t/m² × As_כלונס)<br>• לבדיקת ניקוב מלאה ובדיקת תסבולת קרקע — השתמש ב-STRAP/FOUND<br>• פיגורות עליונות ותחתונות — כמות זהה, לפי המחמיר</div>';
+
+  s('resF',h);showCard('resF-card');
+}
+
 calcSpec();buildT();updatePd();
 </script></body></html>
