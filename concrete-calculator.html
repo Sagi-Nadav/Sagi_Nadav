@@ -332,12 +332,31 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
       <div class="fg"><label>σ_allow [t/m²] — תסבולת מותרת</label><input id="crSig" type="number" value="20" step="5"></div>
       <div class="fg"><label>δ [°] — זווית חיכוך (ממדוח קרקע)</label><input id="crDelta" type="number" value="30" step="5"></div>
       <hr style="border:none;border-top:1px solid #dde;margin:8px 0">
-      <div style="font-size:.85rem;font-weight:700;color:#e65100;margin-bottom:6px">פיגורות — חדירה / שליפה (§6.4)</div>
-      <div class="fg"><label>קוטר פיגורה [mm]</label>
-        <select id="crPhiF"><option value="16">∅16</option><option value="20" selected>∅20</option><option value="25">∅25</option><option value="28">∅28</option><option value="32">∅32</option></select>
+      <div style="font-size:.85rem;font-weight:700;color:#e65100;margin-bottom:6px">פיגורות — לפי פרט משרדי CR-DETAILS</div>
+      <div class="fg"><label>כמות פיגורות בכל פאה (n)</label>
+        <select id="crNpF">
+          <option value="1">n=1 — 8 ענפים/רגל (סוג א)</option>
+          <option value="2" selected>n=2 — 16 ענפים/רגל (סוג ב)</option>
+          <option value="3">n=3 — 24 ענפים/רגל (סוג ג)</option>
+          <option value="4">n=4 — 32 ענפים/רגל (סוג ד)</option>
+        </select>
       </div>
-      <div class="fg"><label>זווית פיגורות α [°]</label>
-        <select id="crAlpha"><option value="45">45°</option><option value="60" selected>60°</option></select>
+      <div class="fg"><label>∅ פיגורות T1/B1 אלכסוניות 59° [mm]</label>
+        <select id="crPhiF">
+          <option value="16">∅16</option><option value="20" selected>∅20</option>
+          <option value="25">∅25</option><option value="28">∅28</option><option value="32">∅32</option>
+        </select>
+      </div>
+      <div class="stype" style="margin:6px 0 8px">
+        <span>ניצבות T2/B2 45°:</span>
+        <label><input type="checkbox" id="crAddPerp" onchange="updateCraneUI()"> הוסף פיגורות ניצבות</label>
+      </div>
+      <div id="crPhiF2Row" class="fg" style="display:none">
+        <label>∅ פיגורות T2/B2 ניצבות 45° [mm]</label>
+        <select id="crPhiF2">
+          <option value="16">∅16</option><option value="20" selected>∅20</option>
+          <option value="25">∅25</option>
+        </select>
       </div>
       <button class="btn" onclick="calcCrane()">חשב</button>
     </div>
@@ -349,17 +368,20 @@ td{padding:6px 8px;border-bottom:1px solid #e8edf2;text-align:center}tr:nth-chil
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">החלקה §2.2</span>SW = V·tanδ / Fh ≥ 1.5</div>
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">היפוך §2.3</span>OS = W_sw·(A/2) / (N2·(A/2)+Fh·D+M) ≥ 1.5</div>
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">פיגורות §6.4</span>Pd = max(N1,N2)·1.6 [t]</div>
-      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">פיגורות §6.4</span>T_branch = As·fsd[t/cm²]·sinα [t/ענף]</div>
-      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">פיגורות §6.4</span>n_branches · T_branch ≥ Pd</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">T1/B1 59°</span>T₁ = As·fsd·sin(59°) | n₁ = n·8 ענפים/רגל</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">T2/B2 45°</span>T₂ = As·fsd·sin(45°) | n₂ = 8 ענפים/רגל (אם נבחר)</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">בדיקה §6.4</span>n₁·T₁ + n₂·T₂ ≥ Pd</div>
+      <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">גובה פיגורות</span>חצי @ D-20cm, חצי @ D-24cm</div>
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">כפיפה §6.1</span>Md = σ_avg·l_cant²/2 [t·m/m]</div>
       <div class="f"><span style="color:#888;font-size:.8rem;margin-left:8px">כפיפה §6.1</span>As = Md·10000/(d·(1-ω/2)·fsd) [cm²/m]</div>
       <div class="legend-box" style="margin-top:10px">
         <b>מקרא:</b><br>
         N1 — לחיצה מרגל מנוף | N2 — שליפה מרגל מנוף<br>
         Fh — כוח אופקי | M — מומנט בבסיס [t·m]<br>
-        פיגורה — חישוק U שתול סביב רגל המנוף<br>
-        ענף — רגל פיגורה אחת חוצה מישור גזירה<br>
-        <b>דגש:</b> בטון B40 מינימום עפ"י יצרן מנוף
+        T1/B1 — פיגורות אלכסוניות 59° סביב רגל המנוף<br>
+        T2/B2 — פיגורות ניצבות 45° (תוספת לחוזק)<br>
+        גובה: חצי @ D-20, חצי @ D-24 | עיגון: 60∅<br>
+        <b>דגש:</b> B40 מינימום | ∅16@40/40 בכל שטח יסוד
       </div>
     </div>
   </div>
@@ -1081,6 +1103,275 @@ function updateCraneUI(){
   g('crTenRow').style.display=isChassis?'none':'block';
   g('crHRow').style.display=isChassis?'none':'block';
   g('crMRow').style.display=isChassis?'none':'block';
+  var hasPerp=g('crAddPerp')&&g('crAddPerp').checked;
+  if(g('crPhiF2Row'))g('crPhiF2Row').style.display=hasPerp?'block':'none';
+}
+
+/* ── drawCranePlan — SVG plan view of crane foundation ── */
+function drawCranePlan(fndA,fndB,aLeg,nPF,hasPerp){
+  var W=360,H=360,pad=48;
+  var scale=Math.min((W-2*pad)/fndA,(H-2*pad)/fndB);
+  var fW=fndA*scale,fH=fndB*scale;
+  var ox=(W-fW)/2,oy=(H-fH)/2;
+  var lW=aLeg*scale,lH=aLeg*scale;
+  var lx=W/2-lW/2,ly=H/2-lH/2;
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="border:1px solid #dde;border-radius:8px;background:#f5f8fc;display:block">';
+  svg+='<text x="'+(W/2)+'" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#e65100">תוכנית — ראייה מלמעלה</text>';
+  // Mesh grid (∅16@40)
+  var meshPx=0.40*scale;
+  svg+='<g opacity="0.25" stroke="#1565c0" stroke-width="0.6">';
+  for(var gx=ox;gx<ox+fW;gx+=meshPx)svg+='<line x1="'+gx.toFixed(1)+'" y1="'+oy.toFixed(1)+'" x2="'+gx.toFixed(1)+'" y2="'+(oy+fH).toFixed(1)+'"/>';
+  for(var gy=oy;gy<oy+fH;gy+=meshPx)svg+='<line x1="'+ox.toFixed(1)+'" y1="'+gy.toFixed(1)+'" x2="'+(ox+fW).toFixed(1)+'" y2="'+gy.toFixed(1)+'"/>';
+  svg+='</g>';
+  // Foundation
+  svg+='<rect x="'+ox.toFixed(1)+'" y="'+oy.toFixed(1)+'" width="'+fW.toFixed(1)+'" height="'+fH.toFixed(1)+'" fill="none" stroke="#1e3a5f" stroke-width="2.5"/>';
+  // T1 stirrups — diagonal from near crane leg corners going out to each face
+  var stOff=0.06*scale; // small offset from crane leg face
+  var stLen=Math.min(0.25*scale, 30); // stirrup extent in px
+  var stColor='#7b1fa2'; // purple for T1/B1
+  // For each of 4 faces, draw n_per_face stirrups as lines
+  // Top face: lines going up from above crane leg
+  var spaces=[];
+  for(var si=0;si<nPF;si++){
+    var frac=(si+1)/(nPF+1);
+    spaces.push(frac);
+  }
+  // Draw T1/B1 stirrups as U-symbols viewed from above (diagonal lines on each face)
+  spaces.forEach(function(frac){
+    // Top face
+    var sx=lx+frac*lW; var sy=ly-stOff;
+    svg+='<line x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+sx.toFixed(1)+'" y2="'+(sy-stLen).toFixed(1)+'" stroke="'+stColor+'" stroke-width="2.2"/>';
+    svg+='<polygon points="'+sx.toFixed(1)+','+(sy-stLen).toFixed(1)+' '+(sx-4).toFixed(1)+','+(sy-stLen+7).toFixed(1)+' '+(sx+4).toFixed(1)+','+(sy-stLen+7).toFixed(1)+'" fill="'+stColor+'"/>';
+    // Bottom face
+    var sy2=ly+lH+stOff;
+    svg+='<line x1="'+sx.toFixed(1)+'" y1="'+sy2.toFixed(1)+'" x2="'+sx.toFixed(1)+'" y2="'+(sy2+stLen).toFixed(1)+'" stroke="'+stColor+'" stroke-width="2.2"/>';
+    svg+='<polygon points="'+sx.toFixed(1)+','+(sy2+stLen).toFixed(1)+' '+(sx-4).toFixed(1)+','+(sy2+stLen-7).toFixed(1)+' '+(sx+4).toFixed(1)+','+(sy2+stLen-7).toFixed(1)+'" fill="'+stColor+'"/>';
+    // Left face
+    var fy=ly+frac*lH; var sx3=lx-stOff;
+    svg+='<line x1="'+sx3.toFixed(1)+'" y1="'+fy.toFixed(1)+'" x2="'+(sx3-stLen).toFixed(1)+'" y2="'+fy.toFixed(1)+'" stroke="'+stColor+'" stroke-width="2.2"/>';
+    svg+='<polygon points="'+(sx3-stLen).toFixed(1)+','+fy.toFixed(1)+' '+(sx3-stLen+7).toFixed(1)+','+(fy-4).toFixed(1)+' '+(sx3-stLen+7).toFixed(1)+','+(fy+4).toFixed(1)+'" fill="'+stColor+'"/>';
+    // Right face
+    var sx4=lx+lW+stOff;
+    svg+='<line x1="'+sx4.toFixed(1)+'" y1="'+fy.toFixed(1)+'" x2="'+(sx4+stLen).toFixed(1)+'" y2="'+fy.toFixed(1)+'" stroke="'+stColor+'" stroke-width="2.2"/>';
+    svg+='<polygon points="'+(sx4+stLen).toFixed(1)+','+fy.toFixed(1)+' '+(sx4+stLen-7).toFixed(1)+','+(fy-4).toFixed(1)+' '+(sx4+stLen-7).toFixed(1)+','+(fy+4).toFixed(1)+'" fill="'+stColor+'"/>';
+  });
+  // T2/B2 perpendicular stirrups at face centers (if selected)
+  if(hasPerp){
+    var pColor='#1565c0';var pLen=Math.min(0.20*scale,22);
+    var midX=W/2,midY=H/2;
+    // Top face center
+    svg+='<line x1="'+midX.toFixed(1)+'" y1="'+ly.toFixed(1)+'" x2="'+midX.toFixed(1)+'" y2="'+(ly-pLen).toFixed(1)+'" stroke="'+pColor+'" stroke-width="2" stroke-dasharray="4,2"/>';
+    // Bottom face center
+    svg+='<line x1="'+midX.toFixed(1)+'" y1="'+(ly+lH).toFixed(1)+'" x2="'+midX.toFixed(1)+'" y2="'+(ly+lH+pLen).toFixed(1)+'" stroke="'+pColor+'" stroke-width="2" stroke-dasharray="4,2"/>';
+    // Left face center
+    svg+='<line x1="'+lx.toFixed(1)+'" y1="'+midY.toFixed(1)+'" x2="'+(lx-pLen).toFixed(1)+'" y2="'+midY.toFixed(1)+'" stroke="'+pColor+'" stroke-width="2" stroke-dasharray="4,2"/>';
+    // Right face center
+    svg+='<line x1="'+(lx+lW).toFixed(1)+'" y1="'+midY.toFixed(1)+'" x2="'+(lx+lW+pLen).toFixed(1)+'" y2="'+midY.toFixed(1)+'" stroke="'+pColor+'" stroke-width="2" stroke-dasharray="4,2"/>';
+    svg+='<text x="'+(lx+lW+pLen+4)+'" y="'+(midY+4)+'" font-size="7.5" fill="'+pColor+'">T2/B2</text>';
+  }
+  // Crane leg
+  svg+='<rect x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" width="'+lW.toFixed(1)+'" height="'+lH.toFixed(1)+'" fill="#888" stroke="#333" stroke-width="2"/>';
+  svg+='<text x="'+(W/2)+'" y="'+(H/2+4)+'" text-anchor="middle" font-size="8" fill="#fff" font-weight="bold">רגל מנוף</text>';
+  svg+='<text x="'+(W/2)+'" y="'+(H/2+13)+'" text-anchor="middle" font-size="7" fill="#eee">'+aLeg+'×'+aLeg+' m</text>';
+  // Legend
+  svg+='<circle cx="12" cy="'+(H-32)+'" r="4" fill="'+stColor+'"/>';
+  svg+='<text x="19" y="'+(H-28)+'" font-size="8" fill="'+stColor+'">T1/B1 — 59° ('+nPF+' פיגורות/פאה)</text>';
+  if(hasPerp){
+    svg+='<line x1="8" y1="'+(H-18)+'" x2="18" y2="'+(H-18)+'" stroke="#1565c0" stroke-width="2" stroke-dasharray="4,2"/>';
+    svg+='<text x="22" y="'+(H-14)+'" font-size="8" fill="#1565c0">T2/B2 — 45° ניצבות</text>';
+  }
+  svg+='<line x1="8" y1="'+(H-8)+'" x2="18" y2="'+(H-8)+'" stroke="#1565c0" stroke-width="1" opacity="0.5"/>';
+  svg+='<text x="22" y="'+(H-4)+'" font-size="7.5" fill="#555">∅16@40/40 בכל שטח יסוד</text>';
+  // Dimension A
+  var dimY=oy-18;
+  svg+='<line x1="'+ox.toFixed(1)+'" y1="'+dimY+'" x2="'+(ox+fW).toFixed(1)+'" y2="'+dimY+'" stroke="#333" stroke-width="1"/>';
+  svg+='<text x="'+(W/2)+'" y="'+(dimY-4)+'" text-anchor="middle" font-size="9" fill="#333" font-weight="bold">A = '+fndA+' m</text>';
+  // Dimension B (right side)
+  var dimX=ox+fW+18;
+  svg+='<line x1="'+dimX+'" y1="'+oy.toFixed(1)+'" x2="'+dimX+'" y2="'+(oy+fH).toFixed(1)+'" stroke="#333" stroke-width="1"/>';
+  svg+='<text x="'+(dimX+12)+'" y="'+(H/2+4)+'" text-anchor="middle" font-size="9" fill="#333" font-weight="bold" transform="rotate(90,'+(dimX+12)+','+(H/2)+')">B = '+fndB+' m</text>';
+  svg+='</svg>';
+  return svg;
+}
+
+/* ── drawCraneSection — SVG cross-section of crane foundation ── */
+function drawCraneSection(fndA,fndD,aLeg,nPF,hasPerp,phiF1,phiF2,Pd,T_br1,T_br2){
+  var W=480,H=400,pad=60,padT=50,padB=60;
+  var scale=Math.min((W-2*pad)/fndA,(H-padT-padB)/fndD);
+  var fW=fndA*scale, fH=fndD*scale;
+  var ox=(W-fW)/2, oy=padT;
+  var lW=aLeg*scale;
+  var lx=W/2-lW/2;
+  // Foundation
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="border:1px solid #dde;border-radius:8px;background:#f5f8fc;display:block">';
+  svg+='<text x="'+(W/2)+'" y="18" text-anchor="middle" font-size="10" font-weight="bold" fill="#e65100">חתך 1-1 — רוחבי</text>';
+  // Hatching defs for concrete
+  svg+='<defs><pattern id="conc" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#b0c4d8" stroke-width="0.6"/></pattern></defs>';
+  // Foundation block
+  svg+='<rect x="'+ox.toFixed(1)+'" y="'+oy+'" width="'+fW.toFixed(1)+'" height="'+fH.toFixed(1)+'" fill="#dce6f3" stroke="#1e3a5f" stroke-width="2"/>';
+  svg+='<rect x="'+ox.toFixed(1)+'" y="'+oy+'" width="'+fW.toFixed(1)+'" height="'+fH.toFixed(1)+'" fill="url(#conc)" opacity="0.35"/>';
+  // Lean concrete (5cm)
+  var leanH=0.05*scale;
+  svg+='<rect x="'+ox.toFixed(1)+'" y="'+(oy+fH).toFixed(1)+'" width="'+fW.toFixed(1)+'" height="'+leanH.toFixed(1)+'" fill="#ccc" stroke="none" opacity="0.6"/>';
+  svg+='<text x="'+(W/2)+'" y="'+(oy+fH+leanH+10).toFixed(1)+'" text-anchor="middle" font-size="7.5" fill="#555">בטון רזה 5 ס"מ</text>';
+  // Crane leg (embedded, from top down to embedding depth ~70cm min, here full D for simplicity)
+  var legEmbedH=Math.min(0.9*fH, fH); // embed almost full depth
+  svg+='<rect x="'+lx.toFixed(1)+'" y="'+oy+'" width="'+lW.toFixed(1)+'" height="'+legEmbedH.toFixed(1)+'" fill="#9e9e9e" stroke="#333" stroke-width="1.5" opacity="0.85"/>';
+  svg+='<text x="'+(W/2)+'" y="'+(oy+legEmbedH/2+4)+'" text-anchor="middle" font-size="8" fill="#fff" font-weight="bold">רגל מנוף</text>';
+  // Horizontal ∅16@40 mesh (simplified — a few lines)
+  var meshSpac=0.40*scale;
+  svg+='<g stroke="#1565c0" stroke-width="1" opacity="0.5">';
+  for(var my=oy+meshSpac;my<oy+fH-meshSpac*0.5;my+=meshSpac){
+    svg+='<line x1="'+(ox+5)+'" y1="'+my.toFixed(1)+'" x2="'+(ox+fW-5)+'" y2="'+my.toFixed(1)+'" stroke-dasharray="6,4"/>';
+  }
+  svg+='</g>';
+  // Cover = 5cm
+  var cov=0.05*scale;
+  // T1/B1 stirrups (diagonal 59°, shown as angled lines going through foundation)
+  var stColor='#7b1fa2';
+  var legFaceL=lx, legFaceR=lx+lW;
+  var alpha1=59*Math.PI/180; // 59 degrees
+  // For T1 (upper): stirrups at D-20 level, going diagonal from near leg face outward at 59°
+  var h20=0.20*scale, h24=0.24*scale; // heights from top of foundation
+  // Left side stirrups
+  for(var si=0;si<nPF;si++){
+    var offset=(si+0.5)*0.08*scale;
+    // T1 diagonal from bottom of crane leg going up-left at 59°
+    var x1=legFaceL-offset; var y1=oy+legEmbedH;
+    var len=0.5*scale;
+    var x2=x1-len*Math.cos(alpha1); var y2=y1-len*Math.sin(alpha1);
+    svg+='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+Math.max(ox+5,x2).toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+stColor+'" stroke-width="2"/>';
+    // B1: below the leg plate — same but going down-left
+    var x1b=legFaceL-offset; var y1b=oy+legEmbedH;
+    var y2b=y1b+len*Math.sin(alpha1)*0.5;
+    svg+='<line x1="'+x1b.toFixed(1)+'" y1="'+y1b.toFixed(1)+'" x2="'+Math.max(ox+5,x2).toFixed(1)+'" y2="'+y2b.toFixed(1)+'" stroke="'+stColor+'" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.7"/>';
+  }
+  // Right side (mirror)
+  for(var si=0;si<nPF;si++){
+    var offset=(si+0.5)*0.08*scale;
+    var x1=legFaceR+offset; var y1=oy+legEmbedH;
+    var len=0.5*scale;
+    var x2=x1+len*Math.cos(alpha1); var y2=y1-len*Math.sin(alpha1);
+    svg+='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+Math.min(ox+fW-5,x2).toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+stColor+'" stroke-width="2"/>';
+    var y2b=y1+len*Math.sin(alpha1)*0.5;
+    svg+='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+Math.min(ox+fW-5,x2).toFixed(1)+'" y2="'+y2b.toFixed(1)+'" stroke="'+stColor+'" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.7"/>';
+  }
+  // Height labels D-20 and D-24
+  var yD20=oy+fH-h20; var yD24=oy+fH-h24;
+  svg+='<line x1="'+(ox+fW+5)+'" y1="'+yD20.toFixed(1)+'" x2="'+(ox+fW+22)+'" y2="'+yD20.toFixed(1)+'" stroke="#e65100" stroke-width="1" stroke-dasharray="3,2"/>';
+  svg+='<text x="'+(ox+fW+24)+'" y="'+(yD20+4).toFixed(1)+'" font-size="7.5" fill="#e65100">D-20</text>';
+  svg+='<line x1="'+(ox+fW+5)+'" y1="'+yD24.toFixed(1)+'" x2="'+(ox+fW+22)+'" y2="'+yD24.toFixed(1)+'" stroke="#e65100" stroke-width="1" stroke-dasharray="3,2"/>';
+  svg+='<text x="'+(ox+fW+24)+'" y="'+(yD24+4).toFixed(1)+'" font-size="7.5" fill="#e65100">D-24</text>';
+  // Perpendicular stirrups (T2/B2) if selected — vertical line at crane leg face
+  if(hasPerp){
+    svg+='<line x1="'+legFaceL.toFixed(1)+'" y1="'+oy+'" x2="'+legFaceL.toFixed(1)+'" y2="'+(oy+fH*0.8).toFixed(1)+'" stroke="#1565c0" stroke-width="2" stroke-dasharray="5,3"/>';
+    svg+='<line x1="'+legFaceR.toFixed(1)+'" y1="'+oy+'" x2="'+legFaceR.toFixed(1)+'" y2="'+(oy+fH*0.8).toFixed(1)+'" stroke="#1565c0" stroke-width="2" stroke-dasharray="5,3"/>';
+  }
+  // 70cm min embedding label
+  var emb70H=Math.min(0.70*scale,legEmbedH);
+  svg+='<line x1="'+(ox-5)+'" y1="'+oy+'" x2="'+(ox-22)+'" y2="'+oy+'" stroke="#555" stroke-width="1"/>';
+  svg+='<line x1="'+(ox-5)+'" y1="'+(oy+emb70H).toFixed(1)+'" x2="'+(ox-22)+'" y2="'+(oy+emb70H).toFixed(1)+'" stroke="#555" stroke-width="1"/>';
+  svg+='<line x1="'+(ox-14)+'" y1="'+oy+'" x2="'+(ox-14)+'" y2="'+(oy+emb70H).toFixed(1)+'" stroke="#555" stroke-width="1"/>';
+  svg+='<text x="'+(ox-28)+'" y="'+(oy+emb70H/2+4).toFixed(1)+'" text-anchor="middle" font-size="7.5" fill="#555" transform="rotate(-90,'+(ox-28)+','+(oy+emb70H/2)+')">70cm min</text>';
+  // D dimension (right side)
+  var dimX2=ox+fW+52;
+  svg+='<line x1="'+dimX2+'" y1="'+oy+'" x2="'+dimX2+'" y2="'+(oy+fH).toFixed(1)+'" stroke="#333" stroke-width="1"/>';
+  svg+='<line x1="'+(dimX2-5)+'" y1="'+oy+'" x2="'+(dimX2+5)+'" y2="'+oy+'" stroke="#333" stroke-width="1"/>';
+  svg+='<line x1="'+(dimX2-5)+'" y1="'+(oy+fH).toFixed(1)+'" x2="'+(dimX2+5)+'" y2="'+(oy+fH).toFixed(1)+'" stroke="#333" stroke-width="1"/>';
+  svg+='<text x="'+(dimX2+12)+'" y="'+(oy+fH/2+4).toFixed(1)+'" text-anchor="middle" font-size="9" fill="#333" font-weight="bold" transform="rotate(90,'+(dimX2+12)+','+(oy+fH/2)+')">D = '+fndD+' m</text>';
+  // A dimension (bottom)
+  var dimY2=oy+fH+leanH+22;
+  svg+='<line x1="'+ox.toFixed(1)+'" y1="'+dimY2+'" x2="'+(ox+fW).toFixed(1)+'" y2="'+dimY2+'" stroke="#333" stroke-width="1"/>';
+  svg+='<text x="'+(W/2)+'" y="'+(dimY2+14)+'" text-anchor="middle" font-size="9" fill="#333" font-weight="bold">A = '+fndA+' m</text>';
+  // Legend
+  svg+='<circle cx="'+(ox+8)+'" cy="'+(oy+fH-30)+'" r="3.5" fill="'+stColor+'"/>';
+  svg+='<text x="'+(ox+14)+'" y="'+(oy+fH-26)+'" font-size="7.5" fill="'+stColor+'">T1/B1 (59°) — '+nPF+'/פאה</text>';
+  if(hasPerp){svg+='<line x1="'+(ox+5)+'" y1="'+(oy+fH-18)+'" x2="'+(ox+14)+'" y2="'+(oy+fH-18)+'" stroke="#1565c0" stroke-width="1.5" stroke-dasharray="4,2"/>';svg+='<text x="'+(ox+17)+'" y="'+(oy+fH-14)+'" font-size="7.5" fill="#1565c0">T2/B2 (45°)</text>';}
+  svg+='</svg>';
+  return svg;
+}
+
+/* ── drawCalcSketch — SVG calculation methodology diagram ── */
+function drawCalcSketch(fndA,fndD,aLeg,Pd,T_br1,T_br2,n_T1,n_T2,l_cant,sigAvg,Md_bend){
+  var W=500,H=380;
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="border:1px solid #dde;border-radius:8px;background:#f9f9f9;display:block">';
+  svg+='<text x="'+(W/2)+'" y="16" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1e3a5f">סכמת חישוב — בסיס לבדיקה הנדסית</text>';
+
+  // ── Left diagram: Force model ──
+  var cx=90, cy=130; // center of crane leg in diagram
+  var lWd=40, lHd=60; // crane leg px
+  // Foundation block
+  svg+='<rect x="30" y="'+(cy-lHd/2)+'" width="120" height="'+(lHd+50)+'" fill="#dce6f3" stroke="#1e3a5f" stroke-width="1.5" rx="2"/>';
+  // Crane leg
+  svg+='<rect x="'+(cx-lWd/2)+'" y="'+(cy-lHd/2)+'" width="'+lWd+'" height="'+lHd+'" fill="#9e9e9e" stroke="#333" stroke-width="1.5"/>';
+  svg+='<text x="'+cx+'" y="'+cy+'" text-anchor="middle" font-size="7" fill="#fff">רגל</text>';
+  // N1 force (down)
+  svg+='<line x1="'+cx+'" y1="'+(cy-lHd/2-35)+'" x2="'+cx+'" y2="'+(cy-lHd/2-5)+'" stroke="#c62828" stroke-width="3"/>';
+  svg+='<polygon points="'+cx+','+(cy-lHd/2)+' '+(cx-6)+','+(cy-lHd/2-10)+' '+(cx+6)+','+(cy-lHd/2-10)+'" fill="#c62828"/>';
+  svg+='<text x="'+(cx+10)+'" y="'+(cy-lHd/2-20)+'" font-size="8.5" fill="#c62828" font-weight="bold">N1 (לחיצה)</text>';
+  // N2 force (up) — dashed
+  svg+='<line x1="'+cx+'" y1="'+(cy+lHd/2+35)+'" x2="'+cx+'" y2="'+(cy+lHd/2+5)+'" stroke="#7b1fa2" stroke-width="3" stroke-dasharray="5,3"/>';
+  svg+='<polygon points="'+cx+','+(cy+lHd/2)+' '+(cx-6)+','+(cy+lHd/2+10)+' '+(cx+6)+','+(cy+lHd/2+10)+'" fill="#7b1fa2"/>';
+  svg+='<text x="'+(cx+10)+'" y="'+(cy+lHd/2+28)+'" font-size="8.5" fill="#7b1fa2" font-weight="bold">N2 (שליפה)</text>';
+  // Fh (horizontal)
+  svg+='<line x1="'+(cx+lWd/2)+'" y1="'+cy+'" x2="'+(cx+lWd/2+40)+'" y2="'+cy+'" stroke="#e65100" stroke-width="2.5"/>';
+  svg+='<polygon points="'+(cx+lWd/2+44)+','+cy+' '+(cx+lWd/2+34)+','+(cy-5)+' '+(cx+lWd/2+34)+','+(cy+5)+'" fill="#e65100"/>';
+  svg+='<text x="'+(cx+lWd/2+10)+'" y="'+(cy-8)+'" font-size="8" fill="#e65100">Fh</text>';
+  svg+='<text x="30" y="'+(cy+lHd/2+70)+'" font-size="8" fill="#555" font-weight="bold">מודל כוחות</text>';
+
+  // ── Center diagram: Punching shear cone ──
+  var px2=220,py2=80,coneW=80,coneH=110;
+  svg+='<rect x="'+(px2-coneW/2)+'" y="'+(py2+10)+'" width="'+coneW+'" height="'+coneH+'" fill="#dce6f3" stroke="#1e3a5f" stroke-width="1.5" rx="2"/>';
+  // Crane leg at top
+  var legWc=30;
+  svg+='<rect x="'+(px2-legWc/2)+'" y="'+py2+'" width="'+legWc+'" height="45" fill="#9e9e9e" stroke="#333" stroke-width="1"/>';
+  // Shear cone lines at 59°
+  var coneAng=59*Math.PI/180;
+  var coneLen=70;
+  var coneX1L=px2-legWc/2, coneX1R=px2+legWc/2, coneY1=py2+45;
+  var coneX2L=coneX1L-coneLen*Math.cos(coneAng),coneX2R=coneX1R+coneLen*Math.cos(coneAng);
+  var coneY2=coneY1+coneLen*Math.sin(coneAng);
+  svg+='<line x1="'+coneX1L.toFixed(1)+'" y1="'+coneY1+'" x2="'+coneX2L.toFixed(1)+'" y2="'+coneY2.toFixed(1)+'" stroke="#c62828" stroke-width="1.5" stroke-dasharray="5,3"/>';
+  svg+='<line x1="'+coneX1R.toFixed(1)+'" y1="'+coneY1+'" x2="'+coneX2R.toFixed(1)+'" y2="'+coneY2.toFixed(1)+'" stroke="#c62828" stroke-width="1.5" stroke-dasharray="5,3"/>';
+  svg+='<text x="'+(px2+legWc/2+5)+'" y="'+(coneY1+25)+'" font-size="8.5" fill="#c62828">59°</text>';
+  // Stirrup crossing the cone
+  var midCX=coneX1R+10, midCY=coneY1+20;
+  var stLen2=30;
+  svg+='<line x1="'+midCX+'" y1="'+(midCY-stLen2/2)+'" x2="'+midCX+'" y2="'+(midCY+stLen2/2)+'" stroke="#7b1fa2" stroke-width="3"/>';
+  svg+='<polygon points="'+midCX+','+(midCY+stLen2/2)+' '+(midCX-4)+','+(midCY+stLen2/2-8)+' '+(midCX+4)+','+(midCY+stLen2/2-8)+'" fill="#7b1fa2"/>';
+  svg+='<text x="'+(midCX+8)+'" y="'+(midCY+4)+'" font-size="7.5" fill="#7b1fa2">T_br</text>';
+  // Pd label
+  svg+='<text x="'+px2+'" y="'+(py2-8)+'" text-anchor="middle" font-size="8.5" fill="#c62828" font-weight="bold">Pd = '+Pd.toFixed(0)+' t</text>';
+  // Formula box
+  svg+='<rect x="'+(px2-60)+'" y="'+(py2+coneH+25)+'" width="120" height="38" fill="#fff3e0" stroke="#e65100" stroke-width="1" rx="4"/>';
+  svg+='<text x="'+px2+'" y="'+(py2+coneH+39)+'" text-anchor="middle" font-size="7.5" fill="#333">T_br1 = As·fsd·sin59° = '+T_br1.toFixed(2)+'t</text>';
+  svg+='<text x="'+px2+'" y="'+(py2+coneH+53)+'" text-anchor="middle" font-size="7.5" fill="#333">n₁×T_br1 '+(n_T2>0?'+ n₂×T_br2':'')+' ≥ Pd</text>';
+  svg+='<text x="'+px2+'" y="'+(py2+coneH+70)+'" text-anchor="middle" font-size="8" fill="#555" font-weight="bold">פיגורות — חדירה §6.4</text>';
+
+  // ── Right diagram: Bending cantilever ──
+  var bx=390,by=50,bW=90,bH=80;
+  svg+='<rect x="'+(bx-bW/2)+'" y="'+(by+bH/2)+'" width="'+bW+'" height="50" fill="#dce6f3" stroke="#1e3a5f" stroke-width="1.5" rx="2"/>';
+  // Crane leg as fixed support
+  svg+='<rect x="'+(bx-15)+'" y="'+by+'" width="30" height="'+bH/2+'" fill="#9e9e9e" stroke="#333" stroke-width="1"/>';
+  // Upward arrows (soil pressure)
+  var nArr2=4;
+  for(var ai=0;ai<nArr2;ai++){
+    var ax2=bx-bW/2+8+(ai+0.5)*bW/nArr2;
+    svg+='<line x1="'+ax2.toFixed(1)+'" y1="'+(by+bH/2+50)+'" x2="'+ax2.toFixed(1)+'" y2="'+(by+bH/2+20)+'" stroke="#2e7d32" stroke-width="1.5"/>';
+    svg+='<polygon points="'+ax2.toFixed(1)+','+(by+bH/2+16)+' '+(ax2-4).toFixed(1)+','+(by+bH/2+24)+' '+(ax2+4).toFixed(1)+','+(by+bH/2+24)+'" fill="#2e7d32"/>';
+  }
+  svg+='<text x="'+bx+'" y="'+(by+bH/2+68)+'" text-anchor="middle" font-size="7.5" fill="#2e7d32">σ = '+sigAvg.toFixed(1)+' t/m²</text>';
+  // l_cant dimension
+  svg+='<line x1="'+(bx+15)+'" y1="'+(by+bH/2+8)+'" x2="'+(bx+bW/2)+'" y2="'+(by+bH/2+8)+'" stroke="#2a5298" stroke-width="1.5"/>';
+  svg+='<polygon points="'+(bx+bW/2)+','+(by+bH/2+8)+' '+(bx+bW/2-8)+','+(by+bH/2+4)+' '+(bx+bW/2-8)+','+(by+bH/2+12)+'" fill="#2a5298"/>';
+  svg+='<text x="'+(bx+bW/2+4)+'" y="'+(by+bH/2+12)+'" font-size="7.5" fill="#2a5298">l = '+l_cant.toFixed(2)+'m</text>';
+  // Formula box
+  svg+='<rect x="'+(bx-60)+'" y="'+(by+bH/2+80)+'" width="120" height="38" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1" rx="4"/>';
+  svg+='<text x="'+bx+'" y="'+(by+bH/2+94)+'" text-anchor="middle" font-size="7.5" fill="#333">Md = σ·l²/2 = '+Md_bend.toFixed(1)+' t·m/m</text>';
+  svg+='<text x="'+bx+'" y="'+(by+bH/2+108)+'" text-anchor="middle" font-size="7.5" fill="#333">→ As כפיפה לפי §6.1</text>';
+  svg+='<text x="'+bx+'" y="'+(by+bH/2+122)+'" text-anchor="middle" font-size="8" fill="#555" font-weight="bold">כפיפה — זיז §6.1</text>';
+  svg+='</svg>';
+  return svg;
 }
 
 /* ── calcCrane — crane foundation design ── */
@@ -1096,129 +1387,96 @@ function calcCrane(){
   var stlP=g('crSteel').value.split(',');
   var fsd=+stlP[0],fyk=+stlP[1];
   var sigAllow=v('crSig'),deltaRad=v('crDelta')*Math.PI/180;
+  var nPF=parseInt((g('crNpF')||{value:'2'}).value)||2;
   var phiF=parseFloat(g('crPhiF').value);
-  var alphaRad=parseFloat(g('crAlpha').value)*Math.PI/180;
-  var fsd_cm2=fsd/10000; // t/cm²: B500→4.35
-
+  var hasPerp=g('crAddPerp')&&g('crAddPerp').checked;
+  var phiF2=hasPerp?parseFloat(g('crPhiF2').value):0;
+  var fsd_cm2=fsd/10000;
+  // Stirrup areas
+  var As_F1=Math.PI*Math.pow(phiF/20,2);
+  var As_F2=hasPerp?Math.PI*Math.pow(phiF2/20,2):0;
+  // Branch capacities (59° for T1/B1, 45° for T2/B2)
+  var alpha1=59*Math.PI/180, alpha2=45*Math.PI/180;
+  var T_br1=As_F1*fsd_cm2*Math.sin(alpha1);
+  var T_br2=hasPerp?As_F2*fsd_cm2*Math.sin(alpha2):0;
+  // Branch counts per leg
+  // T1/B1: nPF per face × 4 faces × 2 levels (upper+lower) = nPF×8
+  var n_T1=nPF*8;
+  // T2/B2: 1 per face × 4 faces × 2 levels = 8 (one per face always for perpendicular)
+  var n_T2=hasPerp?8:0;
+  var totalCap=n_T1*T_br1+n_T2*T_br2;
   // Self-weight
-  var Wsw=fndA*fndB*fndD*2.5; // [t]
-  var Vtotal=N1+Wsw;           // total downward (compression case)
-  var Mmax=M_man+Fh*fndD;      // total moment at base [t·m]
+  var Wsw=fndA*fndB*fndD*2.5;
+  var Vtotal=N1+Wsw;
+  var Mmax=M_man+Fh*fndD;
   var ecc=Mmax/Math.max(Vtotal,0.01);
-
-  // Ground bearing (compression case)
+  // Ground bearing
   var sigMax=(Vtotal/(fndA*fndB))*(1+6*ecc/fndB);
   var sigMin=(Vtotal/(fndA*fndB))*(1-6*ecc/fndB);
   var sigAvg=Vtotal/(fndA*fndB);
   var liftOff=(sigMin<0);
-
-  // Sliding check (compression case gives max friction)
+  // Sliding & overturning
   var SW=(Vtotal*Math.tan(deltaRad))/Math.max(Fh,0.001);
-
-  // Overturning check: stabilizing = Wsw only (conservative); overturning = uplift+horizontal+moment
   var Mstab=Wsw*(fndA/2);
   var Mover=N2*(fndA/2)+Fh*fndD+M_man;
   var OS=Mstab/Math.max(Mover,0.001);
-
-  // Punching / stirrup (פיגורות) design
-  var Pd=Math.max(N1,N2)*1.6; // factored [t]
-  var As_F=Math.PI*Math.pow(phiF/20,2); // bar area [cm²]
-  var T_br=As_F*fsd_cm2*Math.sin(alphaRad); // capacity per branch [t]
-  var n_req=Math.ceil(Pd/Math.max(T_br,0.001));
-
-  // Suggest arrangements (rows × bars, 3 rows min per side, typical 6-12 bars/row)
-  var sugs=[];
-  [2,3,4].forEach(function(rows){
-    [6,8,10,12].forEach(function(bpr){
-      var n=rows*bpr;
-      if(n>=n_req&&sugs.length<4)sugs.push({rows:rows,bpr:bpr,n:n,cap:n*T_br});
-    });
-  });
-
-  // Bending steel — cantilever from crane leg face
-  var l_cant=(fndA-aLeg)/2; // cantilever span [m]
-  var Md_bend=sigAvg*l_cant*l_cant/2; // [t·m/m] per meter strip
-  var d_cm=fndD*100-9; // effective depth [cm] (75mm cover + ~15mm bar radius ≈ 9cm)
-  var bm_s=1.0,dm_s=d_cm/100; // 1m strip
-  var Mmax_sec=0.32*bm_s*dm_s*dm_s*fcd;
-  var mu=Md_bend/Math.max(bm_s*dm_s*dm_s*fcd,1e-9);
-  if(mu>0.32)mu=0.32; // guard
+  // Punching (פיגורות) check
+  var Pd=Math.max(N1,N2)*1.6;
+  var stirOK=totalCap>=Pd;
+  // Minimum n_per_face required
+  var nPF_req=Math.ceil((Pd-n_T2*T_br2)/Math.max(8*T_br1,0.001));
+  // Bending steel
+  var l_cant=(fndA-aLeg)/2;
+  var Md_bend=sigAvg*l_cant*l_cant/2;
+  var d_cm=fndD*100-9;
+  var bm_s=1.0,dm_s=d_cm/100;
+  var mu=Math.min(0.32,Md_bend/Math.max(bm_s*dm_s*dm_s*fcd,1e-9));
   var omega=Math.max(0.1,1-Math.sqrt(Math.max(0,1-2*mu)));
   var As_req=Md_bend*10000/(dm_s*(1-omega/2)*fsd);
   var rhoMin=Math.max(0.26*(fctm/10)/fyk,0.0013);
-  var As_min=rhoMin*100*d_cm; // cm²/m (b=100cm, d=d_cm)
+  var As_min=rhoMin*100*d_cm;
   var As_calc=Math.max(As_req,As_min);
   var asMinGov=(As_min>As_req);
-
-  // Steel table for bending
-  var spacings=[10,15,20];var diams=[12,14,16,20,25];
+  // Steel table
+  var spacings=[10,15,20],diams=[12,14,16,20,25];
   var cands=[];
-  diams.forEach(function(dia){
-    var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;
-    spacings.forEach(function(sp){var aa=bar.a*100/sp;if(aa>=As_calc*0.99)cands.push({dia:dia,sp:sp,aa:aa});});
-  });
+  diams.forEach(function(dia){var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;spacings.forEach(function(sp){var aa=bar.a*100/sp;if(aa>=As_calc*0.99)cands.push({dia:dia,sp:sp,aa:aa});});});
   cands.sort(function(x,y){return x.aa-y.aa;});
-  var top3={};var tc=0;
-  cands.forEach(function(c){if(tc<3)top3[c.dia+','+c.sp]=(++tc);});
-
-  // Build HTML
+  var top3={};var tc=0;cands.forEach(function(c){if(tc<3)top3[c.dia+','+c.sp]=(++tc);});
+  // ── Build HTML output ──
   var h='';
-
-  // Section 1: Load summary
+  // Drawings row
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">';
+  h+='<div>'+drawCranePlan(fndA,fndB,aLeg,nPF,hasPerp)+'<div style="font-size:.75rem;color:#555;text-align:center;margin-top:3px">תוכנית — פיגורות סביב רגל מנוף</div></div>';
+  h+='<div>'+drawCraneSection(fndA,fndD,aLeg,nPF,hasPerp,phiF,phiF2,Pd,T_br1,T_br2)+'<div style="font-size:.75rem;color:#555;text-align:center;margin-top:3px">חתך 1-1 — T1/B1 59° (מלא) T2/B2 45° (מקווקו)</div></div>';
+  h+='</div>';
+  // Calculation sketch full width
+  h+='<div style="margin-bottom:14px">'+drawCalcSketch(fndA,fndD,aLeg,Pd,T_br1,T_br2,n_T1,n_T2,l_cant,sigAvg,Md_bend)+'<div style="font-size:.75rem;color:#555;text-align:center;margin-top:3px">סכמת בסיס חישוב — מודל כוחות | חרוט גזירה | זיז כפיפה</div></div>';
+  // Section 1: Loads
   h+='<h3 style="margin:6px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F4CB; סיכום עומסים</h3>';
-  h+='<div class="rg">'+rb('W_sw יסוד',Wsw.toFixed(1),'t','A·B·D·2.5')+rb('V כולל (לחיצה)',(N1+Wsw).toFixed(1),'t','N1+Wsw');
-  if(crType==='embedded')h+=rb('V רלוונטי (שליפה)',(Wsw-N2).toFixed(1),'t','Wsw−N2');
-  h+=rb('M_max',Mmax.toFixed(1),'t·m','M+Fh·D')+rb('e = M/V',ecc.toFixed(2),'m','אקסצנטריות')+rb('Pd = max·1.6',Pd.toFixed(1),'t','לפיגורות')+'</div>';
-
+  h+='<div class="rg">'+rb('W_sw יסוד',Wsw.toFixed(1),'t','A·B·D·2.5')+rb('V (לחיצה)',(N1+Wsw).toFixed(1),'t','N1+Wsw')+(crType==='embedded'?rb('V (שליפה)',(Wsw-N2).toFixed(1),'t','Wsw−N2'):'')+rb('M_max',Mmax.toFixed(1),'t·m','M+Fh·D')+rb('e',ecc.toFixed(2),'m','M/V')+rb('Pd',Pd.toFixed(1),'t','max(N1,N2)×1.6')+'</div>';
   // Section 2: Safety checks
   h+='<h3 style="margin:12px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x2705; בדיקות בטיחות</h3>';
   h+='<div class="status-report">';
-  h+=statusItem(sigMax<=sigAllow,'σmax = '+sigMax.toFixed(1)+' t/m²','≤ '+sigAllow+' t/m²','','תסבולת קרקע');
-  if(liftOff)h+='<div style="padding:6px 12px;margin-bottom:6px;background:#fff3e0;border-right:4px solid #e65100;border-radius:6px;font-size:.85rem">⚠ ניתוק יסוד: σmin = '+sigMin.toFixed(1)+' t/m² &lt; 0 — בדוק שליש/30%</div>';
-  if(crType==='embedded'){
-    h+=statusItem(SW>=1.5,'מקדם החלקה = '+SW.toFixed(2),'≥ 1.5','','V·tanδ/Fh');
-    h+=statusItem(OS>=1.5,'מקדם היפוך = '+OS.toFixed(2),'≥ 1.5','','M_stab/M_over');
-  }
+  h+=statusItem(sigMax<=sigAllow,'σmax = '+sigMax.toFixed(1)+' t/m²','≤ '+sigAllow+' t/m²','','');
+  if(liftOff)h+='<div style="padding:6px 12px;margin-bottom:6px;background:#fff3e0;border-right:4px solid #e65100;border-radius:6px;font-size:.85rem">⚠ ניתוק: σmin = '+sigMin.toFixed(1)+' t/m² — בדוק שליש/30%</div>';
+  if(crType==='embedded'){h+=statusItem(SW>=1.5,'SW = '+SW.toFixed(2),'≥ 1.5','','V·tanδ/Fh');h+=statusItem(OS>=1.5,'OS = '+OS.toFixed(2),'≥ 1.5','','M_stab/M_over');}
   h+='</div>';
-
-  // Section 3: פיגורות
-  h+='<h3 style="margin:12px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F527; פיגורות — חדירה ושליפה (§6.4)</h3>';
-  h+='<div class="rg">'+rb('Pd מחושב',Pd.toFixed(1),'t','max(N1,N2)×1.6')+rb('As ∅'+phiF,As_F.toFixed(3),'cm²','לפיגורה')+rb('α זווית',parseFloat(g('crAlpha').value),'°','')+rb('תסבולת/ענף',T_br.toFixed(2),'t','As·fsd·sinα')+rb('ענפים נדרשים',n_req,'','מינימום')+'</div>';
-  h+='<div style="margin-top:10px"><b>סידור פיגורות מומלץ — סביב כל רגל מנוף (עליון ותחתון זהה)</b>';
-  h+='<div style="font-size:.78rem;color:#555;margin:4px 0 5px">+ קלמרות ∅16 @40/40 ס"מ בכל שטח יסוד (פרק 7)</div>';
-  h+='<div style="overflow-x:auto"><table><tr><th>שורות</th><th>פיגורות/שורה</th><th>סה"כ ענפים</th><th>תסבולת [t]</th><th>ניצולת %</th><th></th></tr>';
-  if(sugs.length===0){h+='<tr><td colspan="6" style="color:#c62828;font-weight:700">⚠ לא נמצא פתרון — הגדל קוטר פיגורה</td></tr>';}
-  sugs.forEach(function(sg,idx){
-    var best=idx===0;
-    var bg=best?'background:#b9f6ca;font-weight:800;color:#1b5e20':'';
-    h+='<tr style="'+bg+'"><td>'+sg.rows+'</td><td>'+sg.bpr+'</td><td>'+sg.n+'</td><td>'+sg.cap.toFixed(1)+'</td><td>'+(Pd/sg.cap*100).toFixed(0)+'%</td><td>'+(best?'★ מומלץ':'✓')+'</td></tr>';
-  });
+  // Section 3: Stirrups
+  h+='<h3 style="margin:12px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F527; פיגורות §6.4 — '+nPF+' פיגורות/פאה</h3>';
+  h+='<div class="rg">'+rb('Pd',Pd.toFixed(1),'t','')+rb('∅T1/B1 59°',phiF,'mm','')+rb('As_T1',As_F1.toFixed(3),'cm²','')+rb('T_br1',T_br1.toFixed(2),'t/ענף','As·fsd·sin59°')+rb('n_T1 = '+nPF+'×8',n_T1,'ענפים',''+(hasPerp?rb('T_br2',T_br2.toFixed(2),'t/ענף','45°')+rb('n_T2',n_T2,'ענפים',''):'')+rb('תסבולת כוללת',totalCap.toFixed(1),'t','n₁·T₁+n₂·T₂'))+'</div>';
+  h+='<div class="status-report">'+statusItem(stirOK,'תסבולת פיגורות = '+totalCap.toFixed(1)+' t','≥ Pd = '+Pd.toFixed(1),'t','')+'</div>';
+  if(!stirOK)h+='<div style="margin:6px 0;padding:8px 12px;background:#ffebee;border-right:4px solid #c62828;border-radius:4px;font-size:.88rem;color:#b71c1c">⚠ יש להגדיל ל-'+nPF_req+' פיגורות/פאה לפחות (סה"כ '+nPF_req*8+' ענפים)</div>';
+  h+='<div style="font-size:.78rem;color:#555;margin-top:8px">• חצי כמות @ גובה D-20cm, חצי @ D-24cm (עפ"י פרט CR-DETAILS)<br>• קלמרות ∅16@40/40 ס"מ בכל שטח יסוד | עיגון פיגורות: 60∅<br>• כיפוף לעיגון: רדיוס ≥ 4d (∅&lt;20mm) או ≥ 7d (∅≥20mm)</div>';
+  // Section 4: Bending steel
+  h+='<h3 style="margin:14px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F4D0; ברזל כפיפה — יסוד §6.1</h3>';
+  h+='<div class="rg">'+rb('l_cant',l_cant.toFixed(2),'m','(A−a_leg)/2')+rb('σ_avg',sigAvg.toFixed(2),'t/m²','')+rb('Md',Md_bend.toFixed(2),'t·m/m','σ·l²/2')+rb('d',d_cm.toFixed(0),'cm','')+rb('μ',mu.toFixed(4),'')+rb('As,req',As_req.toFixed(2),'cm²/m','')+rb('As,min',As_min.toFixed(2),'cm²/m','')+rb('As,calc',As_calc.toFixed(2),'cm²/m',asMinGov?'⚠ מינימום':'')+'</div>';
+  if(asMinGov)h+='<div style="margin:6px 0;padding:8px 12px;background:#fff3e0;border-right:4px solid #e65100;border-radius:4px;font-size:.88rem;color:#bf360c">⚠ ברזל מינימלי קובע §9.2.1.1</div>';
+  h+='<div style="margin-top:8px"><b>טבלת ברזל — As,calc = '+As_calc.toFixed(2)+' cm²/m</b><div style="font-size:.78rem;color:#555;margin:2px 0 4px">★ מומלץ | ▲ 2nd | ▽ 3rd</div>';
+  h+='<div style="overflow-x:auto"><table><tr><th>∅</th>';spacings.forEach(function(sp){h+='<th>@'+sp+'</th>';});h+='</tr>';
+  diams.forEach(function(dia){var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;h+='<tr><td><b>∅'+dia+'</b></td>';spacings.forEach(function(sp){var aa=bar.a*100/sp,key=dia+','+sp,rank=top3[key],st='';if(rank===1)st='background:#b9f6ca;font-weight:800;color:#1b5e20;border:2px solid #2e7d32';else if(rank===2)st='background:#c8e6c9;color:#2e7d32;font-weight:700';else if(rank===3)st='background:#dcedc8;color:#33691e;font-weight:600';else if(aa>=As_calc*0.99&&aa<As_calc*1.6)st='background:#f1f8e9';h+='<td'+(st?' style="'+st+'"':'')+'>'+aa.toFixed(2)+(rank===1?' ★':rank===2?' ▲':rank===3?' ▽':'')+'</td>';});h+='</tr>';});
   h+='</table></div></div>';
-
-  // Section 4: Bending
-  h+='<h3 style="margin:14px 0 8px;color:#e65100;font-size:.95rem;border-bottom:1px solid #ffe0b2;padding-bottom:4px">&#x1F4D0; ברזל כפיפה — יסוד (§6.1)</h3>';
-  h+='<div class="rg">'+rb('l_cant = (A−a_leg)/2',l_cant.toFixed(2),'m','זרוע מהרגל לקצה')+rb('σ_avg',sigAvg.toFixed(2),'t/m²','V/(A·B)')+rb('Md',Md_bend.toFixed(2),'t·m/m','σ·l²/2')+rb('d',d_cm.toFixed(0),'cm','D−9cm')+rb('μ',mu.toFixed(4),'')+rb('As,req',As_req.toFixed(2),'cm²/m')+rb('As,min',As_min.toFixed(2),'cm²/m','ρmin·b·d')+rb('As,calc',As_calc.toFixed(2),'cm²/m',asMinGov?'⚠ מינימום קובע':'max(req,min)')+'</div>';
-  if(asMinGov)h+='<div style="margin:6px 0;padding:8px 12px;background:#fff3e0;border-right:4px solid #e65100;border-radius:4px;font-size:.88rem;color:#bf360c">⚠ ברזל מינימלי קובע — ת"י 466 §9.2.1.1</div>';
-  h+='<div style="margin-top:10px"><b>טבלת ברזל — As,calc = '+As_calc.toFixed(2)+' cm²/m</b>';
-  h+='<div style="font-size:.78rem;color:#555;margin:3px 0 4px">★ מומלץ | ▲ 2nd | ▽ 3rd</div>';
-  h+='<div style="overflow-x:auto"><table><tr><th>∅ [mm]</th>';
-  spacings.forEach(function(sp){h+='<th>@'+sp+' cm</th>';});h+='</tr>';
-  diams.forEach(function(dia){
-    var bar=null;for(var bj=0;bj<B.length;bj++)if(B[bj].d===dia){bar=B[bj];break;}if(!bar)return;
-    h+='<tr><td><b>∅'+dia+'</b></td>';
-    spacings.forEach(function(sp){
-      var aa=bar.a*100/sp,key=dia+','+sp,rank=top3[key],st='';
-      if(rank===1)st='background:#b9f6ca;font-weight:800;color:#1b5e20;border:2px solid #2e7d32';
-      else if(rank===2)st='background:#c8e6c9;font-weight:700;color:#2e7d32';
-      else if(rank===3)st='background:#dcedc8;font-weight:600;color:#33691e';
-      else if(aa>=As_calc*0.99&&aa<As_calc*1.6)st='background:#f1f8e9';
-      h+='<td'+(st?' style="'+st+'"':'')+'>'+aa.toFixed(2)+(rank===1?' ★':rank===2?' ▲':rank===3?' ▽':'')+'</td>';
-    });h+='</tr>';
-  });
-  h+='</table></div></div>';
-
-  h+='<div class="legend-box" style="margin-top:14px"><b>הערות חשובות:</b><br>• בטון מינימלי B40 — הרכבת מנוף רק לאחר הגעה לחוזק מלא<br>• ברזל שליפה בכלונסאות: σ_allowed = 200 MPa (200 t/m² × As_כלונס)<br>• לבדיקת ניקוב מלאה ובדיקת תסבולת קרקע — השתמש ב-STRAP/FOUND<br>• פיגורות עליונות ותחתונות — כמות זהה, לפי המחמיר</div>';
-
+  h+='<div class="legend-box" style="margin-top:14px"><b>הערות:</b><br>• B40 מינימום — הרכבה רק לאחר הגעה לחוזק מלא<br>• כיסוי בטון 5 ס"מ (יסוד בקשר עם קרקע: ≥75mm עפ"י IS-466)<br>• לבדיקת ניקוב מלאה ותסבולת קרקע — ראה STRAP/FOUND</div>';
   s('resF',h);showCard('resF-card');
 }
 
