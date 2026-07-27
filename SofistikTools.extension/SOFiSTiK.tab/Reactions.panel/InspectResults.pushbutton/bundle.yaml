@@ -1,0 +1,8 @@
+title:
+  en_us: Inspect\nResults
+  he: בדיקת\nתוצאות
+tooltip: >
+  Read-only check of the SOFiSTiK result objects in the active view:
+  reports their category, API class, parameters, and whether Revit
+  allows scheduling them. Changes nothing in the model.
+author: Sagi Nadav
