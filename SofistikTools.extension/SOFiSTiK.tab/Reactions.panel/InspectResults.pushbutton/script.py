@@ -24,7 +24,7 @@ uidoc = revit.uidoc
 active_view = doc.ActiveView
 
 # Categories worth inspecting in detail even when nothing is selected.
-INTERESTING_HINTS = ('analysis', 'sofistik', 'result', 'structural connection')
+INTERESTING_HINTS = ('analytic', 'analysis', 'sofistik', 'result', 'node')
 
 
 def safe_name(element):

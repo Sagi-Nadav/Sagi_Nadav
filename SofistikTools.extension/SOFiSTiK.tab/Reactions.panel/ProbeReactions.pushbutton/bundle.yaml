@@ -1,0 +1,6 @@
+title: Probe Reactions
+tooltip: >
+  Read-only probe of the AVF result data and the Analytical Nodes that
+  will carry the reaction values. Reports whether the values can be read
+  back from Revit, and what join key exists on the nodes.
+author: Sagi Nadav
