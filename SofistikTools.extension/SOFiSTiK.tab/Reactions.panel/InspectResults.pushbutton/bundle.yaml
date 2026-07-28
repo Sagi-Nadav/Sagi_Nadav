@@ -1,6 +1,4 @@
-title:
-  en_us: Inspect\nResults
-  he: בדיקת\nתוצאות
+title: Inspect Results
 tooltip: >
   Read-only check of the SOFiSTiK result objects in the active view:
   reports their category, API class, parameters, and whether Revit
