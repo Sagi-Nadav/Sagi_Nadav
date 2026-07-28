@@ -35,6 +35,14 @@ def safe_name(element):
         return ''
 
 
+def eid_value(element_id):
+    """ElementId.IntegerValue was removed in Revit 2026; Value replaces it."""
+    try:
+        return element_id.Value
+    except AttributeError:
+        return element_id.IntegerValue
+
+
 def param_value(param):
     """Best-effort readable value for a parameter of any storage type."""
     storage = param.StorageType
@@ -42,10 +50,10 @@ def param_value(param):
         return param.AsString() or ''
     if storage == DB.StorageType.ElementId:
         eid = param.AsElementId()
-        if eid is None or eid.IntegerValue < 0:
+        if eid is None or eid_value(eid) < 0:
             return ''
         target = doc.GetElement(eid)
-        return safe_name(target) if target else str(eid.IntegerValue)
+        return safe_name(target) if target else str(eid_value(eid))
     # Double and Integer both format nicely through AsValueString.
     return param.AsValueString() or ''
 
@@ -166,7 +174,7 @@ for el in targets:
     cat = category_of(el)
     cat_name = cat.Name if cat is not None else '<no category>'
 
-    output.print_md('### {} - id {}'.format(cat_name, el.Id.IntegerValue))
+    output.print_md('### {} - id {}'.format(cat_name, eid_value(el.Id)))
     output.print_md('- **API class:** `{}`'.format(el.GetType().FullName))
     output.print_md('- **Schedulable category:** {}'.format(
         'YES' if is_schedulable(cat) else 'NO'

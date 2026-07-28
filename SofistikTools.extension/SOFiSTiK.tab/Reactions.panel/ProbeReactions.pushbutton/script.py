@@ -33,16 +33,24 @@ def safe_name(element):
         return ''
 
 
+def eid_value(element_id):
+    """ElementId.IntegerValue was removed in Revit 2026; Value replaces it."""
+    try:
+        return element_id.Value
+    except AttributeError:
+        return element_id.IntegerValue
+
+
 def param_value(param):
     storage = param.StorageType
     if storage == DB.StorageType.String:
         return param.AsString() or ''
     if storage == DB.StorageType.ElementId:
         eid = param.AsElementId()
-        if eid is None or eid.IntegerValue < 0:
+        if eid is None or eid_value(eid) < 0:
             return ''
         target = doc.GetElement(eid)
-        return safe_name(target) if target else str(eid.IntegerValue)
+        return safe_name(target) if target else str(eid_value(eid))
     return param.AsValueString() or ''
 
 
@@ -149,7 +157,7 @@ for cat_name, elements in samples:
     for el in elements:
         if el is None:
             continue
-        output.print_md('### {} - id {}'.format(cat_name, el.Id.IntegerValue))
+        output.print_md('### {} - id {}'.format(cat_name, eid_value(el.Id)))
         output.print_md('- **API class:** `{}`'.format(el.GetType().FullName))
         output.print_md('- **Select / zoom:** {}'.format(output.linkify(el.Id)))
 
