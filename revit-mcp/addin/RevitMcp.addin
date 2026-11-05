@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>Revit MCP Bridge</Name>
+    <!-- Full path to the built DLL. install.ps1 rewrites this automatically. -->
+    <Assembly>RevitMcp\RevitMcp.dll</Assembly>
+    <AddInId>7B1C3F4E-2A5D-4E8B-9C11-5D0A6F3E2B71</AddInId>
+    <FullClassName>RevitMcp.App</FullClassName>
+    <VendorId>SAGI</VendorId>
+    <VendorDescription>Revit MCP Bridge for Claude</VendorDescription>
+  </AddIn>
+</RevitAddIns>
